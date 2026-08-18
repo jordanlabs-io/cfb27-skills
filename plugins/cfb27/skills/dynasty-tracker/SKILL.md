@@ -7,7 +7,7 @@ description: Capture and retrieve the user's own College Football 27 dynasty/lea
 
 Track the user's real CFB 27 saves — roster, recruiting board, rival tendencies, season history — so Claude can strategize from durable knowledge of his actual dynasty, fused with the strategy `wiki/`. Data lives in `dynasties/<slug>/`. The payoff is **retrieval** (scouting reports, recruiting fits), not storage.
 
-Pilot dynasty: **Stanford** (online league, 3 real people). More dynasties get added to the same schema later.
+Active dynasties: **North Carolina** — the primary save (7-person online league; subject of the film-room, scouting-report, and newsletter pipelines) — plus **Stanford** and **Oregon State**. All three share one schema.
 
 ## Isolation invariant (non-negotiable)
 
@@ -24,7 +24,7 @@ The user dumps whatever he remembers, in any order, however messy — often late
 - **Tolerate mess.** Parse the dump, file every fact you can place, and move on.
 - **At most ONE clarifying question** per update, and only if something genuinely can't be filed without it. Never run an interview.
 - **Loose ends.** Facts the user mentioned but couldn't fully specify (an OVR he doesn't remember, a recruit whose stars are unknown) go into the `## Loose ends` section of `_dynasty.md` — reconciled opportunistically next session, never blocking.
-- **Identify the dynasty first.** Every update must be filed to a specific dynasty. With only Stanford live, assume Stanford. Once multiple dynasties exist and it's ambiguous, **ask — never guess.**
+- **Identify the dynasty first.** Every update must be filed to a specific dynasty. Multiple dynasties are live, so **default to North Carolina** when the user doesn't name one — it is the active save. If context points at another dynasty, or is genuinely ambiguous, **ask — never guess.**
 - After any update session, **run `verify_dynasties.py`** (below) and report failures; don't silently "fix" data.
 
 ## Fan-out rules (one dictated event → all its homes, so nothing drifts)

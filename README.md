@@ -16,7 +16,7 @@ One plugin, `cfb27`, carrying the full toolkit built for the Weef league vault:
 ## Install
 
 ```
-/plugin marketplace add <github-user>/cfb27-skills
+/plugin marketplace add jordanlabs-io/cfb27-skills
 /plugin install cfb27@cfb27-skills
 ```
 
