@@ -47,6 +47,15 @@ Triage signals at intake: URL vs dropped file; `ffprobe` aspect ratio; audio str
 
 ## Pipeline (per game)
 
+0. **Preflight — STOP if this fails. Do not start a charting run you cannot clean up after.**
+   ```bash
+   gws auth status   # must report "token_valid": true
+   du -sh ~/CFB27-film
+   ```
+   - **Dead token → HARD STOP.** Tell the user to run `gws auth login` and wait. Do not proceed to intake. Archival (step 11) is the only thing that frees disk, and it fails *non-fatally* — so an expired token silently converts every run into permanent local storage. This is not a warning you may proceed past; a run started on a dead token is a run whose originals will still be on disk weeks later.
+   - **`~/CFB27-film` over 20GB → STOP and drain the backlog first.** Run step 11 against the un-archived game folders (check each for a `drive_upload.json`; its absence means never archived) before ingesting anything new.
+   - Precedent: on 2026-08-17 the token expired, step 11 failed quietly on every run, and the backlog reached **44GB** across 12 game folders before anyone noticed.
+
 1. **Intake.**
    - Lane A: `yt-dlp -J <url>`; on token-null (auth-gated VOD) use the GQL `seekPreviewsURL` route — see `references/my-games-twitch.md`.
    - Lane B: copy recordings into the workspace; repair moov-less files with untrunc; record per-file offsets + perspective seams in `files.json`; concat-transcode 4:3 → `video.mp4` 1920×1080 CFR30. Recipes in `references/opponent-games-ipad.md`. Archive ORIGINALS; the transcode is a deletable regenerable.
