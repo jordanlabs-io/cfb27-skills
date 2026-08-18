@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @import url('local.css');
+
+  :root{
+    --carolina:#4B9CD3; --navy:#13294B; --bolin:#2C5080; --fordham:#B7D7ED;
+    --cloud:#EDF5FB; --basin:#5B6670; --stone:#CFD3D5; --fog:#ECEDED; --gray:#A2AAAD;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  @page{size:letter;margin:0;}
+  body{font-family:'Open Sans',Arial,sans-serif;color:var(--navy);}
+  .page{width:8.5in;height:11in;position:relative;overflow:hidden;page-break-after:always;background:#fff;}
+  .page:last-child{page-break-after:auto;}
+
+  /* argyle edge strip — the one signature accent, left edge of every page */
+  .argyle-edge{position:absolute;left:0;top:0;bottom:0;width:.22in;background:var(--carolina);z-index:5;}
+  .argyle-edge svg{position:absolute;top:0;left:0;}
+
+  .content{position:absolute;left:.22in;right:0;top:0;bottom:0;}
+
+  /* ---------- page 1 masthead ---------- */
+  .mast{padding:.34in .55in .26in;display:flex;align-items:center;gap:.24in;background:#fff;}
+  .mast img.logo{width:.92in;height:.92in;border-radius:50%;}
+  .mast .wordmark h1{font-family:'Oswald';font-weight:700;font-size:44px;letter-spacing:1.5px;text-transform:uppercase;line-height:1;color:var(--navy);}
+  .mast .wordmark h1 span{color:var(--carolina);}
+  .mast .tag{font-size:9.5px;font-weight:600;letter-spacing:2.6px;text-transform:uppercase;color:var(--basin);margin-top:6px;}
+  .mast .ncchip{margin-left:auto;width:.95in;height:.8in;border-radius:3px;background:#4B9CD3;display:flex;align-items:center;justify-content:center;}
+  .mast .ncchip img{width:72%;height:auto;display:block;}
+
+  .issuebar{background:var(--carolina);color:#fff;font-family:'Oswald';font-weight:600;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;padding:8px .55in;display:flex;justify-content:space-between;align-items:center;}
+  .issuebar .d{color:var(--navy);font-size:8px;padding:0 4px;}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;}
+  .hero img{width:100%;height:3.95in;object-fit:cover;display:block;}
+  .hero .overlay{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent, rgba(19,41,75,.95) 72%);padding:1in .55in .3in;color:#fff;}
+  .hero h2{font-family:'Oswald';font-weight:700;font-size:66px;letter-spacing:1px;text-transform:uppercase;line-height:.96;}
+  .hero h2 em{font-style:normal;color:var(--carolina);}
+  .hero .dek{font-family:'Source Serif 4',Georgia,serif;font-style:italic;font-size:15px;margin-top:8px;color:var(--cloud);max-width:6.6in;}
+  .hero .credit{position:absolute;right:8px;bottom:5px;font-size:7px;letter-spacing:1px;color:rgba(255,255,255,.6);text-transform:uppercase;}
+
+  /* ---------- scoreboard: carolina flood ---------- */
+  .scoreflood{background:var(--carolina);margin:0;padding:.16in .55in .18in;display:flex;align-items:center;gap:.3in;color:#fff;}
+  .scoreflood .team{flex:1;font-family:'Oswald';text-transform:uppercase;}
+  .scoreflood .team .rk{font-size:10.5px;letter-spacing:2px;color:var(--navy);font-weight:600;}
+  .scoreflood .team .nm{font-size:18px;font-weight:600;line-height:1.15;}
+  .scoreflood .team .sc{font-size:46px;font-weight:700;line-height:1;}
+  .scoreflood .md{text-align:right;}
+  .scoreflood .mid{text-align:center;font-family:'Oswald';font-size:9.5px;letter-spacing:2px;text-transform:uppercase;color:var(--navy);line-height:1.8;font-weight:600;}
+  .scoreflood .mid b{display:block;color:#fff;font-size:14px;letter-spacing:3px;}
+  .qline{display:flex;border-bottom:1.5px solid var(--stone);margin:0 .55in;}
+  .qline div{flex:1;text-align:center;padding:6px 0 5px;font-family:'Oswald';font-size:10px;letter-spacing:1.5px;color:var(--basin);border-right:1.5px solid var(--fog);}
+  .qline div:last-child{border-right:none;background:var(--cloud);}
+  .qline b{display:block;font-size:13px;color:var(--navy);}
+
+  /* ---------- body copy ---------- */
+  .cols{padding:.22in .55in 0;column-count:2;column-gap:.32in;font-family:'Source Serif 4',Georgia,serif;font-size:11.3px;line-height:1.6;color:#1e2a3a;}
+  .cols p{margin-bottom:9px;}
+  .cols p.lede::first-letter{font-family:'Oswald';font-weight:700;font-size:44px;float:left;line-height:.84;padding:3px 8px 0 0;color:var(--carolina);}
+  h3.sect{font-family:'Oswald';font-weight:600;font-size:16px;letter-spacing:1.5px;text-transform:uppercase;color:var(--navy);margin:13px 0 8px;break-after:avoid;display:flex;align-items:center;gap:8px;}
+  h3.sect::before{content:"";width:9px;height:9px;background:var(--carolina);transform:rotate(45deg);flex:0 0 auto;}
+  h3.sect::after{content:"";flex:1;height:1.5px;background:var(--stone);}
+  .pull{background:var(--cloud);border-left:5px solid var(--carolina);padding:11px 14px;margin:10px 0;font-family:'Oswald';font-weight:500;font-size:15px;line-height:1.35;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;break-inside:avoid;}
+  .pull .cb{color:var(--carolina);}
+  .pull small{display:block;font-family:'Open Sans';font-weight:600;font-size:8px;letter-spacing:2px;color:var(--basin);margin-top:7px;}
+
+  .figure{break-inside:avoid;margin:10px 0;}
+  .figure img{width:100%;display:block;border:1px solid var(--stone);}
+  .figure figcaption{font-family:'Open Sans';font-size:8.6px;color:var(--basin);padding-top:5px;line-height:1.45;}
+  .figure figcaption b{color:var(--navy);}
+
+  /* ---------- inner page headers: white, with edge tag ---------- */
+  .innerhead{padding:.30in 1.3in .14in .55in;display:flex;align-items:flex-end;justify-content:space-between;border-bottom:4px solid var(--carolina);margin:0 0 .05in;}
+  .innerhead .t{font-family:'Oswald';font-weight:700;font-size:26px;letter-spacing:2px;text-transform:uppercase;color:var(--navy);line-height:1;}
+  .innerhead .t span{color:var(--carolina);}
+  .innerhead .meta{font-size:8.5px;font-weight:600;letter-spacing:2.2px;text-transform:uppercase;color:var(--basin);padding-bottom:3px;}
+  /* the "tag" element: mark pinned to the page's top edge */
+  .edgetag{position:absolute;top:0;right:.5in;width:.62in;padding:.1in 0 .08in;background:var(--carolina);display:flex;justify-content:center;box-shadow:0 2px 4px rgba(19,41,75,.25);z-index:6;}
+  .edgetag img{width:.42in;display:block;border-radius:2px;}
+
+  /* stat panel — the one navy flood on page 3 */
+  .statbar{background:var(--navy);color:#fff;margin:12px 0;padding:14px 16px;break-inside:avoid;}
+  .statbar h4{font-family:'Oswald';font-weight:600;font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--carolina);margin-bottom:8px;display:flex;align-items:center;gap:7px;}
+  .statbar h4::before{content:"";width:8px;height:8px;background:var(--carolina);transform:rotate(45deg);}
+  .statbar .st{display:flex;justify-content:space-between;font-size:9.8px;padding:4.5px 0;border-bottom:1px solid rgba(183,215,237,.18);}
+  .statbar .st:last-child{border-bottom:none;}
+  .statbar .st b{font-family:'Oswald';font-size:12px;color:var(--fordham);}
+
+  /* player of the game */
+  .potg{break-inside:avoid;border:1.5px solid var(--stone);margin:10px 0;}
+  .potg .head{background:var(--carolina);color:#fff;font-family:'Oswald';font-weight:600;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;padding:6px 12px;}
+  .potg img{width:100%;height:1.55in;object-fit:cover;object-position:50% 20%;display:block;}
+  .potg .rows{padding:8px 12px 10px;}
+  .potg .st{display:flex;justify-content:space-between;font-size:9.5px;color:var(--basin);padding:3.5px 0;border-bottom:1px solid var(--fog);}
+  .potg .st:last-child{border-bottom:none;}
+  .potg .st b{font-family:'Oswald';font-size:11.5px;color:var(--navy);}
+
+  .footer{position:absolute;left:.22in;right:0;bottom:0;padding:8px .55in;display:flex;justify-content:space-between;align-items:center;border-top:1.5px solid var(--stone);background:#fff;font-family:'Oswald';font-size:8.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--basin);}
+  .footer .diamonds{color:var(--carolina);letter-spacing:5px;font-size:9px;}
+
+  .fineprint{font-size:8.6px;color:var(--gray);font-family:'Open Sans';margin-top:8px;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<!-- ================= PAGE 1 ================= -->
+<div class="page">
+  <div class="argyle-edge">
+    <svg width="16" height="1056" viewBox="0 0 16 1056" preserveAspectRatio="none">
+      <rect width="16" height="1056" fill="#4B9CD3"/>
+      <g fill="#13294B" opacity=".85">
+        <path d="M8 0 L16 14 L8 28 L0 14 Z M8 56 L16 70 L8 84 L0 70 Z M8 112 L16 126 L8 140 L0 126 Z M8 168 L16 182 L8 196 L0 182 Z M8 224 L16 238 L8 252 L0 238 Z M8 280 L16 294 L8 308 L0 294 Z M8 336 L16 350 L8 364 L0 350 Z M8 392 L16 406 L8 420 L0 406 Z M8 448 L16 462 L8 476 L0 462 Z M8 504 L16 518 L8 532 L0 518 Z M8 560 L16 574 L8 588 L0 574 Z M8 616 L16 630 L8 644 L0 630 Z M8 672 L16 686 L8 700 L0 686 Z M8 728 L16 742 L8 756 L0 742 Z M8 784 L16 798 L8 812 L0 798 Z M8 840 L16 854 L8 868 L0 854 Z M8 896 L16 910 L8 924 L0 910 Z M8 952 L16 966 L8 980 L0 966 Z M8 1008 L16 1022 L8 1036 L0 1022 Z"/>
+      </g>
+      <g fill="#FFFFFF" opacity=".9">
+        <path d="M8 28 L12 35 L8 42 L4 35 Z M8 84 L12 91 L8 98 L4 91 Z M8 140 L12 147 L8 154 L4 147 Z M8 196 L12 203 L8 210 L4 203 Z M8 252 L12 259 L8 266 L4 259 Z M8 308 L12 315 L8 322 L4 315 Z M8 364 L12 371 L8 378 L4 371 Z M8 420 L12 427 L8 434 L4 427 Z M8 476 L12 483 L8 490 L4 483 Z M8 532 L12 539 L8 546 L4 539 Z M8 588 L12 595 L8 602 L4 595 Z M8 644 L12 651 L8 658 L4 651 Z M8 700 L12 707 L8 714 L4 707 Z M8 756 L12 763 L8 770 L4 763 Z M8 812 L12 819 L8 826 L4 819 Z M8 868 L12 875 L8 882 L4 875 Z M8 924 L12 931 L8 938 L4 931 Z M8 980 L12 987 L8 994 L4 987 Z M8 1036 L12 1043 L8 1050 L4 1043 Z"/>
+      </g>
+    </svg>
+  </div>
+  <div class="content">
+    <div class="mast">
+      <img class="logo" src="img/tarstool.jpg">
+      <div class="wordmark">
+        <h1>Tarstool <span>Sports</span></h1>
+        <div class="tag">The Official(ly Unofficial) Student Newsletter of Carolina Football</div>
+      </div>
+      <div class="ncchip"><img src="img/nc_mark.png"></div>
+    </div>
+    <div class="issuebar">
+      <span>Vol. 1 <span class="d">&#9670;</span> Issue 1</span>
+      <span>2027 Season <span class="d">&#9670;</span> Week 4 <span class="d">&#9670;</span> SEC Opener</span>
+      <span>Free (Priceless)</span>
+    </div>
+
+    <div class="hero">
+      <img src="img/shot1_final.jpg">
+      <div class="overlay">
+        <h2>We're <em>Back.</em></h2>
+        <div class="dek">Tar Heels walk into College Park, hang 37 unanswered on No.&nbsp;4 Maryland, and bury a year of ghosts &mdash; fake punt and all.</div>
+      </div>
+      <div class="credit">Tarstool Film Room render &mdash; "The punt was just an illusion"</div>
+    </div>
+
+    <div class="scoreflood">
+      <div class="team unc"><div class="rk">#19 &middot; 2-1</div><div class="nm">North Carolina</div><div class="sc">37</div></div>
+      <div class="mid"><b>Final</b>College Park, MD<br>Conference Opener</div>
+      <div class="team md"><div class="rk">#4 &middot; 3-0</div><div class="nm">Maryland</div><div class="sc">14</div></div>
+    </div>
+    <div class="qline">
+      <div>Q1<b>0 &ndash; 0</b></div><div>Q2<b>14 &ndash; 0</b></div><div>Q3<b>3 &ndash; 0</b></div><div>Q4<b>20 &ndash; 14</b></div><div>UNC<b>37 &ndash; 14</b></div>
+    </div>
+
+    <div class="cols">
+      <p class="lede">For fifty-one weeks, we lived with it. We lived with 31&ndash;21. We lived with the memory of a 14&ndash;0 lead at Kenan evaporating into 28 unanswered Maryland points. We lived with the quietest walk down Franklin Street in recorded history &mdash; 50,000 people shuffling home like a funeral procession, nobody saying a word. Some of us lived with an actual Maryland fan in our Tuesday seminar who wore that pristine red jersey to class and just let it do the talking for an hour and fifteen minutes.</p>
+      <p>Saturday, in College Park, the Tar Heels took all of it &mdash; the jersey guy, the silent walk, the smirk &mdash; and fed it into a woodchipper.</p>
+      <p><b>North Carolina 37, Maryland 14.</b> Nineteenth-ranked UNC against the No.&nbsp;4 team in the country, in their building, in the SEC opener. The stadium's own postgame board typed the word for us: <b>CAKEWALK.</b></p>
+      <div class="pull">We're back. Say it with your chest this time. <span class="cb">We're back.</span></div>
+    </div>
+  </div>
+  <div class="footer"><span>Tarstool Sports</span><span class="diamonds">&#9670;&#9670;&#9670;&#9670;</span><span>Page 1</span></div>
+</div>
+
+<!-- ================= PAGE 2 ================= -->
+<div class="page">
+  <div class="argyle-edge">
+    <svg width="16" height="1056" viewBox="0 0 16 1056" preserveAspectRatio="none">
+      <rect width="16" height="1056" fill="#4B9CD3"/>
+      <g fill="#13294B" opacity=".85">
+        <path d="M8 0 L16 14 L8 28 L0 14 Z M8 56 L16 70 L8 84 L0 70 Z M8 112 L16 126 L8 140 L0 126 Z M8 168 L16 182 L8 196 L0 182 Z M8 224 L16 238 L8 252 L0 238 Z M8 280 L16 294 L8 308 L0 294 Z M8 336 L16 350 L8 364 L0 350 Z M8 392 L16 406 L8 420 L0 406 Z M8 448 L16 462 L8 476 L0 462 Z M8 504 L16 518 L8 532 L0 518 Z M8 560 L16 574 L8 588 L0 574 Z M8 616 L16 630 L8 644 L0 630 Z M8 672 L16 686 L8 700 L0 686 Z M8 728 L16 742 L8 756 L0 742 Z M8 784 L16 798 L8 812 L0 798 Z M8 840 L16 854 L8 868 L0 854 Z M8 896 L16 910 L8 924 L0 910 Z M8 952 L16 966 L8 980 L0 966 Z M8 1008 L16 1022 L8 1036 L0 1022 Z"/>
+      </g>
+      <g fill="#FFFFFF" opacity=".9">
+        <path d="M8 28 L12 35 L8 42 L4 35 Z M8 84 L12 91 L8 98 L4 91 Z M8 140 L12 147 L8 154 L4 147 Z M8 196 L12 203 L8 210 L4 203 Z M8 252 L12 259 L8 266 L4 259 Z M8 308 L12 315 L8 322 L4 315 Z M8 364 L12 371 L8 378 L4 371 Z M8 420 L12 427 L8 434 L4 427 Z M8 476 L12 483 L8 490 L4 483 Z M8 532 L12 539 L8 546 L4 539 Z M8 588 L12 595 L8 602 L4 595 Z M8 644 L12 651 L8 658 L4 651 Z M8 700 L12 707 L8 714 L4 707 Z M8 756 L12 763 L8 770 L4 763 Z M8 812 L12 819 L8 826 L4 819 Z M8 868 L12 875 L8 882 L4 875 Z M8 924 L12 931 L8 938 L4 931 Z M8 980 L12 987 L8 994 L4 987 Z M8 1036 L12 1043 L8 1050 L4 1043 Z"/>
+      </g>
+    </svg>
+  </div>
+  <div class="edgetag"><img src="img/tarstool.jpg" style="border-radius:50%;"></div>
+  <div class="content">
+    <div class="innerhead">
+      <div class="t">The Revenge <span>Game</span></div>
+      <div class="meta">UNC 37 &middot; Maryland 14</div>
+    </div>
+
+    <div class="cols">
+      <h3 class="sect">The Wound</h3>
+      <p>You can't appreciate Saturday without last October. Both teams 4-0, both ranked, Kenan Stadium so loud on the opening touchdown and the pick-six that followed that the bleachers physically vibrated. Up 14&ndash;0 that night, we were booking imaginary playoff tickets from the student section. And then Maryland's coach &mdash; the league knows him as Deejay Lurkin, and he is exactly as cold-blooded as the name suggests &mdash; did not blink. He didn't panic. He waited. What followed was 28 unanswered points and a masterclass in watching an opponent unravel: three interceptions, four sacks, and the dagger &mdash; a fifteen-play fourth-quarter death march where everyone in the stadium knew the fourth-and-one run was coming, and it converted anyway. 31&ndash;21. Clinical. Merciless. The kind of loss that makes juniors feel like they need knee replacements.</p>
+      <h3 class="sect">How Both Sides Got Here</h3>
+      <p>That Kenan collapse broke the 2026 season's spirit for a stretch &mdash; the Baylor shootout and the Northwestern slow-motion nightmare came right after &mdash; before the Heels steadied and won five of their last six to climb back into the Top 25 at 8-3. Maryland just kept being Maryland: they stacked wins down the stretch, rode into the top ten, and opened 2027 a perfect 3-0, ranked No.&nbsp;4, looking every bit the apex predator of this league.</p>
+      <h3 class="sect">Rock Bottom Has a Sky Box</h3>
+      <p>Here's what makes Saturday absurd: seven days earlier, this looked like the same old story. Carolina had opened 2027 with two wins and climbed to No.&nbsp;10 in the country when No.&nbsp;9 USC came to Kenan &mdash; a top-ten home date, Chapel Hill buzzing &mdash; and the Trojans walked out with the win, nine spots of our ranking, and most of the goodwill from the 2-0 start.</p>
+      <p>So the storyline heading to College Park was not kind: young quarterback, coming off a home gut-punch, first conference road trip, against the No.&nbsp;4 team, against <i>that</i> coach, in <i>that</i> rivalry. The team apparently didn't get the memo.</p>
+
+      <h3 class="sect">A Quarter of Nerves, Then an Avalanche</h3>
+      <p>For fifteen minutes it was everything we feared. Miles O'Neill fired one into the end zone that got picked at the goal line; our defense answered by intercepting Maryland's QB Washington when the Terps got greedy on third-and-inches. One quarter: 0&ndash;0, two turnovers, two fan bases chewing their nails.</p>
+      <p>Then Carolina remembered who it's supposed to be this year. The Heels converted a third-and-inches on an O'Neill keeper &mdash; he took a shot and got up smiling &mdash; then went for it on <b>fourth-and-inches at the goal line</b> and threw for the touchdown. No field-goal unit, no fear. With the half dying, a picture-perfect two-minute drill ended with the back nosing his way into the end zone. 14&ndash;0 at the break &mdash; the exact lead we blew last year, which nobody in Carolina blue needed reminding of.</p>
+
+      <div class="figure">
+        <img src="img/shot2_final.jpg">
+        <figcaption><b>THE DAGGER:</b> O'Neill, untouched all day, uncorks the fourth-quarter deep shot that landed in the Maryland-flag end zone &mdash; 27&ndash;0, and College Park became a library. <i>(Tarstool Film Room render)</i></figcaption>
+      </div>
+
+      <p>The third quarter is where the rivalry flipped for good. Facing fourth-and-one near midfield, Carolina lined up to punt. Except &mdash; in the broadcast's own words &mdash; <i>&ldquo;the punt was just an illusion.&rdquo;</i> The snap went to the up-back, the chains moved, and on the next play Jordan Shipp hauled in a thirty-yard strike. O'Neill scrambled seventeen on third-and-long to twist the knife. The drive only produced a field goal, but the message was the point: the team that got out-nerved in this fixture last October was now calling fake punts in the other guy's stadium.</p>
+      <p>Then, avalanche. A field goal, 20&ndash;0. The deep-shot touchdown dropped into the Maryland-flag end zone, 27&ndash;0. Washington's fourth-and-forever heave intercepted. Another field goal, 30&ndash;0. Maryland finally broke the shutout with six minutes left; Carolina answered with one more touchdown anyway, set up by a deep ball that drew a flag. The late pick-six made it 37&ndash;14, and even that couldn't dent the mood. <b>Thirty-seven unanswered points</b> between Maryland's empty first quarter and their garbage time.</p>
+    </div>
+  </div>
+  <div class="footer"><span>Tarstool Sports</span><span class="diamonds">&#9670;&#9670;&#9670;&#9670;</span><span>Page 2</span></div>
+</div>
+
+<!-- ================= PAGE 3 ================= -->
+<div class="page">
+  <div class="argyle-edge">
+    <svg width="16" height="1056" viewBox="0 0 16 1056" preserveAspectRatio="none">
+      <rect width="16" height="1056" fill="#4B9CD3"/>
+      <g fill="#13294B" opacity=".85">
+        <path d="M8 0 L16 14 L8 28 L0 14 Z M8 56 L16 70 L8 84 L0 70 Z M8 112 L16 126 L8 140 L0 126 Z M8 168 L16 182 L8 196 L0 182 Z M8 224 L16 238 L8 252 L0 238 Z M8 280 L16 294 L8 308 L0 294 Z M8 336 L16 350 L8 364 L0 350 Z M8 392 L16 406 L8 420 L0 406 Z M8 448 L16 462 L8 476 L0 462 Z M8 504 L16 518 L8 532 L0 518 Z M8 560 L16 574 L8 588 L0 574 Z M8 616 L16 630 L8 644 L0 630 Z M8 672 L16 686 L8 700 L0 686 Z M8 728 L16 742 L8 756 L0 742 Z M8 784 L16 798 L8 812 L0 798 Z M8 840 L16 854 L8 868 L0 854 Z M8 896 L16 910 L8 924 L0 910 Z M8 952 L16 966 L8 980 L0 966 Z M8 1008 L16 1022 L8 1036 L0 1022 Z"/>
+      </g>
+      <g fill="#FFFFFF" opacity=".9">
+        <path d="M8 28 L12 35 L8 42 L4 35 Z M8 84 L12 91 L8 98 L4 91 Z M8 140 L12 147 L8 154 L4 147 Z M8 196 L12 203 L8 210 L4 203 Z M8 252 L12 259 L8 266 L4 259 Z M8 308 L12 315 L8 322 L4 315 Z M8 364 L12 371 L8 378 L4 371 Z M8 420 L12 427 L8 434 L4 427 Z M8 476 L12 483 L8 490 L4 483 Z M8 532 L12 539 L8 546 L4 539 Z M8 588 L12 595 L8 602 L4 595 Z M8 644 L12 651 L8 658 L4 651 Z M8 700 L12 707 L8 714 L4 707 Z M8 756 L12 763 L8 770 L4 763 Z M8 812 L12 819 L8 826 L4 819 Z M8 868 L12 875 L8 882 L4 875 Z M8 924 L12 931 L8 938 L4 931 Z M8 980 L12 987 L8 994 L4 987 Z M8 1036 L12 1043 L8 1050 L4 1043 Z"/>
+      </g>
+    </svg>
+  </div>
+  <div class="edgetag"><img src="img/nc_mark.png" style="border-radius:0;"></div>
+  <div class="content">
+    <div class="innerhead">
+      <div class="t">Defense &amp; <span>The Verdict</span></div>
+      <div class="meta">Money downs: 1/9 &middot; 0/7</div>
+    </div>
+
+    <div class="cols">
+      <h3 class="sect">The Defense Deserves Its Own Newsletter</h3>
+      <p>Last year Maryland's offense took our souls. This year our defense took their lunch money and made them watch. The numbers are almost rude: Maryland converted <b>one of nine third downs</b> and <b>zero of seven fourth downs</b>. Washington &mdash; the same quarterback whose legs beat us at Kenan &mdash; was picked off twice on the money downs, sacked three-plus times, and held scoreless until the game was decided. Sophomore linebacker Jonathan Agumadu lived in the backfield with a sack and a tackle for loss. Every must-have down, eleven guys in white said no.</p>
+      <p>And for everyone who watched our quarterback get planted four times in last year's meeting: <b>O'Neill was not sacked once.</b> Forty-plus dropbacks. Clean jersey. The offensive line won this rivalry as much as anybody.</p>
+
+      <div class="figure">
+        <img src="img/shot3_final.jpg">
+        <figcaption><b>MONEY DOWN, OUR BALL:</b> fourth-and-fifteen, and the Tar Heel secondary high-points the takeaway &mdash; Maryland finished 0-for-7 on fourth down. <i>(Tarstool Film Room render)</i></figcaption>
+      </div>
+
+      <div class="potg">
+        <div class="head">Tarstool Player of the Week</div>
+        <img src="img/potw_final.jpg">
+        <div class="rows">
+          <div class="st"><span>Dropbacks</span><b>40+</b></div>
+          <div class="st"><span>Sacks taken</span><b>0</b></div>
+          <div class="st"><span>TD passes</span><b>2</b></div>
+                  </div>
+      </div>
+
+      <div class="statbar">
+        <h4>The Rude Numbers</h4>
+        <div class="st"><span>Unanswered points by UNC</span><b>37</b></div>
+        <div class="st"><span>Maryland on 3rd down</span><b>1 / 9</b></div>
+        <div class="st"><span>Maryland on 4th down</span><b>0 / 7</b></div>
+        <div class="st"><span>Washington interceptions</span><b>2</b></div>
+        <div class="st"><span>Sacks taken by O'Neill</span><b>0</b></div>
+        <div class="st"><span>Fake punts converted, ice cold</span><b>1</b></div>
+        <div class="st"><span>Postgame headline, verbatim</span><b>"CAKEWALK"</b></div>
+      </div>
+
+      <h3 class="sect">What It Means</h3>
+      <p>One September Saturday doesn't erase 31&ndash;21 &mdash; rivalries don't work like that, and Deejay Lurkin's teams don't stay down long. Maryland is still loaded, still ranked, and we get to do this dance again.</p>
+      <p>But here's what changed in College Park: this program stopped flinching. Down a ranking, coming off a home gut-punch, staring at the coach who authored our worst night in years &mdash; Carolina went for it on fourth down, faked a punt, threw deep, and hit back every single time it mattered. The team that folded at 14&ndash;0 last October led 14&ndash;0 at half and <i>stepped on the gas.</i></p>
+      <p>A year ago, a podcast that sounded suspiciously like three roommates in a Franklin Street apartment spent twenty-seven minutes doing group therapy over this team and ended with a question: do we even renew our student tickets?</p>
+      <div class="pull">Consider Issue 1 our official answer. Renew. <span class="cb">We're back.</span><small>&mdash; The Tarstool Sports Desk. Fight, fight, fight.</small></div>
+      <p class="fineprint">Tarstool Sports is a student publication not affiliated with, endorsed by, or particularly respectful toward the University of Maryland. All game details from the Tarstool film room. Images are Tarstool Film Room cinematic renders of real plays from the broadcast. Issue 2 drops after the next W.</p>
+    </div>
+  </div>
+  <div class="footer"><span>Tarstool Sports</span><span class="diamonds">&#9670;&#9670;&#9670;&#9670;</span><span>Page 3</span></div>
+</div>
+
+</body>
+</html>

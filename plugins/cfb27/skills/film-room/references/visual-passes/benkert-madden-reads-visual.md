@@ -1,0 +1,15 @@
+# Qo8IQovzZ5E — "How To Read Madden Defense Like An NFL QB" — Kurt Benkert
+**Game: Madden NFL (NOT CFB 27/26)** — confirmed by the glowing "IT'S IN THE GAME" EA neon sign in his studio, the Madden loading/pre-play HUD chrome, and in-stadium "MADDEN NFL" branding on the field tarp. Atlanta Falcons practice-facility gameplay footage used for the examples. 43 min. Cited here for read-process transfer value only — UI specifics are Madden's, not CFB 27's.
+
+## Game UI / play-art specifics (Madden-specific — do not conflate with CFB 27 UI)
+- **[10:26] "DEEP ZONE" vision bubble (single):** Madden draws one translucent circular zone bubble labeled **"DEEP ZONE"** over the deep-middle defender, connected by a colored line (blue = zone defender's landmark, red = a route/read indicator) to his position. QB labeled "MCCLOUD JR." Pre-play HUD shows **"Pre-play | Subs"** button prompts bottom-right with team logo.
+- **[12:11] Two "DEEP ZONE" bubbles (2-high shell):** Same vision-cone tool but with **both safeties' deep-zone circles drawn simultaneously**, immediately post-snap, showing a 2-deep shell as the safeties open their zones. Route lines from receivers rendered in white with red highlighting the QB's current in-progress read line. QB labeled "PENA JR."
+- **[15:40] Route-art + defender callout:** Pre-snap screen with routes drawn in yellow, receiver surnames labeled (LONDON, MCCLOUD III, ROBINSON, PITTS, MOONEY), position badges (X/Y/A/B circles), and a **red-circled defender** (MLB depth, "MIKE" role) called out manually — matches his narration about reading the robber/rat defender. Bottom-right shows a Madden **"Reinforcement" ability card** (player Demario Davis, "Force Incompletions or TFL's 3 - 0/2") — a Madden Ultimate-Team-style gameplay modifier HUD element not present in CFB 27.
+
+## Read-process visuals (transferable teaching value)
+- Across both DEEP-ZONE-bubble frames, the visualization tool is the primary teaching aid: he identifies the shell **before the snap** by shell width, then narrates the safety(ies)' rotation as the zone bubble appears/moves post-snap — a live confirm-post-snap workflow, same structural approach used in his CFB 26 video (GiwfgE2oJMs) but via Madden's built-in vision-cone HUD rather than manual route-art callouts.
+- Recurring visual tell he calls out verbally at these moments (per subs): press-man leverage on outside CBs + a robber/rat defender shallow in the box = Cover 1 Robber; two simultaneous deep-zone bubbles at moderate depth = 2-high shell (quarters/Tampa 2 family) that may or may not rotate down after the snap.
+
+## Notes
+- Because this is Madden, not CFB 27, treat all UI-label specifics (DEEP ZONE bubble styling, Reinforcement cards, Pre-play/Subs prompt) as **illustrative of the read process only** — CFB 27's equivalent HUD elements (seen in the CFB 26 sibling video, GiwfgE2oJMs) use different visuals (zone bubbles labeled DEEP ZONE / SEAM FLAT / HOOK CURL, WR HOT ROUTES menu) and should be the source for any CFB-27-specific wiki claims.
+- Video file deleted after extraction. frames_C/ retained in workspace as scratch (safe to delete).

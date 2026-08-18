@@ -1,0 +1,411 @@
+#!/usr/bin/env python3
+"""Film Room Stage 2: HUD OCR play segmentation.
+
+Samples the scorebug at 1 fps, OCRs game-state fields locally (tesseract),
+and emits:
+  hud_timeline.csv  - one row per sampled second (raw OCR, normalized)
+  plays.csv         - one row per detected play (boundaries from down&distance
+                      transitions, snap refined via play-clock behavior)
+
+Usage:
+  segment.py VIDEO OUTDIR                 # full run
+  segment.py VIDEO OUTDIR --calibrate T   # dump field crops at time T and exit
+  segment.py VIDEO OUTDIR --start S --end E   # limit to a window (seconds)
+  segment.py VIDEO OUTDIR --procs N       # OCR worker processes (default 10)
+
+HUD layout (1920x1080, CFB 27 scorebug; scaled proportionally otherwise):
+  down/distance box, quarter+clock strip, play clock, both score boxes.
+
+Possession comes from the COLOUR of the down&distance bar, not from OCR: the
+bar is tinted with the possessing team's colour, and the two score boxes always
+carry the two teams' colours, so the bar is classified by which score box it is
+nearer to in RGB. Team-agnostic, and it self-disables when the two teams'
+colours are too close to separate. Measured 96% vs hand verification on
+UNC-Vanderbilt 2026 (the OCR ball-spot approach it replaced scored 22%).
+"""
+import argparse
+import csv
+import os
+import re
+import subprocess
+import sys
+import tempfile
+from collections import Counter
+from multiprocessing import Pool
+
+from PIL import Image, ImageOps
+import pytesseract
+
+# Field boxes at 1920x1080: (x, y, w, h, prep, tesseract config, upscale)
+#
+# dd is deliberately wider and upscaled 4x: the old (845,980,230,38) box clipped
+# the leading ordinal digit on real film ("1st & 10" -> "st a10"), which capped
+# readability at ~15%. Widening + the alias-tolerant parser below took the same
+# film from 2% to 64% in-game readability (67 -> 116 detected plays).
+BOXES = {
+    "dd":        (820, 976, 280, 44, "thresh", "--psm 7", 4),
+    "qtr":       (838, 950, 68, 34, "inv", "--psm 7 -c tessedit_char_whitelist=01234stndrdh", 3),
+    # clock x must not start at 914 - that clips the leading '0' of "0:56"
+    "clock":     (905, 950, 108, 34, "inv", "--psm 7 -c tessedit_char_whitelist=0123456789:", 3),
+    "playclock": (1028, 950, 52, 34, "inv", "--psm 7 -c tessedit_char_whitelist=0123456789", 3),
+    "score_l":   (735, 935, 105, 80, "inv", "--psm 8 -c tessedit_char_whitelist=0123456789", 3),
+    "score_r":   (1080, 935, 105, 80, "inv", "--psm 8 -c tessedit_char_whitelist=0123456789", 3),
+}
+
+# Colour-sample regions for possession, (x0, y0, x1, y1) at 1920x1080.
+POSS_REGIONS = {
+    "bar":     (880, 986, 1040, 1004),   # the down&distance bar itself
+    "score_l": (745, 950, 830, 995),     # left team's score box (their colour)
+    "score_r": (1090, 950, 1175, 995),   # right team's score box
+}
+POSS_MIN_TEAM_SEP = 25    # if the two teams' colours are closer than this, abstain
+POSS_MARGIN = 0.6         # nearer box must beat the other by this ratio
+
+CLOCK_RE = re.compile(r"(\d{1,2})[:.](\d{2})")
+QTR_RE = re.compile(r"\b([1234])(?:st|nd|rd|th)\b", re.I)
+
+# tesseract habitually garbles the ordinal prefixes on the stylized HUD font.
+# No leading word boundary: stray marks fuse onto the ordinal ("sist" for "1st"),
+# so anchoring on a word start loses the down entirely.
+DOWN_PATS = [
+    (re.compile(r"(?:1st|ist|lst|1sr|jst)", re.I), "1"),
+    (re.compile(r"(?:2nd|anda|andes|and|2na|end|ena)", re.I), "2"),
+    (re.compile(r"(?:3rd|3rake|3rds|3ra|ard|srd)", re.I), "3"),
+    (re.compile(r"(?:4th|4tn|ath|atn)", re.I), "4"),
+]
+# last resort: a bare ordinal suffix with the down digit clipped off
+BARE_PATS = [
+    (re.compile(r"(?:^|[^a-z0-9])st", re.I), "1"),
+    (re.compile(r"(?:^|[^a-z0-9])nd", re.I), "2"),
+    (re.compile(r"(?:^|[^a-z0-9])rd", re.I), "3"),
+    (re.compile(r"(?:^|[^a-z0-9])th", re.I), "4"),
+]
+DIGIT_FIX = str.maketrans({"S": "5", "s": "5", "I": "1", "l": "1",
+                           "i": "1", "O": "0", "o": "0", "B": "8"})
+
+
+def run(cmd):
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.exit(f"command failed: {' '.join(cmd)}\n{r.stderr[-500:]}")
+    return r.stdout
+
+
+def video_info(path):
+    out = run(["ffprobe", "-v", "error", "-select_streams", "v:0",
+               "-show_entries", "stream=width,height", "-show_entries",
+               "format=duration", "-of", "csv=p=0", path])
+    lines = [l for l in out.strip().splitlines() if l]
+    w, h = map(int, lines[0].split(",")[:2])
+    dur = float(lines[-1])
+    return w, h, dur
+
+
+def scaled_boxes(w, h):
+    sx, sy = w / 1920.0, h / 1080.0
+    return {k: (int(x * sx), int(y * sy), int(bw * sx), int(bh * sy), prep, cfg, up)
+            for k, (x, y, bw, bh, prep, cfg, up) in BOXES.items()}
+
+
+def scaled_regions(w, h):
+    sx, sy = w / 1920.0, h / 1080.0
+    return {k: (int(x0 * sx), int(y0 * sy), int(x1 * sx), int(y1 * sy))
+            for k, (x0, y0, x1, y1) in POSS_REGIONS.items()}
+
+
+def ocr_field(img, box):
+    x, y, w, h, prep, config, up = box
+    crop = img.crop((x, y, x + w, y + h)).convert("L")
+    crop = crop.resize((crop.width * up, crop.height * up), Image.LANCZOS)
+    crop = ImageOps.autocontrast(crop)
+    if prep == "inv":
+        crop = ImageOps.invert(crop)
+    elif prep == "thresh":
+        crop = ImageOps.invert(crop).point(lambda p: 255 if p > 100 else 0)
+    return pytesseract.image_to_string(crop, config=config).strip().replace("\n", " ")
+
+
+def parse_dd(text):
+    """Down&distance from garbled HUD OCR. Tolerates the observed alias set."""
+    if not text:
+        return None
+    t = text.strip()
+    if re.search(r"kick\s*off|kickoff|extra\s*point|pat\b", t, re.I):
+        return None
+
+    down = pos = end = None
+    for pat, d in DOWN_PATS:
+        m = pat.search(t)
+        if m and (pos is None or m.start() < pos):
+            down, pos, end = d, m.start(), m.end()
+    if down is None:
+        for pat, d in BARE_PATS:
+            m = pat.search(t)
+            if m and (pos is None or m.start() < pos):
+                down, pos, end = d, m.start(), m.end()
+    if down is None:
+        return None
+
+    tail = t[end:]
+    # the ampersand OCRs as s/S/&/8/section-sign; strip ONE leading separator so
+    # it is not then mistaken for a digit ("4thsl" -> tail "sl" -> 1, not 51)
+    tail = re.sub(r"^[\s.,/\\|_-]*[&8sS§]?[\s.,/\\|_-]*", "", tail)
+    if re.search(r"goal", tail, re.I):
+        return f"{down}&GOAL"
+    if re.search(r"inch", tail, re.I):
+        return f"{down}&INCHES"
+    for m in re.finditer(r"[0-9SsIilOoB]{1,2}", tail):
+        cand = m.group(0).translate(DIGIT_FIX)
+        if not cand.isdigit():
+            continue
+        v = int(cand)
+        if 1 <= v <= 30:
+            return f"{down}&{v}"
+    return None
+
+
+def parse_clock(text):
+    m = CLOCK_RE.search(text)
+    if not m:
+        return None
+    mins, secs = int(m.group(1)), int(m.group(2))
+    if mins > 15 or secs > 59:
+        return None
+    return f"{mins}:{m.group(2)}"
+
+
+def parse_qtr(text):
+    m = QTR_RE.search(text)
+    return m.group(1) if m else None
+
+
+def parse_score(text):
+    m = re.search(r"\d{1,2}", text)
+    return m.group(0) if m else None
+
+
+def _mean_rgb(img, region):
+    px = list(img.crop(region).convert("RGB").getdata())
+    n = max(len(px), 1)
+    return (sum(p[0] for p in px) / n,
+            sum(p[1] for p in px) / n,
+            sum(p[2] for p in px) / n)
+
+
+def _dist(a, b):
+    return sum((x - y) ** 2 for x, y in zip(a, b)) ** 0.5
+
+
+def classify_poss(img, regions):
+    """'L' / 'R' / '' — which team's colour the down&distance bar is wearing."""
+    bar = _mean_rgb(img, regions["bar"])
+    left = _mean_rgb(img, regions["score_l"])
+    right = _mean_rgb(img, regions["score_r"])
+    if _dist(left, right) < POSS_MIN_TEAM_SEP:
+        return ""                       # team colours not separable, abstain
+    dl, dr = _dist(bar, left), _dist(bar, right)
+    if dl < dr * POSS_MARGIN:
+        return "L"
+    if dr < dl * POSS_MARGIN:
+        return "R"
+    return ""
+
+
+def sample_frames(video, outdir, start, end, fps=1):
+    fdir = os.path.join(outdir, "hud_frames")
+    os.makedirs(fdir, exist_ok=True)
+    dur = end - start
+    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+         "-ss", str(start), "-t", str(dur), "-i", video,
+         "-vf", f"fps={fps}", "-q:v", "5", os.path.join(fdir, "f%06d.jpg")])
+    return fdir
+
+
+# Pool workers get the geometry through module state - it is read-only and
+# identical for every frame, and pickling it per task is pure overhead.
+_BOXES = None
+_REGIONS = None
+
+
+def _init_worker(boxes, regions):
+    global _BOXES, _REGIONS
+    _BOXES, _REGIONS = boxes, regions
+
+
+def _read_frame(path):
+    img = Image.open(path)
+    dd_raw = ocr_field(img, _BOXES["dd"])
+    pc_raw = ocr_field(img, _BOXES["playclock"])
+    return {
+        "poss": classify_poss(img, _REGIONS),
+        "dd": parse_dd(dd_raw) or "",
+        "qtr": parse_qtr(ocr_field(img, _BOXES["qtr"])) or "",
+        "clock": parse_clock(ocr_field(img, _BOXES["clock"])) or "",
+        "playclock": pc_raw if pc_raw.isdigit() else "",
+        "score_l": parse_score(ocr_field(img, _BOXES["score_l"])) or "",
+        "score_r": parse_score(ocr_field(img, _BOXES["score_r"])) or "",
+        "dd_raw": dd_raw,
+    }
+
+
+def build_timeline(fdir, boxes, regions, start, fps=1, procs=10):
+    files = sorted(os.listdir(fdir))
+    paths = [os.path.join(fdir, f) for f in files]
+    n = len(paths)
+    rows = []
+    with Pool(procs, initializer=_init_worker, initargs=(boxes, regions)) as pool:
+        for i, rec in enumerate(pool.imap(_read_frame, paths, chunksize=16)):
+            rec["t"] = round(start + i / fps, 1)
+            rows.append(rec)
+            if (i + 1) % 500 == 0:
+                ok = sum(1 for r in rows if r["dd"]) / len(rows)
+                print(f"  ocr {i+1}/{n} dd_ok={ok:.0%}", flush=True)
+    # keep t first for readability
+    return [{"t": r.pop("t"), **r} for r in rows]
+
+
+def majority(values):
+    values = [v for v in values if v]
+    if not values:
+        return ""
+    return max(set(values), key=values.count)
+
+
+def detect_plays(rows):
+    """A play window = a maximal run of one stable down&distance value.
+
+    Same-dd back-to-back plays (e.g. 1st&10 -> 10+ yard gain -> 1st&10) are
+    split when the play clock resets upward (>=35 after having been <15).
+    Clock/qtr/score are majority-voted over the window (OCR is noisy on the
+    stylized clock font). Snap localization happens later in frames.py via
+    motion analysis inside each window.
+    """
+    windows = []
+    cur = None
+    GAP_TOLERANCE = 12  # seconds of unreadable dd tolerated inside one window
+                        # (replay overlays hide the HUD mid-cycle)
+
+    def close(c):
+        if c and c["t_last"] - c["t_first"] >= 4:
+            windows.append(c)
+
+    for r in rows:
+        dd = r["dd"]
+        t = float(r["t"])
+        if not dd:
+            if cur and t - cur["t_last"] > GAP_TOLERANCE:
+                close(cur)
+                cur = None
+            continue
+        pc = int(r["playclock"]) if r["playclock"] else None
+        pc_high = pc is not None and pc >= 25
+        if cur is None or dd != cur["dd"]:
+            close(cur)
+            cur = None
+        elif (pc_high and cur["pc_high_streak"] >= 1 and cur["pc_low_seen"]
+              and t - cur["t_first"] >= 10):
+            # two consecutive high play-clock reads after a low = genuine
+            # reset = same-dd back-to-back play (single high reads are
+            # OCR misreads and must not split)
+            close(cur)
+            cur = None
+        if cur is None:
+            cur = {"dd": dd, "t_first": t, "t_last": t,
+                   "qtrs": [], "clocks": [], "sls": [], "srs": [], "poss": [],
+                   "pc_low_seen": False, "pc_high_streak": 0}
+        cur["t_last"] = t
+        cur["qtrs"].append(r["qtr"])
+        cur["clocks"].append(r["clock"])
+        cur["sls"].append(r["score_l"])
+        cur["srs"].append(r["score_r"])
+        cur["poss"].append(r.get("poss", ""))
+        cur["pc_high_streak"] = cur["pc_high_streak"] + 1 if pc_high else 0
+        if pc is not None and pc < 15:
+            cur["pc_low_seen"] = True
+    close(cur)
+
+    return [{"dd": w["dd"], "qtr": majority(w["qtrs"]),
+             "clock": majority(w["clocks"][:5]),
+             "t_first": w["t_first"], "t_last": w["t_last"],
+             "score_l": majority(w["sls"]), "score_r": majority(w["srs"]),
+             "poss": majority(w["poss"])}
+            for w in windows]
+
+
+def write_plays(plays, path):
+    with open(path, "w", newline="") as f:
+        wtr = csv.DictWriter(f, fieldnames=["n", "qtr", "clock", "dd", "poss",
+                                            "t_first", "t_last", "score_l", "score_r"])
+        wtr.writeheader()
+        for i, p in enumerate(plays, 1):
+            wtr.writerow({"n": i, "qtr": p["qtr"], "clock": p["clock"],
+                          "dd": p["dd"], "poss": p["poss"],
+                          "t_first": p["t_first"], "t_last": p["t_last"],
+                          "score_l": p["score_l"], "score_r": p["score_r"]})
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("video")
+    ap.add_argument("outdir")
+    ap.add_argument("--calibrate", type=float, default=None)
+    ap.add_argument("--start", type=float, default=0)
+    ap.add_argument("--end", type=float, default=None)
+    ap.add_argument("--procs", type=int, default=10)
+    args = ap.parse_args()
+
+    w, h, dur = video_info(args.video)
+    boxes = scaled_boxes(w, h)
+    regions = scaled_regions(w, h)
+    end = min(args.end or dur, dur)
+    os.makedirs(args.outdir, exist_ok=True)
+
+    if args.calibrate is not None:
+        with tempfile.TemporaryDirectory() as td:
+            fp = os.path.join(td, "cal.png")
+            run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+                 "-ss", str(args.calibrate), "-i", args.video, "-frames:v", "1", fp])
+            img = Image.open(fp)
+            for name, box in boxes.items():
+                x, y, bw, bh = box[:4]
+                crop = img.crop((x, y, x + bw, y + bh))
+                out = os.path.join(args.outdir, f"cal_{name}.png")
+                crop.resize((crop.width * 2, crop.height * 2), Image.LANCZOS).save(out)
+                txt = ocr_field(img, box)
+                print(f"{name:10s} -> {txt!r}  ({out})")
+            for name, reg in regions.items():
+                img.crop(reg).save(os.path.join(args.outdir, f"cal_poss_{name}.png"))
+            print(f"possession -> {classify_poss(img, regions)!r} "
+                  f"(crops cal_poss_*.png; '' = teams' colours too close)")
+        return
+
+    print(f"sampling {args.start:.0f}-{end:.0f}s at 1 fps...")
+    fdir = sample_frames(args.video, args.outdir, args.start, end)
+    print(f"running OCR ({args.procs} procs)...")
+    rows = build_timeline(fdir, boxes, regions, args.start, procs=args.procs)
+
+    tl_path = os.path.join(args.outdir, "hud_timeline.csv")
+    with open(tl_path, "w", newline="") as f:
+        wtr = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
+        wtr.writeheader()
+        wtr.writerows(rows)
+
+    plays = detect_plays(rows)
+    pl_path = os.path.join(args.outdir, "plays.csv")
+    write_plays(plays, pl_path)
+
+    readable = sum(1 for r in rows if r["dd"]) / max(len(rows), 1)
+    pc = Counter(r["poss"] for r in rows)
+    decided = (pc["L"] + pc["R"]) / max(len(rows), 1)
+    print(f"timeline: {len(rows)} samples, dd readable {readable:.0%}")
+    print(f"possession decided on {decided:.0%} of samples (L {pc['L']} / R {pc['R']})")
+    if decided < 0.5:
+        print("WARN: possession mostly undecided - the two teams' colours may be "
+              "too close to separate; verify by hand before trusting per-team splits")
+    print(f"plays detected: {len(plays)} -> {pl_path}")
+    if readable < 0.5:
+        sys.exit("WARN: <50% of samples had readable down&distance - check HUD boxes")
+
+
+if __name__ == "__main__":
+    main()

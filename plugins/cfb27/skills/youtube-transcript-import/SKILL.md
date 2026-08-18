@@ -1,0 +1,212 @@
+---
+name: youtube-transcript-import
+description: Import YouTube video transcripts into this project as granular, timestamped, citeable markdown files using the Apify actor streamers/youtube-scraper, then optionally sort them by content and synthesize them into the wiki knowledge base. Use this skill whenever the user wants to pull, import, download, scrape, or save transcripts/captions/subtitles from a YouTube video, playlist, or channel — even if they just paste a YouTube link and say "get the transcripts". Also use when the user asks to sort/organize existing transcripts by content, build or update the wiki/knowledge base from transcripts, or ingest video content into the project.
+---
+
+# YouTube Transcript Import & Wiki Ingestion
+
+Import transcripts from YouTube videos/playlists into `transcripts/` as timestamped markdown files that are **granular, accurate, citeable, and coherent** — then sort them by content and synthesize them into the `wiki/` knowledge base. Uses the Apify MCP server (`mcp__Apify__*` tools).
+
+## Run the full pipeline by default
+
+A request to "import"/"pull"/"grab" videos means running **all three parts through to completion** — import, then sort, then wiki ingestion — in one pass, not stopping after Part 1. Only stop early if the user explicitly scopes the request to import-only (e.g. "just pull the transcripts, don't touch the wiki yet"). If time/cost makes a single-pass full pipeline impractical (e.g. a very large channel backfill), say so and propose a batch boundary rather than silently truncating to Part 1.
+
+## Quality bar (why this workflow exists)
+
+- **Citeable**: every transcript paragraph carries a `**[MM:SS]**` start timestamp; every wiki claim cites a transcript + timestamp, so any statement can be pinned to a moment in the source video.
+- **Accurate**: verbatim speech — never paraphrase or "improve" the speaker's wording. Only clean caption artifacts.
+- **Coherent**: merge raw caption cues into readable paragraphs (~30–60s each, broken at sentence boundaries), not fragment soup.
+- **Traceable**: full YAML frontmatter linking each file back to its source video and creator.
+
+## Bundled scripts
+
+- `scripts/verify_transcripts.py <transcripts-dir>` — verifies every transcript: monotonic timestamps, plausible words-per-minute, frontmatter present. Run after every import.
+- `scripts/audit_wiki.py <project-root> [--snap]` — verifies every wiki page: wikilinks resolve, every `[[transcript|…]] **[MM:SS]**` citation hits a real paragraph marker. `--snap` auto-fixes citations within 20s of a marker (agents tend to cite raw SRT cue times); larger misses are reported for re-verification, never auto-fixed. Run after every wiki build/update.
+
+Both exit non-zero when problems remain — don't report success until they pass.
+
+# Part 1 — Import
+
+### 1. Validate the source URL
+
+Before running any paid actor, verify the URL resolves:
+
+```bash
+curl -sL "<youtube-url>" | grep -oE '<title>[^<]*</title>'
+```
+
+Notes learned the hard way:
+- **Short playlist IDs are valid.** Playlist IDs are usually 34 chars but 13-char IDs (e.g. `PLeZuPxhFQzXA`) exist. Don't assume truncation — verify with curl instead.
+- **Check for hidden videos.** A playlist's stated video count includes private/deleted videos. Grep the page for `unavailable` — hidden videos can't be scraped by anyone and must be recorded as missing, not silently skipped.
+- Get the actual video count: `grep -oE '[0-9]+ videos'` on the playlist page.
+- **Skip the playlist-URL run entirely**: extract video IDs up front from the playlist page's `ytInitialData` (`grep -oE '"videoId":"[A-Za-z0-9_-]{11}"'` on the curl output, dedupe with `awk '!seen[$0]++'`, preserve order) and feed individual `watch?v=` URLs to the actor. The actor's playlist parsing is unreliable (runs succeed but return `NO_VIDEOS`).
+
+### 1b. Dedupe against the vault before scraping
+
+Before running the paid actor, drop any video already imported — creator scans and topical sweeps routinely resurface videos from earlier batches, and a re-scrape both wastes money and plants a duplicate transcript the wiki must not double-cite:
+
+```bash
+grep -rh "^video_id:" transcripts --include="*.md" | sed 's/video_id: *//' | sort -u > /tmp/known_ids.txt
+```
+
+Check every candidate video ID against this list and exclude the hits (note them in the batch INDEX as "already imported — see <existing file>" rather than silently skipping). `verify_transcripts.py` now fails on duplicate `video_id`s as a backstop, but the check belongs here, before the actor spends anything.
+
+### 2. Run the Apify actor
+
+Actor: **`streamers/youtube-scraper`** (~$0.003/video, pay-per-event). Fetch its current input schema with `mcp__Apify__fetch-actor-details` first, then call `mcp__Apify__call-actor` with:
+
+```json
+{
+  "startUrls": [{ "url": "https://www.youtube.com/watch?v=<id>" }, ...],
+  "downloadSubtitles": true,
+  "subtitlesLanguage": "en",
+  "subtitlesFormat": "srt",
+  "preferAutoGeneratedSubtitles": true,
+  "saveSubsToKVS": true,
+  "maxResults": <video-count + buffer>
+}
+```
+
+Use **SRT format** — plaintext loses the timestamps needed for citeability.
+
+Poll `mcp__Apify__get-actor-run` until the run reaches a terminal state, then fetch results with `mcp__Apify__get-dataset-items`. If subtitles were saved to the key-value store, pull them via `mcp__Apify__get-key-value-store-record`.
+
+**If the Apify MCP server isn't connected**, check whether Apify is reachable through the Composio MCP server instead before asking the user to authenticate anything: call `mcp__claude_ai_Composio__COMPOSIO_SEARCH_TOOLS` with a use_case like "run apify actor and get dataset results" to discover `APIFY_RUN_ACTOR` and `APIFY_GET_RUN_DATASET_ITEMS`, then drive the same actor/input schema through those. Verified working end-to-end for an 11-video batch (July 2026). If any tool call in this path gets denied by a permission classifier, don't route around the denial — surface it to the user and let them decide.
+
+**Per-video fallback chain** for empty/missing subtitles (never silently accept a miss):
+1. Retry that video individually
+2. Toggle `preferAutoGeneratedSubtitles`
+3. Use a dedicated transcript actor (search Apify store for "youtube transcript", e.g. `pintostudio/youtube-transcript-scraper`)
+4. If the video is private/deleted, record it as missing in the playlist INDEX with the reason
+
+### 3. Convert SRT → markdown
+
+One file per video, named `NN-<slugified-title>.md` (NN = playlist position, slug truncated ~60 chars). Files land in content folders (see Part 2) — or a staging folder first if sorting happens as a separate pass.
+
+```markdown
+---
+title: "<exact video title>"
+video_url: https://www.youtube.com/watch?v=<id>
+video_id: <id>
+channel: <channel name>
+channel_handle: <handle>
+channel_url: https://www.youtube.com/@<handle>
+channel_id: <UC...>
+channel_subscribers: <count>
+upload_date: YYYY-MM-DD
+duration: HH:MM:SS
+playlist: "<playlist title>"
+playlist_url: <playlist url>
+playlist_position: N
+imported: <today>
+source: apify streamers/youtube-scraper
+captions: auto-generated (en) | manual (en)
+---
+
+# <Video Title>
+
+**[00:00]** First paragraph of verbatim transcript...
+
+**[01:04]** Next paragraph...
+```
+
+Conversion rules:
+- Merge consecutive SRT cues into paragraphs of roughly 30–60 seconds, breaking at sentence boundaries. Long streams use `**[H:MM:SS]**` past the hour.
+- **Dedupe rolling-caption artifacts**: auto-generated SRTs repeat lines across overlapping cues — remove the duplicates, keep each spoken phrase once.
+- Keep wording verbatim. Preserve `[music]`/`[applause]` markers. Never invent content for unintelligible segments.
+
+### 4. Write the playlist INDEX
+
+One index per playlist at `transcripts/INDEX-<playlist-slug>-<channel-slug>.md` with playlist metadata (title, channel, import date, source, creator metadata) and a table: position, title, duration, video link, relative path to the file, transcript status (auto-generated / manual / missing + reason).
+
+### 5. Verify before reporting
+
+```bash
+python3 <skill-dir>/scripts/verify_transcripts.py transcripts
+```
+
+Plus a manual spot-read of one file for coherence and dedup quality. Report to the user: actor run ID(s), cost, per-video status table (title, duration, word count, caption type), any fallbacks used, and files written.
+
+# Part 2 — Sort by content
+
+Transcripts live under `transcripts/` in content folders, not playlist folders. Current taxonomy (extend as content demands — one folder per topic, kebab-case):
+
+```
+transcripts/
+├── INDEX-<playlist>-<channel>.md     # playlist manifests stay at root
+├── dynasty/{recruiting,nil,rebuilds,settings,archetypes}/
+├── road-to-glory/
+└── game-news/                        # commentary/EA-news, not gameplay knowledge
+```
+
+- Classify by **content, not title** — peek at the opening `**[00:00]**` paragraph when the title is ambiguous.
+- After moving files, **rewrite the relative links in every playlist INDEX** to the new paths, and re-check them (audit_wiki.py does not cover these; a quick `os.path.exists` loop does — see the pattern in Part 1 step 5's script, or just grep `](.*\.md)` and test each path).
+- Filenames keep their playlist-position `NN-` prefix for traceability; the frontmatter `playlist_position` is the source of truth.
+
+# Part 3 — Wiki ingestion
+
+Synthesize sorted transcripts into `wiki/` (Clario-vault conventions: category folders, curated `_index.md` TOCs, wikilinks resolve by filename).
+
+### Orchestration
+
+Fan out **one Sonnet subagent per content domain** (`model: sonnet`), in parallel, each reading its folder's transcripts fully and writing hub + satellite pages. The orchestrator (you) writes all `_index.md` files afterward from the agents' reports, then audits. Tell each agent explicitly:
+- do NOT write `_index.md` files (collision risk; orchestrator's job)
+- do NOT spawn subagents or "wait" — they do the reading/writing themselves
+- return a report: `filename — one-line description` per page, plus misfiling flags and judgment calls
+
+For very long stream transcripts (2–3hr let's-plays), instruct agents to **extract transferable knowledge, not play-by-play recaps** — playbook hubs plus per-campaign case-study pages.
+
+### Page conventions
+
+```yaml
+---
+type: wiki
+category: <dynasty|road-to-glory|game-news|creator|...>
+topic: <kebab-slug>
+last_refreshed: YYYY-MM-DD
+confidence: <1-5>          # source strength: large-sample data > single-playthrough opinion
+related: [<page-slugs>]
+sources:
+  - "[[<transcript-filename-no-ext>|<short video title>]]"
+tags: [type/wiki, domain/<category>, topic/<subtopic>]
+---
+```
+
+Body: `# Title`, then a `>` blockquote TL;DR (2–3 sentences), then organized sections. Tables for settings values / tier lists.
+
+Hard rules for every page:
+- **Every substantive claim cited** with wikilink + timestamp: `([[08-these-settings-will-fix-your-dynasty|Settings Fix]] **[09:53]**)`. Cite only paragraph-start markers that exist in the transcript. Ranges: `**[00:00]**–**[01:04]**`.
+- Short verbatim quotes for high-value takes.
+- **Distinguish data-backed findings from creator opinion/experience**; name disagreements between creators explicitly; flag secondhand claims as relayed.
+- Auto-caption garble: quote verbatim + `[sic]`, never invent corrections. Numbers/slider values from captions are directional — say so.
+- No outside knowledge — wiki pages are strictly synthesis of the transcripts.
+- Time-sensitive content (bugs, exploits, news): note it reflects the game state as of the videos' upload dates; exploit pages get low confidence since patches invalidate them.
+
+Also maintain `wiki/creators/<creator>.md` profile pages (channel metadata from transcript frontmatter, content focus, which wiki domains they feed).
+
+### Audit (orchestrator, after agents finish)
+
+```bash
+python3 <skill-dir>/scripts/audit_wiki.py <project-root> --snap
+```
+
+- `--snap` fixes ≤20s cue-time drift automatically.
+- Anything flagged `RE-VERIFY ATTRIBUTION` is usually a citation attributed to the **wrong video** (common when two long streams were processed by one agent) — send it back to the authoring agent to locate the real passage; never guess a fix and never delete without checking the claim against the sources.
+- Watch for agent failure modes seen in practice: an agent returning "waiting for the other agent" without writing anything (resume it with explicit "do it yourself" instructions), and cross-attributed citations between same-series videos.
+
+### Changelog (orchestrator, after audit passes)
+
+Append one entry to `wiki/CHANGELOG.md` per ingestion pass — newest entry at the top, right after the intro blockquote. This is the only chronological, at-a-glance record of wiki content changes; don't skip it. Format:
+
+```markdown
+## YYYY-MM-DD (session label) — short description
+
+**Source:** [[<transcript-filename>|<video title>]] (<creator>, published YYYY-MM-DD)   <!-- or "N transcripts — ..." for a batch -->
+
+- **New:** [[<page-slug>|<Page Title>]] *(<category>, confidence <N>)* — one-line description
+- **Updated:** [[<page-slug>|<Page Title>]] — what changed and why
+- **Updated (indexes/metadata only):** [[...]], [[...]] — counts, cross-refs, etc.
+```
+
+`wiki/CHANGELOG.md` is structural like `_index.md` (own frontmatter, no per-claim timestamped citations required — `audit_wiki.py` exempts both by filename). Like `_index.md`, it's the orchestrator's file, not a subagent's — don't have subagents touch it. Wikilinks inside it still resolve by filename (bare slug for regular pages; `<folder>/_index` only for folder indexes), so `audit_wiki.py` will catch a typo'd link.
+- Finish by re-running both scripts clean, then report: pages written per folder, citation count, fixes applied.

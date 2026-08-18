@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>WVU vs Maryland — Game Plan</title>
+<style>
+  @page { size: Letter; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --navy: #002855;
+    --navy-deep: #001c3d;
+    --gold: #EAAA00;
+    --gold-soft: #f7e7bd;
+    --gold-tint: #faf3dd;
+    --paper: #f4f6f8;
+    --panel: #fcfdfe;
+    --ink: #212c3c;
+    --slate: #5d6a7d;
+    --hairline: #ccd4dd;
+    --rust: #a63d2a;
+  }
+
+  html, body { background: var(--paper); }
+  body { font-family: "Avenir Next", "Helvetica Neue", Helvetica, sans-serif; color: var(--ink); }
+  .cond { font-family: "Avenir Next Condensed", "Arial Narrow", "Helvetica Neue", sans-serif; }
+  .mono { font-family: Menlo, "SF Mono", Monaco, monospace; }
+
+  .page {
+    width: 8.5in; height: 11in; overflow: hidden; position: relative;
+    background: var(--paper); page-break-after: always; display: flex; flex-direction: column;
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* ---------- masthead ---------- */
+  .masthead { background: var(--navy); color: #f2f5f9; padding: 0.30in 0.46in 0.24in; position: relative; }
+  .masthead::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 5px;
+    background: repeating-linear-gradient(90deg, var(--gold) 0 22px, var(--navy-deep) 22px 26px); }
+  .mast-top { display: flex; justify-content: space-between; letter-spacing: 0.22em; font-size: 8.5px; font-weight: 600; text-transform: uppercase; color: #9fb0c6; }
+  .mast-top .conf { color: var(--gold); }
+  .mast-title { font-size: 40px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.01em; margin-top: 7px; line-height: 0.98; }
+  .mast-title .gold { color: var(--gold); }
+  .mast-sub { margin-top: 7px; font-size: 10.5px; color: #b7c4d6; letter-spacing: 0.02em; }
+  .mast-sub b { color: #f2f5f9; font-weight: 600; }
+  .mast-sub .sep { color: #5d7391; margin: 0 6px; }
+
+  .thesis { background: var(--gold); color: var(--navy-deep); padding: 0.12in 0.46in; font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.045em; }
+
+  /* ---------- content grid ---------- */
+  .content { flex: 1; padding: 0.26in 0.46in 0.14in; display: flex; gap: 0.30in; }
+  .col { flex: 1; min-width: 0; }
+
+  /* open ruled sections */
+  .sect { margin-bottom: 0.21in; }
+  .sect-head { display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2.5px solid var(--navy); padding-bottom: 3px; margin-bottom: 8px; }
+  .sect-head h2 { font-size: 16.5px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--navy); font-weight: 700; }
+  .sect-head .kicker { font-size: 7.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--slate); font-weight: 600; }
+
+  .sect ul { list-style: none; }
+  .sect li { font-size: 9.6px; line-height: 1.45; padding-left: 13px; position: relative; margin-bottom: 5px; }
+  .sect li::before { content: ""; position: absolute; left: 0; top: 5.5px; width: 5px; height: 5px; background: var(--gold); }
+  .sect li b { color: var(--navy); font-weight: 600; }
+  .sect li.hot { background: var(--gold-tint); border: 1px solid var(--gold-soft); padding: 5px 8px 5px 21px; }
+  .sect li.hot::before { left: 8px; top: 10.5px; }
+
+  /* numbered priority lists (order = priority) */
+  .sect ol { list-style: none; counter-reset: n; }
+  .sect ol li { counter-increment: n; padding-left: 23px; margin-bottom: 5.5px; }
+  .sect ol li::before { content: counter(n); background: none; width: 15px; height: auto; top: 0;
+    color: var(--navy); font-family: Menlo, monospace; font-size: 10px; font-weight: 700; text-align: right; }
+  .sect ol li.hot { padding: 5px 8px 5px 31px; }
+  .sect ol li.hot::before { left: 8px; top: 5px; }
+
+  /* ---------- callout panels (meaning-bearing only) ---------- */
+  .qbpanel { background: var(--navy); color: #dbe4ef; padding: 12px 14px 13px; margin-bottom: 0.21in; }
+  .qbpanel h2 { color: var(--gold); font-size: 16.5px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 8px; }
+  .qbpanel .statrow { display: flex; gap: 1px; background: #33475f; border: 1px solid #33475f; margin-bottom: 9px; }
+  .qbpanel .stat { flex: 1; background: var(--navy-deep); text-align: center; padding: 8px 2px 7px; }
+  .qbpanel .stat .num { font-family: Menlo, monospace; font-size: 19px; font-weight: 700; color: var(--gold); line-height: 1; }
+  .qbpanel .stat .lbl { font-size: 6.8px; letter-spacing: 0.1em; text-transform: uppercase; margin-top: 4px; color: #8fa2ba; }
+  .qbpanel ul { list-style: none; }
+  .qbpanel li { font-size: 9.6px; line-height: 1.45; padding-left: 13px; position: relative; margin-bottom: 5px; }
+  .qbpanel li::before { content: ""; position: absolute; left: 0; top: 5.5px; width: 5px; height: 5px; background: var(--gold); }
+  .qbpanel b { color: #fdfefe; font-weight: 600; }
+
+  .danger-head { border-bottom-color: var(--rust) !important; }
+  .danger-head h2 { color: var(--rust) !important; }
+  .sect li.rust::before { background: var(--rust); }
+
+  /* tells table: the call-sheet grid */
+  table.tells { width: 100%; border-collapse: collapse; font-size: 9.2px; background: var(--panel); }
+  table.tells th { background: var(--navy); color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; font-size: 7.6px; padding: 5px 8px; text-align: left; font-weight: 700; }
+  table.tells td { padding: 5px 8px; border-bottom: 1px solid var(--hairline); vertical-align: top; line-height: 1.35; }
+  table.tells tr:last-child td { border-bottom: 2.5px solid var(--navy); }
+  table.tells td:first-child { font-family: Menlo, monospace; font-size: 8.2px; font-weight: 700; color: var(--navy); white-space: nowrap; padding-top: 6px; }
+  table.tells td b { color: var(--navy); }
+  table.tells td .flag { color: var(--rust); font-weight: 700; }
+
+  /* three keys band */
+  .keys { margin: 0 0.46in 0.16in; background: var(--navy); color: #dbe4ef; display: flex; align-items: stretch; }
+  .keys .keys-label { background: var(--gold); color: var(--navy-deep); writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-size: 8.5px; font-weight: 700; letter-spacing: 0.28em; text-transform: uppercase; padding: 6px 3px; }
+  .keys .key { flex: 1; padding: 10px 14px 11px; border-left: 1px solid #33475f; }
+  .keys .key .knum { font-family: Menlo, monospace; color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; }
+  .keys .key .ktitle { font-size: 13.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; color: #fdfefe; margin: 2px 0 3px; }
+  .keys .key .ksub { font-size: 8.8px; line-height: 1.4; color: #a9b8cb; }
+
+  .footer { background: var(--navy-deep); color: #6d8098; font-size: 7.5px; letter-spacing: 0.18em; text-transform: uppercase; padding: 6px 0.46in; display: flex; justify-content: space-between; font-weight: 600; }
+  .footer b { color: var(--gold); font-weight: 700; }
+
+  /* self-scout band */
+  .selfscout { margin: 0 0.46in 0.16in; background: var(--gold-tint); border: 1px solid var(--gold-soft); border-top: 4px solid var(--gold); padding: 11px 14px 6px; }
+  .selfscout h2 { color: #7a5900; font-size: 15px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; margin-bottom: 7px; }
+  .selfscout ol { list-style: none; counter-reset: s; columns: 2; column-gap: 26px; }
+  .selfscout ol li { counter-increment: s; font-size: 9.4px; line-height: 1.45; padding-left: 22px; position: relative; margin-bottom: 7px; break-inside: avoid; }
+  .selfscout ol li::before { content: counter(s); position: absolute; left: 0; top: 0; color: #7a5900; font-family: Menlo, monospace; font-size: 10px; font-weight: 700; width: 14px; text-align: right; }
+  .selfscout b { color: #6b4e00; font-weight: 600; }
+
+  /* page-1 typographic upscale (page has slack; page 2 stays dense) */
+  .p1 .sect li { font-size: 10px; line-height: 1.46; margin-bottom: 5.5px; }
+  .p1 .sect-head h2 { font-size: 17.5px; }
+  .p1 .qbpanel li { font-size: 10px; line-height: 1.46; }
+  .p1 .qbpanel .stat .num { font-size: 21px; }
+  .p1 .qbpanel .stat .lbl { font-size: 7.2px; }
+  .p1 table.tells { font-size: 9.6px; }
+  .p1 table.tells td { padding: 5.5px 9px; }
+  .p1 table.tells td:first-child { font-size: 8.5px; }
+  .p1 .sect { margin-bottom: 0.2in; }
+  .p1 .keys .key .ksub { font-size: 9.2px; }
+  .p1 .keys .key .ktitle { font-size: 14px; }
+
+  /* ---------- signature: chalk diagram ---------- */
+  .diagram { background: var(--navy); padding: 10px 12px 9px; margin-bottom: 0.21in; }
+  .diagram .dg-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .diagram .dg-head h3 { color: var(--gold); font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+  .diagram .dg-head span { color: #8fa2ba; font-size: 7px; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .diagram .dg-cap { color: #a9b8cb; font-size: 8.6px; line-height: 1.4; margin-top: 6px; }
+  .diagram .dg-cap b { color: var(--gold); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ================= PAGE 1 ================= -->
+<div class="page p1">
+  <div class="masthead">
+    <div class="mast-top cond"><span>West Virginia Football &nbsp;·&nbsp; Film Room</span><span class="conf">Confidential · Coaches Only</span></div>
+    <div class="mast-title cond">The Book on <span class="gold">Deejay Lurkin</span></div>
+    <div class="mast-sub">Opponent: <b>Maryland</b> (Donovan Rolle, PSN donrolley)<span class="sep">|</span>2027 fixture<span class="sep">|</span>Built from four games of Maryland film</div>
+  </div>
+  <div class="thesis cond">He is a front-runner. Deny him the lead and he has no Plan B.</div>
+
+  <div class="content">
+    <div class="col">
+      <div class="sect">
+        <div class="sect-head"><h2 class="cond">His Offense</h2><span class="kicker">Identity</span></div>
+        <ul>
+          <li><b>Career split is roughly 65% pass.</b> But the pass rate hides the truth:</li>
+          <li class="hot"><b>The run game is his finisher, not his opener.</b> Ahead: 26-165-3 rushing at 6.3 a carry (all three offensive TDs vs Arizona). Trailing: the run game self-deletes entirely.</li>
+          <li><b>Dressing:</b> 11-personnel shotgun bunch and nasty sets (Bunch Open Offset, Bunch Quads, Trips-X Nasty, Wing Slot), plus a new <b>Pistol package</b>. Pistol Off Trips <b>TE Cross is a starred favorite</b>.</li>
+          <li><b>Run staples:</b> Inside Zone from Bunch Quads Offset and Duo Over Wk (21 lifetime calls each). Speed and Triple Option are real change-ups.</li>
+          <li><b>Pass volume:</b> Four Verticals from two formations, Deep Divide, Wildcat Flood.</li>
+          <li><b>75% of his drops are 3-step quick game.</b> Targets cluster short-left and deep-right.</li>
+          <li><b>Tempo is a weapon both ways:</b> hurry-up to chase, and 15-20 play kill drives to ice leads. He uses pace to trap your substitutions.</li>
+          <li class="hot"><b>4th &amp; short: HE GOES.</b> Only kicks at 4th &amp; goal. Two Arizona 4th-down stops became 14 Maryland points.</li>
+        </ul>
+      </div>
+
+      <div class="qbpanel">
+        <h2 class="cond">QB #7 Washington · The Fault Line</h2>
+        <div class="statrow">
+          <div class="stat"><div class="num">11</div><div class="lbl">INTs thru 4 games ('27)</div></div>
+          <div class="stat"><div class="num">1/9</div><div class="lbl">3rd downs, trailing</div></div>
+          <div class="stat"><div class="num">0/7</div><div class="lbl">4th downs, trailing</div></div>
+        </div>
+        <ul>
+          <li><b>Dual-threat. The legs are the 3rd-and-medium danger</b> (3rd &amp; 5 keeper TD, 20-yard scrambles on film). Spy him there.</li>
+          <li><b>Turnover-prone under pressure.</b> Threw a 3rd-&amp;-inches INT and a 4th-&amp;-15 INT vs UNC, both against a standard four-man rush. Forced to convert long, he forces the ball.</li>
+        </ul>
+      </div>
+
+      <div class="sect">
+        <div class="sect-head danger-head"><h2 class="cond">Danger Men</h2><span class="kicker">Know their numbers</span></div>
+        <ul>
+          <li class="rust"><b>CB #10 Dijon Lee Jr:</b> two INTs vs Arizona including a <b>97-yard pick-six</b>. Locate him before every quick throw.</li>
+          <li class="rust"><b>FR edge Zion Elee:</b> speed rusher. INT plus a TFL vs UNC as a freshman.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="sect">
+        <div class="sect-head"><h2 class="cond">His Defense</h2><span class="kicker">Call sheet</span></div>
+        <ul>
+          <li class="hot"><b>4-3 on 74 of 75 personnel calls.</b> He is a 4-3 defense, full stop.</li>
+          <li class="hot"><b>Cover 3 Cloud Press ×52 is THE identity call.</b> Cover 6 ×11 is the change-up. Dime Tampa 2 shows on long downs.</li>
+          <li><b>He almost never blitzes:</b> four-man rush on roughly 92% of snaps, zero 3rd-down blitzes on film. His sacks come from standard rushes.</li>
+          <li><b>The press is fake.</b> Pressed cloud corners look like man every time; it is zone dressing. Trust zone-first, always.</li>
+          <li><b>Red-zone man is real.</b> His tight goal-to-go looks produced two end-zone INTs vs UNC. Careful with goal-line throws.</li>
+          <li>Money-down defense wins by making you kick: Arizona went 1 of 9 on 3rd, 0 of 2 on 4th (one returned for six).</li>
+        </ul>
+      </div>
+
+      <div class="sect">
+        <div class="sect-head"><h2 class="cond">Pre-Snap Tells</h2><span class="kicker">Read &amp; react</span></div>
+        <table class="tells">
+          <tr><th>You see</th><th>It means</th></tr>
+          <tr><td>HEAVY / PISTOL-A / I-FORM</td><td><b>Run.</b> 3 for 3 on film.</td></tr>
+          <tr><td>EMPTY</td><td><b>Pass.</b> 2 for 2 on film.</td></tr>
+          <tr><td>BUNCH</td><td><b>Nothing.</b> Bunch is not a run/pass tell for him.</td></tr>
+          <tr><td>WIDE TRIPS HB WK</td><td><span class="flag">SCREEN ALERT.</span> His screen and draw trio lives here (18 yards a screen).</td></tr>
+          <tr><td>PRESS CORNERS</td><td>Still zone. Cover 3 Cloud dressing.</td></tr>
+          <tr><td>MOTION</td><td>You will not see any (near zero across three films). What you see is the play.</td></tr>
+          <tr><td>RUN DIRECTION</td><td>Interior. 69% middle, no edge lean.</td></tr>
+        </table>
+      </div>
+
+      <div class="sect">
+        <div class="sect-head"><h2 class="cond">The Blueprint Exists</h2><span class="kicker">UNC 37 · MD 14</span></div>
+        <ul>
+          <li>UNC walked into College Park and beat this exact team <b>37-14</b>: standard four-man rush on money downs (2 INTs, 3+ sacks), the intermediate middle, deep shots off play-action, and 4th-down aggression (a fake punt and a 4th-&amp;-inches TD).</li>
+          <li>Maryland was shut out until six minutes remained. <b>This plan is that game, adapted to your personnel.</b></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="keys">
+    <div class="keys-label cond">The Keys</div>
+    <div class="key"><div class="knum">01</div><div class="ktitle cond">Get the lead</div><div class="ksub">Ahead, you face the 11-INT catch-up version of Maryland. Behind, the 6.3-a-carry kill-drive version.</div></div>
+    <div class="key"><div class="knum">02</div><div class="ktitle cond">Rush 4, drop 7</div><div class="ksub">Every sack and INT in the blueprint came without a blitz. Make Washington convert long downs himself.</div></div>
+    <div class="key"><div class="knum">03</div><div class="ktitle cond">Go on 4th</div><div class="ksub">He goes on you; his defense has no answer when you go on him. The aggression trade favors you.</div></div>
+  </div>
+
+  <div class="footer cond"><span><b>West Virginia</b> · Film Room Brief</span><span>Page 1 of 2 · The Book</span></div>
+</div>
+
+<!-- ================= PAGE 2 ================= -->
+<div class="page">
+  <div class="masthead" style="padding-bottom: 0.20in;">
+    <div class="mast-top cond"><span>West Virginia Football &nbsp;·&nbsp; Film Room</span><span class="conf">Confidential · Coaches Only</span></div>
+    <div class="mast-title cond">The <span class="gold">Game Plan</span></div>
+    <div class="mast-sub">Attack the cloud<span class="sep">|</span>Rush 4, drop 7<span class="sep">|</span>Get the lead, then squeeze</div>
+  </div>
+
+  <div class="content" style="padding-bottom: 0.06in;">
+    <div class="col">
+      <div class="diagram">
+        <div class="dg-head"><h3 class="cond">The Two Money Shots</h3><span>vs Cover 3 Cloud Press</span></div>
+        <svg viewBox="0 0 360 178" xmlns="http://www.w3.org/2000/svg">
+          <!-- field lines -->
+          <g stroke="#3a5170" stroke-width="0.8">
+            <line x1="10" y1="22" x2="350" y2="22"/>
+            <line x1="10" y1="52" x2="350" y2="52"/>
+            <line x1="10" y1="82" x2="350" y2="82"/>
+            <line x1="10" y1="112" x2="350" y2="112"/>
+          </g>
+          <line x1="10" y1="142" x2="350" y2="142" stroke="#8fa2ba" stroke-width="1.6"/>
+          <line x1="10" y1="10" x2="10" y2="170" stroke="#8fa2ba" stroke-width="1.6"/>
+          <!-- hole shot window -->
+          <rect x="20" y="34" width="58" height="66" fill="#EAAA00" fill-opacity="0.14" stroke="#EAAA00" stroke-width="1" stroke-dasharray="4 3"/>
+          <text x="26" y="84" fill="#EAAA00" font-family="Menlo, monospace" font-size="7.5" font-weight="bold">HOLE SHOT</text>
+          <text x="26" y="94" fill="#EAAA00" font-family="Menlo, monospace" font-size="7.5" font-weight="bold">WINDOW</text>
+          <!-- defenders -->
+          <text x="43" y="127" fill="#e8edf4" font-family="Menlo, monospace" font-size="11" font-weight="bold">V</text>
+          <text x="60" y="131" fill="#8fa2ba" font-family="Menlo, monospace" font-size="6.6">SQUAT CB</text>
+          <text x="88" y="26" fill="#e8edf4" font-family="Menlo, monospace" font-size="11" font-weight="bold">X</text>
+          <text x="100" y="27" fill="#8fa2ba" font-family="Menlo, monospace" font-size="6.6">1/2 SAFETY</text>
+          <text x="150" y="106" fill="#e8edf4" font-family="Menlo, monospace" font-size="11" font-weight="bold">X</text>
+          <text x="162" y="107" fill="#8fa2ba" font-family="Menlo, monospace" font-size="6.6">SEAM-FLAT</text>
+          <text x="268" y="36" fill="#51677f" font-family="Menlo, monospace" font-size="11" font-weight="bold">X</text>
+          <text x="280" y="37" fill="#51677f" font-family="Menlo, monospace" font-size="6.6">DEEP 1/3</text>
+          <!-- routes -->
+          <!-- #1 hitch: draws the squat -->
+          <path d="M 46 152 L 46 136" stroke="#EAAA00" stroke-width="1.8" fill="none"/>
+          <circle cx="46" cy="133" r="2.4" fill="#EAAA00"/>
+          <text x="18" y="164" fill="#8fa2ba" font-family="Menlo, monospace" font-size="6.6">No.1 HITCH</text>
+          <!-- #2 corner over the squat -->
+          <path d="M 104 152 L 104 96 L 42 44" stroke="#EAAA00" stroke-width="2.2" fill="none"/>
+          <path d="M 42 44 l 9 -1 M 42 44 l 2 9" stroke="#EAAA00" stroke-width="2.2" fill="none"/>
+          <text x="110" y="76" fill="#EAAA00" font-family="Menlo, monospace" font-size="7.5" font-weight="bold">No.2 CORNER</text>
+          <text x="110" y="86" fill="#EAAA00" font-family="Menlo, monospace" font-size="7.5" font-weight="bold">OVER THE SQUAT</text>
+          <!-- offense -->
+          <circle cx="46" cy="156" r="5" fill="none" stroke="#EAAA00" stroke-width="1.8"/>
+          <circle cx="104" cy="156" r="5" fill="none" stroke="#EAAA00" stroke-width="1.8"/>
+          <g fill="none" stroke="#51677f" stroke-width="1.4">
+            <circle cx="196" cy="156" r="4.4"/><circle cx="214" cy="156" r="4.4"/><circle cx="232" cy="156" r="4.4"/><circle cx="250" cy="156" r="4.4"/><circle cx="268" cy="156" r="4.4"/><circle cx="310" cy="156" r="4.4"/>
+          </g>
+          <circle cx="232" cy="170" r="4.4" fill="none" stroke="#8fa2ba" stroke-width="1.4"/>
+        </svg>
+        <div class="dg-cap"><b>Smash:</b> the hitch pins the squatting cloud corner, the corner route settles over him, under the deep third. <b>Hole shot:</b> a boundary vertical lives in the gold window before the half safety arrives. Your quick game and Smash family already do both.</div>
+      </div>
+
+      <div class="sect">
+        <div class="sect-head"><h2 class="cond">Attack · With the Ball</h2><span class="kicker">Priority order</span></div>
+        <ol>
+          <li class="hot"><b>Your Smash and corner-route family is the structural cloud-beater.</b> Make it the spine of the plan (diagram above).</li>
+          <li><b>Hunt the hole shot.</b> Vertical at the pressed cloud corner before the half safety arrives. The same shot exists on the Cover 2 side of his Cover 6 change-up.</li>
+          <li><b>Seams, flats, over the ball.</b> The intermediate middle was UNC's feast zone. Put his seam-flat defender in conflict; take the checkdown when he bails.</li>
+          <li><b>Deep shots only off play-action,</b> when the safety spins down. His base is single-high; a naked deep-middle throw feeds the free safety.</li>
+          <li><b>Don't get bluffed out of the quick game.</b> The press is zone dressing. Unsure? Motion across: nickel travels means zone, safety stacking your side means man.</li>
+          <li><b>No max protect.</b> He rushes four and never blitzes money downs. Spend the bodies on routes; UNC took zero sacks on 43 dropbacks.</li>
+          <li><b>Run your interior game from spread looks.</b> Keeps the box light, and his Cover 6 change-up is run-light by design. Run right at it.</li>
+          <li class="hot"><b>Go on 4th down.</b> A fake punt and a 4th-&amp;-inches TD are what broke him. He has no answer script for aggression.</li>
+          <li><b>Find #10 (Lee Jr) first.</b> Your quick game leans left; if the pick-six corner squats there, work away or clear him out.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="sect">
+        <div class="sect-head"><h2 class="cond">Stop · Without the Ball</h2><span class="kicker">Priority order</span></div>
+        <ol>
+          <li class="hot"><b>Rush 4, drop 7 on money downs.</b> Every UNC sack and INT came on a standard rush. Washington donates the ball when forced to convert long: 11 INTs in four games. Don't bail him out with a blitz.</li>
+          <li><b>Spy #7 on 3rd &amp; medium (3-6).</b> His legs are the conversion threat there. On 3rd or 4th &amp; long: drop seven and take the gift.</li>
+          <li><b>Read formation weight, not bunch.</b> Heavy means run, Empty means pass, bunch means nothing. Zero motion means the picture is honest.</li>
+          <li><b>Screen alert on Wide Trips HB Wk.</b> Keep the backers home; his screen trio averages 18 a pop.</li>
+          <li><b>Wall the interior on early downs.</b> His run game is 69% middle with no edge lean, and it is the only thing that makes him dangerous. Kill the finisher before it starts.</li>
+          <li><b>Pick one tempo-proof personnel and live in it.</b> He hurry-ups mid-drive specifically to trap your subs. Pre-decide your base call for tempo stretches.</li>
+          <li><b>4th &amp; short: he goes.</b> Have the stop call in your pocket before his 3rd-down snap in plus territory.</li>
+        </ol>
+      </div>
+
+      <div class="sect">
+        <div class="sect-head"><h2 class="cond">Manage · The 60 Minutes</h2><span class="kicker">Situational</span></div>
+        <ol>
+          <li class="hot"><b>Script the start to score first.</b> The lead decides which Maryland you play. This is the whole game.</li>
+          <li><b>Ball security over hero throws.</b> His defense manufactured three INTs off UNC in '26 and Lee Jr took two off Arizona. At the goal line take the field goal; his red-zone man looks eat forced throws, and he gives points back on his own money downs.</li>
+          <li><b>If he leads in Q4, spend timeouts early in his drive.</b> His kill drives run 15-20 plays on tempo. A stop only matters while you still have a possession left.</li>
+          <li><b>Take the delay-of-game, keep the timeout.</b> Five yards costs far less than the timeout you never get back.</li>
+          <li><b>Tempo levers:</b> normal keeps your full playbook; turbo chews clock and adds OL push but cuts you to a two-play menu. Use deliberately, not by default.</li>
+          <li><b>Mirror his 4th-down aggression.</b> He will go on you; his defense breaks when you go on him.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="selfscout">
+    <h2 class="cond">Clean Up Your Side · This Week</h2>
+    <ol>
+      <li><b>Your blitz habit is your leak.</b> Your pressure calls have given up chunk plays on film; your zone and contain looks have been far stingier. Against his 3-step quick game a blitz mostly donates the hot route. Coverage-first fixes both problems.</li>
+      <li><b>Bench the PA Read this game.</b> It hasn't paid on film. Feed Smash and the quick RPO game instead.</li>
+      <li><b>Stay out of 3rd &amp; long</b> (0 for 3 on film). Early-down interior run plus the 3-step game keeps you ahead of the chains.</li>
+      <li><b>Your under-center look screams run</b> (8 run, 0 pass on film). Avoid it, or break it once early with play-action to poison the read.</li>
+    </ol>
+  </div>
+
+  <div class="footer cond"><span><b>West Virginia</b> · Film Room Brief</span><span>Page 2 of 2 · The Plan · Beat Maryland</span></div>
+</div>
+
+</body>
+</html>

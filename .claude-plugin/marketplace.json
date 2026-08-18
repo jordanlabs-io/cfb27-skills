@@ -1,0 +1,13 @@
+{
+  "name": "cfb27-skills",
+  "owner": {
+    "name": "Elijah Williams"
+  },
+  "plugins": [
+    {
+      "name": "cfb27",
+      "source": "./plugins/cfb27",
+      "description": "CFB 27 dynasty toolkit — film room, dynasty tracker, scouting reports, wiki imports, newsletter, action shots."
+    }
+  ]
+}
