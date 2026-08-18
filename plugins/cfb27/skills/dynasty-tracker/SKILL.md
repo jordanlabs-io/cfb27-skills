@@ -35,6 +35,8 @@ Apply these verbatim. Each event has a fixed set of destination files:
 - **Signing** (recruit commits/signs) → set the recruit note's `status: signed` **and** add a `roster.md` row for the player. Unknown `Archetype`/`OVR`/`Dev trait` → put `TBD` in the cell and drop a note in `## Loose ends`.
 - **Injury / transfer out / position change** → update the player's `Status` / `Notes` cells in `roster.md`.
 - **Award / accolade / program record** → append a dated entry to `records.md` (never resets).
+- **Standings / conference table** → a **new** `league/standings/<year>-w<NN>.md` snapshot. Season logs and rival-team notes **link** to it (`[[dynasties/<slug>/league/standings/2027-w09|Week 9 standings]]`); they never restate the table. Same rule as H2H: one canonical home, never a second tally.
+- **Coach level, points, abilities, facilities, NIL budget** → a **new** `coach-state/<year>-w<NN>.md` snapshot. `_dynasty.md` keeps the *plan* (the build you are working toward); the snapshot holds the *measured state*. Do not record live numbers in both.
 
 # Schemas
 
@@ -57,7 +59,8 @@ Body: league-members table (person → team), all-time record line, path-qualifi
 ```yaml
 type: recruit
 dynasty: stanford
-season: 2027            # recruiting cycle — set at creation, never changes
+season: 2027            # the season DURING WHICH the cycle runs, not the signing
+                        # class year — set at creation, never changes
 source: high-school     # high-school | portal
 name: "John Smith"
 position: OT
@@ -66,7 +69,28 @@ state: TX
 status: targeting       # targeting | committed | signed | flipped | lost
 priority: high          # high | medium | low
 archived: false         # set true only on archive copies, by the script
+
+# --- board intel: all optional, all queryable. Fill what the screen shows. ---
+board_status: open      # open | top5 | top3 | verbal | committed | unknown
+lock: none              # none | locked | locked-out | dealbreaker | unknown
+unc_standing: leader    # leader | top3 | top5 | listed | absent | unknown
+                        # (where YOUR program sits in the recruit's top-schools list)
+nat_rank: 14            # national / position / state rank, as integers
+pos_rank: 5
+state_rank: 1
+nil_value: 235          # expected NIL
+offer: 0                # NIL you have actually offered; 0 = none extended
+interest_rank: 1        # your ordinal in his interest list, if shown
+hours: 50               # recruiting hours committed this week
+archetype: "Dual Threat"
+hometown: "Wichita, KS"
+height_in: 73
+weight_lb: 202
 ```
+
+**Why these are frontmatter and not prose.** The Bases views query frontmatter only. A recruit note whose ranks, NIL and board status live in the body renders as an almost-empty row on the live board — the data is *stored* but not *usable*. Anything you would ever sort or filter a board by belongs up here; narrative (top-schools list, visit history, why he fits) belongs in the body.
+
+**Every enum carries `unknown` on purpose.** A screen you did not read must never force a guess — file `unknown` and drop a line in `## Loose ends`. This is the schema-level expression of the capture protocol's "unknown beats a guess."
 
 ### Rival team — `league/teams/<slug>.md`
 ```yaml
@@ -86,6 +110,36 @@ record: ""              # e.g. "8-2" — fill as the season progresses
 postseason: ""          # e.g. "Won National Championship"
 ```
 Body: results table `Week | Opponent | H/A | W/L | Score | Notes` (CPU opponents live here only), then freeform narrative.
+
+### Standings snapshot — `league/standings/<year>-w<NN>.md`
+```yaml
+type: standings
+dynasty: stanford
+season: 2027
+week: 9
+conference: "SEC"
+```
+Body: one table — `Team | W-L | Conf | PF | PA | Diff | MOV | Home`, plus any ranking shown.
+
+**One file per capture, never a mutable current-standings file.** Snapshots are how you get a time series: without them a capture overwrites the last one and every week-over-week delta is lost. The same reasoning as `records.md` being append-only.
+
+### Coach + program state — `coach-state/<year>-w<NN>.md`
+```yaml
+type: coach-state
+dynasty: stanford
+season: 2027
+week: 9
+level: 15
+skill_points: 335
+gold: 10
+prestige: "C+"
+job_security: "Safe"
+archetype: "Motivator"
+career_record: "14-7"
+```
+Body: purchased abilities per tree, coordinator cards, facility tiers and slots, NIL budget split.
+
+**Also one file per capture.** This exists because state drifts silently — a level 14 → 15 bump or a gold 30 → 10 spend is invisible unless both sides are on disk.
 
 ### Plain-markdown files (no per-entity frontmatter)
 - **`roster.md`** — one table: `Name | Pos | Class | Archetype | OVR | Dev trait | Status | Notes`. Persistent; players age up at archive (the script does it), never cleared.

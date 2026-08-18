@@ -13,7 +13,7 @@ Default vault-root is the script's great-great-grandparent (script lives at
     priority in high | medium | low                                (recruits)
     mode     in online | offline                                   (dynasty hub)
 - `dynasty:` frontmatter matches the containing dynasty folder name.
-- `season` / `year` frontmatter values are ints.
+- numeric frontmatter values (season, year, week, ranks, NIL, coach level, ...) are ints.
 - roster.md / h2h.md / season-log (and any other) markdown tables are well-formed:
   a header row, a separator row, and every row the same column count as the header.
 - Path-qualified wikilinks inside dynasties/ resolve to a real vault file
@@ -29,11 +29,23 @@ import re
 import sys
 from pathlib import Path
 
-TYPE_ENUM = {"dynasty", "recruit", "rival-team", "season"}
+TYPE_ENUM = {"dynasty", "recruit", "rival-team", "season", "standings", "coach-state"}
 STATUS_ENUM = {"targeting", "committed", "signed", "flipped", "lost"}
 SOURCE_ENUM = {"high-school", "portal"}
 PRIORITY_ENUM = {"high", "medium", "low"}
 MODE_ENUM = {"online", "offline"}
+# Recruiting-board state as the game displays it. "unknown" is always legal:
+# an unread screen must never force a guess.
+BOARD_STATUS_ENUM = {"open", "top5", "top3", "verbal", "committed", "unknown"}
+LOCK_ENUM = {"none", "locked", "locked-out", "dealbreaker", "unknown"}
+# Where our program sits in the recruit's own top-schools list.
+STANDING_ENUM = {"leader", "top3", "top5", "listed", "absent", "unknown"}
+# Numeric frontmatter. Validated only when present; all are optional.
+INT_FIELDS = (
+    "season", "year", "week", "stars", "nat_rank", "pos_rank", "state_rank",
+    "nil_value", "offer", "interest_rank", "hours", "height_in", "weight_lb",
+    "level", "skill_points", "gold",
+)
 
 
 def clean_value(val: str) -> str:
@@ -75,12 +87,24 @@ def is_int(val: str) -> bool:
         return False
 
 
+def split_cells(row: str) -> list:
+    """Split a markdown table row into cells.
+
+    An escaped pipe (\\|) is literal content inside a cell -- verbatim game
+    transcriptions use it constantly ("5-3 (3-2) \\| 5TH IN SEC"). Counting it
+    as a separator reports a malformed table for data that is perfectly fine,
+    and the only way to "fix" that is to edit the evidence. So: neutralise
+    escaped pipes before splitting.
+    """
+    return row.strip().replace("\\|", "\x00").strip("|").split("|")
+
+
 def count_cols(row: str) -> int:
-    return len(row.strip().strip("|").split("|"))
+    return len(split_cells(row))
 
 
 def is_separator(row: str) -> bool:
-    cells = row.strip().strip("|").split("|")
+    cells = split_cells(row)
     return bool(cells) and all(re.match(r"^\s*:?-+:?\s*$", c) for c in cells)
 
 
@@ -162,6 +186,12 @@ def main(vault: str) -> int:
             problems.append(f"{rel}: invalid priority '{fm['priority']}' (expected {sorted(PRIORITY_ENUM)})")
         if "mode" in fm and fm["mode"] not in MODE_ENUM:
             problems.append(f"{rel}: invalid mode '{fm['mode']}' (expected {sorted(MODE_ENUM)})")
+        if "board_status" in fm and fm["board_status"] not in BOARD_STATUS_ENUM:
+            problems.append(f"{rel}: invalid board_status '{fm['board_status']}' (expected {sorted(BOARD_STATUS_ENUM)})")
+        if "lock" in fm and fm["lock"] not in LOCK_ENUM:
+            problems.append(f"{rel}: invalid lock '{fm['lock']}' (expected {sorted(LOCK_ENUM)})")
+        if "unc_standing" in fm and fm["unc_standing"] not in STANDING_ENUM:
+            problems.append(f"{rel}: invalid unc_standing '{fm['unc_standing']}' (expected {sorted(STANDING_ENUM)})")
 
         # --- dynasty field matches containing folder ---
         if "dynasty" in fm and dynasty_folder and fm["dynasty"] != dynasty_folder:
@@ -169,11 +199,10 @@ def main(vault: str) -> int:
                 f"{rel}: dynasty '{fm['dynasty']}' does not match containing folder '{dynasty_folder}'"
             )
 
-        # --- season / year must be ints ---
-        if "season" in fm and not is_int(fm["season"]):
-            problems.append(f"{rel}: season '{fm['season']}' is not an integer")
-        if "year" in fm and not is_int(fm["year"]):
-            problems.append(f"{rel}: year '{fm['year']}' is not an integer")
+        # --- numeric frontmatter must be ints (all optional; checked if present) ---
+        for field in INT_FIELDS:
+            if field in fm and not is_int(fm[field]):
+                problems.append(f"{rel}: {field} '{fm[field]}' is not an integer")
 
         # --- table well-formedness ---
         check_tables(text, rel, problems)
