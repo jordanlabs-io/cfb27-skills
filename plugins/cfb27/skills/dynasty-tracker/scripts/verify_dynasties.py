@@ -40,11 +40,15 @@ BOARD_STATUS_ENUM = {"open", "top5", "top3", "verbal", "committed", "unknown"}
 LOCK_ENUM = {"none", "locked", "locked-out", "dealbreaker", "unknown"}
 # Where our program sits in the recruit's own top-schools list.
 STANDING_ENUM = {"leader", "top3", "top5", "listed", "absent", "unknown"}
+# Scouted reveal. Only the recruit card's Scouting sub-tab shows this; any capture
+# that never opened that tab is legitimately "unknown" for every prospect.
+SCOUT_GRADE_ENUM = {"gem", "normal", "bust", "unknown"}
 # Numeric frontmatter. Validated only when present; all are optional.
 INT_FIELDS = (
     "season", "year", "week", "stars", "nat_rank", "pos_rank", "state_rank",
     "nil_value", "offer", "interest_rank", "hours", "height_in", "weight_lb",
     "level", "skill_points", "gold",
+    "race_rank", "race_size", "race_cutoff", "scouting_pct", "ovr",
 )
 
 
@@ -192,6 +196,14 @@ def main(vault: str) -> int:
             problems.append(f"{rel}: invalid lock '{fm['lock']}' (expected {sorted(LOCK_ENUM)})")
         if "unc_standing" in fm and fm["unc_standing"] not in STANDING_ENUM:
             problems.append(f"{rel}: invalid unc_standing '{fm['unc_standing']}' (expected {sorted(STANDING_ENUM)})")
+        if "scout_grade" in fm and fm["scout_grade"] not in SCOUT_GRADE_ENUM:
+            problems.append(f"{rel}: invalid scout_grade '{fm['scout_grade']}' (expected {sorted(SCOUT_GRADE_ENUM)})")
+        if "scouting_pct" in fm and is_int(fm["scouting_pct"]) and not 0 <= int(fm["scouting_pct"]) <= 100:
+            problems.append(f"{rel}: scouting_pct {fm['scouting_pct']} out of range 0-100")
+        # A race rank you cannot place inside its own field is a transcription slip,
+        # not a judgement call -- catch it here rather than in a Bases view.
+        if is_int(fm.get("race_rank")) and is_int(fm.get("race_size")) and int(fm["race_rank"]) > int(fm["race_size"]):
+            problems.append(f"{rel}: race_rank {fm['race_rank']} exceeds race_size {fm['race_size']}")
 
         # --- dynasty field matches containing folder ---
         if "dynasty" in fm and dynasty_folder and fm["dynasty"] != dynasty_folder:

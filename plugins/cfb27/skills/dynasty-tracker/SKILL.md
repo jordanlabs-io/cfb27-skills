@@ -24,7 +24,9 @@ The user dumps whatever he remembers, in any order, however messy — often late
 - **Tolerate mess.** Parse the dump, file every fact you can place, and move on.
 - **At most ONE clarifying question** per update, and only if something genuinely can't be filed without it. Never run an interview.
 - **Loose ends.** Facts the user mentioned but couldn't fully specify (an OVR he doesn't remember, a recruit whose stars are unknown) go into the `## Loose ends` section of `_dynasty.md` — reconciled opportunistically next session, never blocking.
+- **Reading a screen capture, not a dictation?** Menu screen-shares ("data dumps") have their own lane and a screen-by-screen guide — what each CFB 27 screen contains, which glyphs matter, and where every screen lands in this schema: `film-room` → `references/data-dump.md`. Use it instead of improvising; improvising is how one dump lost 80% of its frames.
 - **Identify the dynasty first.** Every update must be filed to a specific dynasty. Multiple dynasties are live, so **default to North Carolina** when the user doesn't name one — it is the active save. If context points at another dynasty, or is genuinely ambiguous, **ask — never guess.**
+- **Proof outranks derivation (user directive 2026-08-18).** A box score, stats screen, standings table, schedule result — any on-screen game readout — beats a value derived from film charting or reasoned out here. Always, without asking. On a conflict take the proof, and keep the superseded value **and its source** in the note so the reconciliation stays visible rather than looking like it never happened. Two *proofs* that disagree are a different case: record both, flag them, reconcile neither. See `film-room` → Source authority for the charting-side statement of the same rule.
 - After any update session, **run `verify_dynasties.py`** (below) and report failures; don't silently "fix" data.
 
 ## Fan-out rules (one dictated event → all its homes, so nothing drifts)
@@ -73,8 +75,6 @@ archived: false         # set true only on archive copies, by the script
 # --- board intel: all optional, all queryable. Fill what the screen shows. ---
 board_status: open      # open | top5 | top3 | verbal | committed | unknown
 lock: none              # none | locked | locked-out | dealbreaker | unknown
-unc_standing: leader    # leader | top3 | top5 | listed | absent | unknown
-                        # (where YOUR program sits in the recruit's top-schools list)
 nat_rank: 14            # national / position / state rank, as integers
 pos_rank: 5
 state_rank: 1
@@ -82,11 +82,45 @@ nil_value: 235          # expected NIL
 offer: 0                # NIL you have actually offered; 0 = none extended
 interest_rank: 1        # your ordinal in his interest list, if shown
 hours: 50               # recruiting hours committed this week
+favorited: false        # star glyph on the board row
+
+# --- the race: where you actually stand in his top-schools list ---
+unc_standing: leader    # leader | top3 | top5 | listed | absent | unknown
+                        # (derived label; race_rank is the hard number)
+race_rank: 2            # YOUR row number in his Top Schools table
+race_size: 9            # how many schools that table lists
+race_cutoff: 5          # row where the "Projected Cutoff" divider sits;
+                        # race_rank > race_cutoff means you are projected to lose him
+dealbreaker: "Conference Prestige"   # the Dealbreaker panel, verbatim
+dealbreaker_have: "A-"
+dealbreaker_need: "C+"
+
+# --- physical / visual card data ---
 archetype: "Dual Threat"
 hometown: "Wichita, KS"
 height_in: 73
 weight_lb: 202
+hometown_pin: true      # the map-pin glyph beside the hometown — observed, not interpreted
+pipeline: unknown       # the *meaning* of that pin; unknown until a screen names it
+
+# --- scouted reveals: ONLY from the recruit card's Scouting tab ---
+scouting_pct: 0         # 0-100, the "Scouting (N%)" sub-tab label
+scout_grade: unknown    # gem | normal | bust | unknown
+ovr: 0                  # revealed OVR; 0 = not revealed
 ```
+
+**The race lives in `recruiting/races.csv`, not in YAML.** One row per (recruit, school), so the whole board's competitive picture is one query:
+
+```
+season,recruit,rank,school,influence,trend,offer,visit,p_tier,mult,below_cutoff,locked_out,source_frame
+2027,tim-natson,2,North Carolina,,,false,false,6,,false,false,f_1747
+```
+
+`recruit` is the note slug. `trend` is `up`/`down`/blank (the green/red arrows). `below_cutoff` / `locked_out` mark rows under the "Projected Cutoff" and "Locked Out" dividers. The recruit note's body links to it and quotes only its own rows; the frontmatter carries the three scalars you filter on (`race_rank`, `race_size`, `race_cutoff`).
+
+**`scout_grade` and `ovr` come from ONE place: the recruit card's Scouting sub-tab.** The board row, the Recruiting tab and the Overview tab never show a gem/bust glyph or an OVR — verified against frames at `Scouting (100%)`, which still showed neither on the Recruiting tab. So a capture that never opened that tab yields `scout_grade: unknown` for every prospect, no matter how well scouted they are. That is a capture gap, not a data gap: tell the user which tab to open next time rather than filing a guess.
+
+**`pipeline` is unconfirmed; `hometown_pin` is what you can actually see.** CFB 27 draws a small map-pin glyph beside the hometown on some cards and not others, with no on-screen legend. Observed so far: pin on Apopka FL and Rolesville NC, no pin on Worcester MA — consistent with "this hometown is in your program's pipeline," but three observations and no legend is not a definition. So record the glyph as the boolean `hometown_pin` (that is data), and leave `pipeline: unknown` until a screen names a pipeline outright (that would be a fact). Never collapse the two.
 
 **Why these are frontmatter and not prose.** The Bases views query frontmatter only. A recruit note whose ranks, NIL and board status live in the body renders as an almost-empty row on the live board — the data is *stored* but not *usable*. Anything you would ever sort or filter a board by belongs up here; narrative (top-schools list, visit history, why he fits) belongs in the body.
 
