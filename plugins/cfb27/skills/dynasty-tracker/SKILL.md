@@ -100,8 +100,7 @@ archetype: "Dual Threat"
 hometown: "Wichita, KS"
 height_in: 73
 weight_lb: 202
-hometown_pin: true      # the map-pin glyph beside the hometown — observed, not interpreted
-pipeline: unknown       # the *meaning* of that pin; unknown until a screen names it
+p_tier: 6               # YOUR "P TIER" value in his Top Schools row — see below
 
 # --- scouted reveals: ONLY from the recruit card's Scouting tab ---
 scouting_pct: 0         # 0-100, the "Scouting (N%)" sub-tab label
@@ -120,7 +119,9 @@ season,recruit,rank,school,influence,trend,offer,visit,p_tier,mult,below_cutoff,
 
 **`scout_grade` and `ovr` come from ONE place: the recruit card's Scouting sub-tab.** The board row, the Recruiting tab and the Overview tab never show a gem/bust glyph or an OVR — verified against frames at `Scouting (100%)`, which still showed neither on the Recruiting tab. So a capture that never opened that tab yields `scout_grade: unknown` for every prospect, no matter how well scouted they are. That is a capture gap, not a data gap: tell the user which tab to open next time rather than filing a guess.
 
-**`pipeline` is unconfirmed; `hometown_pin` is what you can actually see.** CFB 27 draws a small map-pin glyph beside the hometown on some cards and not others, with no on-screen legend. Observed so far: pin on Apopka FL and Rolesville NC, no pin on Worcester MA — consistent with "this hometown is in your program's pipeline," but three observations and no legend is not a definition. So record the glyph as the boolean `hometown_pin` (that is data), and leave `pipeline: unknown` until a screen names a pipeline outright (that would be a fact). Never collapse the two.
+**`p_tier` is the pipeline field — record the screen's code, not your expansion of it.** The Top Schools table has a column literally headed **`P TIER`**, one value per school, drawn as a coloured map-pin glyph with a character inside. The *same* glyph appears beside a hometown on player and recruit cards (a gold pin reading "3" beside Riverview FL; "9" elsewhere), and is absent on hometowns that are in no one's pipeline — so `P TIER` is a per-school, per-hometown pipeline strength, and your own row's value is the number that matters to you.
+
+Observed values: `1 2 3 4 6 8 9` plus `B` and `S`. **Store it as a string, never an int** — and never expand "P" to "Pipeline" in a field name or a claim. The screen says `P TIER`; that it means pipeline tier is a very good inference, and the ordering of the letters against the numbers is not known at all. Record the code; let a later capture with a legend settle the semantics.
 
 **Why these are frontmatter and not prose.** The Bases views query frontmatter only. A recruit note whose ranks, NIL and board status live in the body renders as an almost-empty row on the live board — the data is *stored* but not *usable*. Anything you would ever sort or filter a board by belongs up here; narrative (top-schools list, visit history, why he fits) belongs in the body.
 

@@ -78,14 +78,18 @@ plus glyphs — padlock (committed/locked), red crossed-out handshake (dealbreak
 prospect's card:
 
 - Identity line: stars, `NAT: n | STA: n | POS: n` (POS is a *rank*, not the position).
-- `POSITION | CLASS | HEIGHT & WEIGHT` and `ARCHETYPE | EXPECTED NIL | HOMETOWN`. A small map-pin
-  glyph appears beside some hometowns and not others — record it, don't interpret it.
+- `POSITION | CLASS | HEIGHT & WEIGHT` and `ARCHETYPE | EXPECTED NIL | HOMETOWN`. A coloured map-pin
+  glyph sits beside some hometowns and not others, **with a character inside it** — the same glyph
+  the `P TIER` column uses. Transcribe the character; zoom in rather than reporting "a pin".
 - Interest meter: a bar with `OPEN`, `TOP 5`, `TOP 3` markers. Say which markers the fill passes.
 - Sub-tabs `Overview | Recruiting | Scouting (N%)` — **always record N.**
 - **Top Schools = the recruiting race.** `# | SCHOOL | INFLUENCE | TOP 3/TOP 5 | OFFER | VISIT |
   P TIER | MULT`, with a `Projected Cutoff` divider and sometimes a `Locked Out` divider. Your own
   row number against the cutoff row is the single most useful number on the screen: rank 9 of 9
   with a cutoff at 5 means you are losing him regardless of how much interest shows.
+  `P TIER` is the pipeline column — a coloured pin per school holding `1 2 3 4 6 8 9`, `B` or `S`.
+  Transcribe the character verbatim as a string; do not rank the letters against the numbers, and
+  do not rewrite the label as "pipeline" — the screen never spells it out.
 - Right side: `Action Summary` (what you spent last week) and `Dealbreaker` with Have/Need grades.
 
 → `recruiting/high-school/<slug>.md` frontmatter + `recruiting/races.csv`.
