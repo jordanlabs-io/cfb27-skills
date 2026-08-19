@@ -29,7 +29,7 @@ import re
 import sys
 from pathlib import Path
 
-TYPE_ENUM = {"dynasty", "recruit", "rival-team", "season", "standings", "coach-state"}
+TYPE_ENUM = {"dynasty", "recruit", "rival-team", "season", "standings", "coach-state", "coach-stats"}
 STATUS_ENUM = {"targeting", "committed", "signed", "flipped", "lost"}
 SOURCE_ENUM = {"high-school", "portal"}
 PRIORITY_ENUM = {"high", "medium", "low"}
@@ -47,7 +47,7 @@ SCOUT_GRADE_ENUM = {"gem", "normal", "bust", "unknown"}
 INT_FIELDS = (
     "season", "year", "week", "stars", "nat_rank", "pos_rank", "state_rank",
     "nil_value", "offer", "interest_rank", "hours", "height_in", "weight_lb",
-    "level", "skill_points", "gold",
+    "level", "dynasty_points", "coach_points",
     "race_rank", "race_size", "race_cutoff", "scouting_pct", "ovr",
 )
 

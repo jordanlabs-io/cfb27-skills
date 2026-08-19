@@ -45,7 +45,8 @@ Apply these verbatim. Each event has a fixed set of destination files:
 - **Injury / transfer out / position change** → update the player's `Status` / `Notes` cells in `roster.md`.
 - **Award / accolade / program record** → append a dated entry to `records.md` (never resets).
 - **Standings / conference table** → a **new** `league/standings/<year>-w<NN>.md` snapshot. Season logs and rival-team notes **link** to it (`[[dynasties/<slug>/league/standings/2027-w09|Week 9 standings]]`); they never restate the table. Same rule as H2H: one canonical home, never a second tally.
-- **Coach level, points, abilities, facilities, NIL budget** → a **new** `coach-state/<year>-w<NN>.md` snapshot. `_dynasty.md` keeps the *plan* (the build you are working toward); the snapshot holds the *measured state*. Do not record live numbers in both.
+- **Coach level, points, abilities, facilities, NIL budget** → a **new** `coach-state/<year>-w<NN>.md` snapshot.
+- **League coach leaderboard** → a **new** `league/coach-stats/<year>-w<NN>.md` + `.csv`, **and** an *In-game coach card* block in each league member's `league/teams/<slug>.md`. Two places max. `_dynasty.md` keeps the *plan* (the build you are working toward); the snapshot holds the *measured state*. Do not record live numbers in both.
 
 # Schemas
 
@@ -85,8 +86,9 @@ lock: none              # none | locked | locked-out | dealbreaker | unknown
 nat_rank: 14            # national / position / state rank, as integers
 pos_rank: 5
 state_rank: 1
-nil_value: 235          # expected NIL
-offer: 0                # NIL you have actually offered; 0 = none extended
+nil_value: 235          # expected NIL — the board's NIL column
+offer: 0                # NIL actually offered — the board's OFFER column; 0 = none extended
+                        # NB: a recruit CARD's "CLASS & NIL" line shows the OFFER, not the ask
 interest_rank: 1        # your ordinal in his interest list, if shown
 hours: 50               # recruiting hours committed this week
 favorited: false        # star glyph on the board row
@@ -190,8 +192,8 @@ dynasty: stanford
 season: 2027
 week: 9
 level: 15
-skill_points: 335
-gold: 10
+dynasty_points: 335        # the Staff/Facilities/NIL budget — NOT ability currency
+coach_points: 10          # the gold headset-diamond — what buys coach abilities
 prestige: "C+"
 job_security: "Safe"
 archetype: "Motivator"
@@ -199,7 +201,49 @@ career_record: "14-7"
 ```
 Body: purchased abilities per tree, coordinator cards, facility tiers and slots, NIL budget split.
 
-**Also one file per capture.** This exists because state drifts silently — a level 14 → 15 bump or a gold 30 → 10 spend is invisible unless both sides are on disk.
+**Two currencies, and they are easy to conflate.** `dynasty_points` is the Dynasty Points Budget (the screen reads "DYNASTY POINTS BUDGET · 335 / 4,560") and funds Staff, Facilities and NIL. `coach_points` is the gold headset-diamond counter and is the *only* thing that buys coach abilities (tier costs run 15/20/25/30, archetype unlocks 45+). Both sit in the same HUD strip, which is how the capture that produced this schema mislabelled them as `skill_points`/`gold` and then reasoned wrongly about a spend. Read the counter's icon, not its position.
+
+**Also one file per capture.** This exists because state drifts silently — a level 14 → 15 bump or a coach-points 30 → 10 spend is invisible unless both sides are on disk.
+
+### League coach leaderboard — `league/coach-stats/<year>-w<NN>.md` + `.csv`
+```yaml
+type: coach-stats
+dynasty: north-carolina
+season: 2027
+week: 9
+conference: "SEC"
+```
+Body wraps the CSV: one row per coach, joining the leaderboard columns to that coach's detail card —
+`name, full_name, team, team_rank, pos, cost, job_security_pct, prestige, career_record,
+career_win_pct, winsea, playoff_record, playoff_win_pct, national_titles, conf_titles,
+first_round_picks, draft_picks, top5_classes, level, archetype, job_security_label, off_scheme,
+def_scheme, alma_mater, record_with_team, record_vs_rivals, bowl_record, record_vs_top25,
+human_controlled, source_frame`.
+
+**This is the only screen that states a rival's declared offensive and defensive scheme.** That is a
+different fact from what film charting shows them calling — record both, reconcile neither. Fan it out
+to each `league/teams/<slug>.md` as an *In-game coach card* block.
+
+**One file per capture**, like standings and coach-state.
+
+## Adding the next state snapshot
+
+One capture week produces a fixed file set. Create all of them or the series develops holes:
+
+| File | Type | Rule |
+| --- | --- | --- |
+| `coach-state/<y>-w<NN>.md` | `coach-state` | new file; never edit an older week |
+| `coach-state/<y>-w<NN>-abilities.csv` | — | only if the ability grids were captured |
+| `league/standings/<y>-w<NN>.md` | `standings` | new file |
+| `league/coach-stats/<y>-w<NN>.md` + `.csv` | `coach-stats` | new file |
+| `league/history/*.csv` | — | **append**, cumulative — not per-week |
+| `seasons/<year>.md` | `season` | edit in place; the live season log is mutable |
+| `recruiting/*.csv`, recruit notes | — | edit in place; recruiting resets at archive |
+
+`Program.base` carries a view per snapshot type (*Standings snapshots*, *Coach state over time*,
+*Coach leaderboard over time*) — that is what turns the files into a time series, so a new snapshot
+type needs a new view and an entry in `TYPE_ENUM`. `coach-state/_index.md` is the landing page that
+points at the newest snapshot; update its delta table when you add one.
 
 ### Plain-markdown files (no per-entity frontmatter)
 - **`roster.md`** — one table: `Name | Pos | Class | Archetype | OVR | Dev trait | Status | Notes`. Persistent; players age up at archive (the script does it), never cleared.

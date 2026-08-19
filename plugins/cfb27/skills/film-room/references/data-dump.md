@@ -144,6 +144,13 @@ League-wide results, the conference table, past champions and program-history ro
 → `league/standings/<year>-w<NN>.md` (one snapshot per capture, never a mutable current file),
 `league/h2h.md` for league-member games only.
 
+**LEAGUE HISTORY is cumulative, not a weekly snapshot** — it goes to `league/history/`:
+`champions.csv` (national + conference, one row per title), `season-<year>.csv` (final standings,
+all teams). Its **Season History** tab for a *finished* year is the only screen that states a season's
+final record, so it is what closes a season log whose last row was a mid-season standing. The
+person-silhouette glyph on a team row marks a human-controlled program. Bowl results render as
+logos, not text — transcribe the name only when the logo carries readable text, else `?`.
+
 ### RECRUITING — Recruiting Board
 Split screen. **Left rail** = the board list: `# | NAME | ★ | POS | board_status | Int: Nth | NIL$`
 plus glyphs — padlock (committed/locked), red crossed-out handshake (dealbreaker), star
@@ -151,6 +158,11 @@ plus glyphs — padlock (committed/locked), red crossed-out handshake (dealbreak
 prospect's card:
 
 - Identity line: stars, `NAT: n | STA: n | POS: n` (POS is a *rank*, not the position).
+- **`CLASS & NIL` on the card is the NIL you have OFFERED, not what he is asking.** The RECRUITS NIL
+  board carries both as separate columns — `OFFER` (extended, 0 = none) and `NIL` (expected) — and the
+  card shows the `OFFER` figure. Confirmed six times without a contradiction. Filing the card number as
+  the expected NIL put four recruit notes' `nil_value` backwards. `offer` ← board `OFFER`;
+  `nil_value` ← board `NIL`.
 - `POSITION | CLASS | HEIGHT & WEIGHT` and `ARCHETYPE | EXPECTED NIL | HOMETOWN`. A coloured map-pin
   glyph sits beside some hometowns and not others, **with a character inside it** — the same glyph
   the `P TIER` column uses. Transcribe the character; zoom in rather than reporting "a pin".
@@ -198,4 +210,25 @@ percentages beside your actual ones), facility tiers as `n/4`, and staff cards.
 ### COACH STATS / COACH ABILITIES
 Level, XP, prestige, contract goals with XP values and met/unmet state, and the ability trees
 (`Recruiter`, `Motivator`, `Strategist`, `Scheme Guru`, …) with each node checked or unchecked.
-→ level/points/goals to `coach-state/<year>-w<NN>.md`; the trees are **not yet schematized**.
+
+**Two currency counters sit side by side in the HUD and mean different things.** The blue diamond is
+**dynasty points** (the Staff / Facilities / NIL budget, labelled "DYNASTY POINTS BUDGET · n / N"); the
+gold headset-diamond is **coach points**, and only coach points buy abilities. A capture that reads
+them as one currency reasons wrongly about every spend — that is exactly how a 30 → 10 drop got
+filed as "unrecorded" instead of "a 20-point ability purchase." Read the icon, not the position.
+
+**The archetype wheel has 10 nodes; the ability catalog lists 13 trees.** They agree: 7 base
+archetypes with 8-branch T1–T4 trees, 3 elite upgrades reached *through* a base node (Elite
+Recruiter, Master Motivator, Scheme Guru), and 3 flat archetypes with no branch grid (CEO, Rainmaker,
+Visionary). Branch grids are always the same 2×4 order — QB, RB/FB, WR/TE, OL / DL, LB, DB, K/P — so a
+slot's position identifies it even when its icon does not.
+
+**Record the `n/4` badge per branch, and say which coach's tab was active.** The wheel has a "Toggle
+Other Coaches" setting, so a tree opened from a coordinator tab may not be that coordinator's; if the
+frame does not establish the owner, say so rather than assigning it.
+
+→ level / points / goals / facilities to `coach-state/<year>-w<NN>.md`; the branch grids to
+`coach-state/<year>-w<NN>-abilities.csv` (`coach,role,tree,branch,tier,ability,cost,owned,source_frame`),
+joined against `dynasties/_wiki/coach-progression/coach-abilities.md` for names and costs; the league
+leaderboard to `league/coach-stats/<year>-w<NN>.md` + `.csv`. Structure and its known conflicts:
+`dynasties/_wiki/coach-progression/ability-trees.md`.
