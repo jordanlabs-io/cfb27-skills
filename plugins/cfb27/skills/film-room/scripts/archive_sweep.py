@@ -20,6 +20,7 @@ Exit 0 = every processed dir finished clean; non-zero otherwise.
 """
 import datetime
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -73,9 +74,13 @@ def verified_names(marker: dict):
         if not isinstance(e, dict):
             continue
         md5 = e.get("md5") or e.get("md5Checksum") or e.get("local_md5")
-        name = e.get("file") or e.get("name")
-        if md5 and name:
-            out[name] = md5
+        if not md5:
+            continue
+        # local_source (upload_only.sh shape) holds the LOCAL path; "name" in
+        # that shape is the Drive-side rename and never matches a local file.
+        for key in ("file", "name", "local_source"):
+            if e.get(key):
+                out[os.path.basename(str(e[key]))] = md5
     return out
 
 
@@ -163,9 +168,13 @@ def sweep_dir(d: Path, dry: bool):
         print(f"[{slug}] {len(failures)} upload(s) failed — keeping ALL local files")
         return False
 
-    (d / "drive_upload.json").write_text(json.dumps(
-        {"folder": FOLDER_NAME, "folder_id": FOLDER_ID,
-         "swept": str(datetime.date.today()), "files": records}, indent=1))
+    # Rewrite the marker only when THIS run uploaded something new — a dir
+    # whose files were all verified by a prior marker keeps that marker
+    # (it carries drive ids this run never saw).
+    if any("id" in r for r in records):
+        (d / "drive_upload.json").write_text(json.dumps(
+            {"folder": FOLDER_NAME, "folder_id": FOLDER_ID,
+             "swept": str(datetime.date.today()), "files": records}, indent=1))
 
     # Delete: verified candidates + regenerables. video.mp4 goes only if it was
     # itself verified or the verified set covered the originals.
