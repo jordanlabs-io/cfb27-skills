@@ -24,18 +24,45 @@ Two rules come straight out of that:
 
 ## Pipeline
 
-1. `ffmpeg` 1 fps → `frames/f_%04d.jpg` (full-res 1920×1080; the tier-1 downscale lives separately
-   in `tier1/`). `f_0720.jpg` = second 719 → `[11:59]`.
-2. dHash every frame on a **cropped** region that excludes the clock/ad overlay (`dhash.py`,
-   `hashes_crop.tsv`), so an ad banner rotating doesn't make a static screen look "new".
-3. Dedup greedily against a rolling window: drop a frame only if it is within ~3 bits of a frame
-   already kept **within about 25 seconds**. A screen revisited five minutes later is new evidence
-   (values may have changed) — do not dedup across the whole VOD.
-4. Tier-1 classify the survivors → `chapters.json` (see `cm/PROMPT.md` shape).
-5. Tier-2 transcribe **every survivor**, ~14 frames per agent, batched in **time order** so one
-   agent sees a whole scroll and can merge it into one table.
-6. Reconcile: for every category in `chapters.json`, assert transcribed == survivors. Any shortfall
-   is a bug, not a judgement call.
+Every step below is a script in this skill's `scripts/` directory, run with the film venv python.
+Resolve them the way the vault's verification block does, so the path survives the workspace being
+deleted:
+
+```bash
+SK=$(ls -d ~/.claude/plugins/cache/cfb27-skills/cfb27/*/skills | sort -V | tail -1)
+```
+
+1. `ffmpeg` 1 fps → `frames/f_%04d.jpg` (full-res 1920×1080; a downscaled copy goes to `tier1/`).
+   `f_0720.jpg` is frame 720 = **second 719** → `[11:59]`.
+2. `dhash.py hashes frames/ hashes_crop.tsv` — dHash on a **cropped** region excluding the animated
+   background and the player card, so neither makes a static table look "new".
+3. `dhash.py calib hashes_crop.tsv` — **do not skip.** Pick `--thresh` from the valley between the
+   "same screen" and "screen changed" clusters. Taking the default blind is how a wrong crop
+   degrades dedup silently.
+4. `dhash.py dedupe hashes_crop.tsv dedupe.json --thresh 3 --window 25` — keep a frame unless it is
+   within 3 bits of one already kept **within about 25 seconds**. A screen revisited five minutes
+   later is new evidence (values may have changed) — never dedup across the whole VOD.
+   **The `dedupe.json.keep` file it writes is the coverage contract.**
+5. `dump_batches.py dedupe.json.keep cm/ --size 14` → tier-1 batches; classify with
+   `dump-prompts/tier1-classify.md`; merge with `dump_chapters.py cm/ chapters.json`.
+6. `dump_batches.py dedupe.json.keep t2/ --size 14` → tier-2 batches; transcribe **every one** with
+   `dump-prompts/tier2-transcribe.md`.
+7. `dump_reconcile.py --keep dedupe.json.keep --manifests 't2/*.txt' --frames frames/ --chapters
+   chapters.json --markdown` — **the gate.** Survivors minus the union of every batch manifest must
+   be empty, or it exits 1 and names the frames. `--markdown` emits the ledger table for `_index.md`.
+   Re-run `dump_reconcile.py` after every wave and again before writing `_index.md`.
+8. `dump-prompts/assemble-csv.md` → per-game CSVs, only after step 7 passes.
+
+**The gate is a filename set-difference, not a per-category count.** Tier-1 classification covers a
+subset of survivors (719 of 1,552 in the 2027 Week 9 dump), so any assertion keyed on
+`chapters.json` categories is structurally blind to every unclassified survivor — it reports green
+over exactly the hole this lane exists to catch.
+
+**Produce the `.keep` file before transcribing, and transcribe exactly it.** The 2027 Week 9 capture
+did not: its 1,552 transcribed frames were assembled operationally across two passes, and no
+`(--thresh, --window)` pair reproduces that set (the closest is off by 188 frames). Its ledger
+therefore records what was read without recording a decision anyone can re-derive. Later captures
+should not repeat that — the `.keep` file is what makes coverage auditable instead of merely counted.
 
 ## Reading the screens
 
@@ -44,6 +71,24 @@ Common to all of them: the top-right HUD (currency counters, LVL, Job Security),
 legend. Those tell you *which* screen you are on and *what filter produced these rows* — a stats
 table transcribed without its category chip is unusable.
 
+### Glyphs and identities that hold across screens
+
+- **The person-silhouette glyph marks a human-controlled program.** It precedes the opponent logo on
+  TEAM SCHEDULE and appears beside schools inside a recruit's Top Schools list. It is how you tell a
+  league game from a CPU game without asking, and it settled which 2027 fixtures belonged in
+  `league/h2h.md`.
+- **The coloured map-pin is the pipeline glyph.** The same pin appears beside some hometowns on a
+  player card and in the `P TIER` column of a recruit's Top Schools table. Transcribe the character
+  inside it verbatim as a string — `1 2 3 4 6 8 9`, `B`, or `S`. Do not rank the letters against the
+  numbers and do not rewrite the label as "pipeline"; the screen never spells it out.
+- **`Total Yards = Total Offense + PR + KR`** on the box score, exactly, on every captured team-line.
+  Use it as an arithmetic check on a scroll you suspect you misread — but if the check fails, suspect
+  your transcription before you report a game bug.
+- **A leaderboard stat is scoped to the position group being shown, not to the team.** On the My
+  School Playing Style tab, Receptions reads 21 at HB, 43 at TE and 63 at WR on the same screen.
+  A `0` is therefore usually real, not a render artifact: "QB - Pure Runner: 0 rushing YPG" is the
+  quarterbacks' number on a team that rushes for 171 a game.
+
 ### TEAM STATS
 The season-cumulative statistics browser, and the biggest screen in any dump — 362 of 719 classified
 frames in the 2027 dump. Tabs switch team-vs-player and the stat category. **The category chip is
@@ -51,7 +96,9 @@ load-bearing**: the same table shape means passing, rushing, receiving, defense,
 returns depending on it. Long vertical scrolls, plus **horizontal** scrolls that move the column
 window — when the NAME column scrolls off the left edge, row identity must come from unchanged row
 order, and that has to be said out loud in the digest, not assumed.
-→ `seasons/<year>-player-stats.csv`, `seasons/<year>-team-stats.csv`.
+→ `seasons/<year>-player-stats.csv` (**long** format: `week,opponent,team,category,player,stat,value`
+— each category has a different column set), `seasons/<year>-team-stats.csv` (**wide**: the team stat
+set is identical every game).
 
 ### BOX SCORE
 Per-game final. Quarter-by-quarter grid on top, then a two-column team-vs-team stat list. Scrolls
@@ -106,8 +153,15 @@ handshake is the dealbreaker flag.
 Your program's grades (Playing Time, Academic Prestige, Coach Stability, Brand Exposure, Stadium
 Atmosphere, Campus Lifestyle, Program Tradition, Playing Style) each with a national Top Schools
 leaderboard showing your rank. The `Playing Style` tab is cycled per archetype with `R2` — each
-archetype re-ranks the leaderboard, so one screen produces many distinct tables.
-→ not yet schematized. Capture it; flag it in `## Loose ends`.
+archetype re-ranks the leaderboard, so one screen produces many distinct tables (42 archetypes
+across 15 position groups in the 2027 dump).
+
+Each grade names the factor it depends on, and each archetype names its "How to Improve" factor with
+an impact weighting, your value, and your national rank + letter grade.
+→ `recruiting/school-grades.csv` and `recruiting/playing-style.csv`.
+**An archetype can carry more than one requirement** — QB Pocket Passer shows Offensive Pass Yards on
+one frame and Points Per Game on another, both real — so cycle the tab slowly and treat any single
+capture as a floor, not a complete list.
 
 ### PROGRAM OVERVIEW / FACILITY MANAGEMENT / SUPPORT STAFF
 Dynasty-point allocation, the NIL budget split (roster vs recruiting, with the game's own suggested
