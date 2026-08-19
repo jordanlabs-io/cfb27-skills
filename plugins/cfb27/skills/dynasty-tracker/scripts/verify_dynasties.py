@@ -150,7 +150,15 @@ def main(vault: str) -> int:
         print(f"dynasties/ not found under {vault} — nothing to verify (structure not built yet)")
         return 0
 
-    dyn_files = sorted(dyn_dir.rglob("*.md"))
+    # dynasties/_wiki/ is canonical game knowledge, not a dynasty: it has different
+    # frontmatter and its own script, verify_wiki.py. Excluded from the checked set so
+    # dynasty rules are not applied to canonical pages and it is not counted as a
+    # fourth dynasty. It stays in the link-resolution set below — dynasty notes link
+    # into it, and those links must still resolve.
+    dyn_files = sorted(
+        p for p in dyn_dir.rglob("*.md")
+        if "_wiki" not in p.relative_to(dyn_dir).parts
+    )
     if not dyn_files:
         print("dynasties/ is empty — nothing to verify (structure not built yet)")
         return 0

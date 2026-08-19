@@ -27,6 +27,13 @@ The user dumps whatever he remembers, in any order, however messy — often late
 - **Reading a screen capture, not a dictation?** Menu screen-shares ("data dumps") have their own lane and a screen-by-screen guide — what each CFB 27 screen contains, which glyphs matter, and where every screen lands in this schema: `film-room` → `references/data-dump.md`. Use it instead of improvising; improvising is how one dump lost 80% of its frames.
 - **Identify the dynasty first.** Every update must be filed to a specific dynasty. Multiple dynasties are live, so **default to North Carolina** when the user doesn't name one — it is the active save. If context points at another dynasty, or is genuinely ambiguous, **ask — never guess.**
 - **Proof outranks derivation (user directive 2026-08-18).** A box score, stats screen, standings table, schedule result — any on-screen game readout — beats a value derived from film charting or reasoned out here. Always, without asking. On a conflict take the proof, and keep the superseded value **and its source** in the note so the reconciliation stays visible rather than looking like it never happened. Two *proofs* that disagree are a different case: record both, flag them, reconcile neither. See `film-room` → Source authority for the charting-side statement of the same rule.
+**`dynasties/_wiki/` is canonical game knowledge, not dynasty data** — how the game works, true in
+every save. It has its own script, `scripts/verify_wiki.py <vault>`, which enforces the two source
+lanes (`source_class: external` needs `sources:` URLs; `source_class: capture` needs a `capture:`
+slug and `frames:` ids), checks TOC reachability, and resolves links. `verify_dynasties.py` skips
+that folder deliberately: canonical pages are not dynasty notes and applying dynasty enums to them
+reported `_wiki` as a fourth dynasty. Run both.
+
 - After any update session, **run `verify_dynasties.py`** (below) and report failures; don't silently "fix" data.
 
 ## Fan-out rules (one dictated event → all its homes, so nothing drifts)

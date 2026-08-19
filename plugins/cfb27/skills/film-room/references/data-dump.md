@@ -73,7 +73,11 @@ into a solvable one:
 
 | Want to check | Page |
 | --- | --- |
+| What an icon means and which values it can hold | `screens/glyph-index.md` |
+| The letter-grade ladder and impact weightings | `screens/grade-scale.md` |
 | `P TIER` pin values, and each school's pipeline regions | `recruiting/pipelines.md` |
+| The fourteen My School categories and their drivers | `recruiting/my-school-grades.md` |
+| Coach leaderboard columns, per tab | `coach-progression/coach-stats-screen.md` |
 | How many archetypes a position actually has | `player-development/ability-requirements.md` |
 | Whether a trait name on a player card is real | `player-development/player-abilities.md` |
 | Coach ability names, trees, tiers and point costs | `coach-progression/coach-abilities.md` |
@@ -96,24 +100,13 @@ table transcribed without its category chip is unusable.
   TEAM SCHEDULE and appears beside schools inside a recruit's Top Schools list. It is how you tell a
   league game from a CPU game without asking, and it settled which 2027 fixtures belonged in
   `league/h2h.md`.
-- **The coloured map-pin is the pipeline glyph, and its value space is 1-5 — nothing else.** The
-  same pin appears beside some hometowns on a player card and in the `P TIER` column of a recruit's
-  Top Schools table. **Read the colour first, then the digit**, because the colour is unambiguous at
-  20px and the digit is not:
-
-  | Pin colour | Tier |
-  | --- | --- |
-  | bronze / copper | **1** |
-  | silver / grey | **2** |
-  | gold | **3** |
-  | teal | **4** |
-  | magenta / purple | **5** |
-
-  **A magenta pin is always a 5.** Its stylised `5` — flat top bar, rounded lower bowl — is the single
-  most misread glyph on any CFB27 screen: in the 2027 Week 9 dump it came back as `6`, `8`, `9`, `B`
-  and `S` across 22 rows and **was never once transcribed correctly**, while every 1, 2, 3 and 4 was
-  right. If you are about to write a `P TIER` outside 1-5, you have misread a 5. Anything genuinely
-  unreadable (an unlit or black pin) is `?`.
+- **The coloured map-pin is the pipeline glyph, and its value space is 1-5 — nothing else.**
+  **Read the colour, not the digit**: bronze 1, silver 2, gold 3, teal 4, magenta 5. A magenta pin is
+  always a `5`, and its stylised glyph is the most misread on any CFB27 screen — in the 2027 Week 9
+  dump it came back as `6`, `8`, `9`, `B` and `S` across 22 rows and was never once right, while
+  every 1-4 was correct. A reading outside 1-5 means you misread a 5. An unlit or black pin is `?`.
+  Full colour table and every other in-table icon: `dynasties/_wiki/screens/glyph-index.md` — that
+  page is the value-space reference, this one is the procedure. Do not restate its tables here.
 - **`Total Yards = Total Offense + PR + KR`** on the box score, exactly, on every captured team-line.
   Use it as an arithmetic check on a scroll you suspect you misread — but if the check fails, suspect
   your transcription before you report a game bug.
