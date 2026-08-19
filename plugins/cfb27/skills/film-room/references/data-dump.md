@@ -94,10 +94,13 @@ prospect's card:
 
 → `recruiting/high-school/<slug>.md` frontmatter + `recruiting/races.csv`.
 
-**The Scouting tab is where gem/bust and OVR live, and only there.** Verified on a prospect sitting
-at `Scouting (100%)`: the Recruiting tab still showed no grade and no OVR. If the dump never opens
-that tab, every recruit is honestly `scout_grade: unknown` — say so and tell the user which tab to
-open next time.
+**The gem is on the card, under the portrait.** A small icon stack sits below the player photo:
+favourited star, crossed-out-handshake dealbreaker flag, and on some players a **green gem** — the
+scouting reveal. Zoom in and report the stack explicitly; the first pass wrote "below-photo icons"
+without saying which, and the gem was lost. Absence of the gem at `Scouting (100%)` is itself data
+(the player is not a gem). No **bust** glyph has ever appeared in a capture — do not report one from
+an absence. Beware two decoys: the HUD currency chips are also gem-shaped, and the crossed-out
+handshake is the dealbreaker flag.
 
 ### RECRUITING — My School
 Your program's grades (Playing Time, Academic Prestige, Coach Stability, Brand Exposure, Stadium

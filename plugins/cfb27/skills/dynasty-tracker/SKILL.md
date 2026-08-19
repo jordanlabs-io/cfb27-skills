@@ -117,7 +117,16 @@ season,recruit,rank,school,influence,trend,offer,visit,p_tier,mult,below_cutoff,
 
 `recruit` is the note slug. `trend` is `up`/`down`/blank (the green/red arrows). `below_cutoff` / `locked_out` mark rows under the "Projected Cutoff" and "Locked Out" dividers. The recruit note's body links to it and quotes only its own rows; the frontmatter carries the three scalars you filter on (`race_rank`, `race_size`, `race_cutoff`).
 
-**`scout_grade` and `ovr` come from ONE place: the recruit card's Scouting sub-tab.** The board row, the Recruiting tab and the Overview tab never show a gem/bust glyph or an OVR — verified against frames at `Scouting (100%)`, which still showed neither on the Recruiting tab. So a capture that never opened that tab yields `scout_grade: unknown` for every prospect, no matter how well scouted they are. That is a capture gap, not a data gap: tell the user which tab to open next time rather than filing a guess.
+**`scout_grade` reads the gem icon on the prospect card, not the Scouting tab.** Directly under the portrait, a recruit card stacks small icons: a favourited star, the crossed-out-handshake dealbreaker flag, and — on some players — a **green gem**. That gem is the scouting reveal.
+
+- `gem` — green gem present.
+- `normal` — `scouting_pct: 100` and no gem drawn. Verified as a real per-player difference, not a screen that hides it: at `Scouting (100%)` Greg Eddy (f_1766) shows the gem and Emanuel Anchrum (f_1795) shows only the dealbreaker flag.
+- `unknown` — no card opened, or scouting below 100%. An unscouted player has nothing to show.
+- `bust` — **the enum carries it; this capture never produced one.** No bust glyph has been observed on any card. Do not infer `bust` from the absence of a gem — that is what `normal` is for, and `normal` here means "fully scouted, no gem", not "confirmed not a bust."
+
+Two decoys sit on the same screen: the top-right HUD currency chips are gem-shaped too (blue/teal 335, orange/red 10) and are currency, not scouting; the crossed-out handshake is the dealbreaker flag.
+
+`ovr` is a different matter — no recruit card in this capture showed one, at any scouting level. Leave it `0` until a screen produces it.
 
 **`p_tier` is the pipeline field — record the screen's code, not your expansion of it.** The Top Schools table has a column literally headed **`P TIER`**, one value per school, drawn as a coloured map-pin glyph with a character inside. The *same* glyph appears beside a hometown on player and recruit cards (a gold pin reading "3" beside Riverview FL; "9" elsewhere), and is absent on hometowns that are in no one's pipeline — so `P TIER` is a per-school, per-hometown pipeline strength, and your own row's value is the number that matters to you.
 
