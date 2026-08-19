@@ -80,18 +80,29 @@ def verified_names(marker: dict):
 
 
 def candidates(d: Path):
-    orig = sorted({p for g in ORIG_GLOBS for p in d.glob(g)
-                   if p.is_file() and p.name not in NEVER_CANDIDATES})
-    if orig:
-        return orig, True
+    """Returns (upload candidates, are_originals).
+
+    are_originals=True (licenses deleting video.mp4 as a regenerable transcode)
+    ONLY for true capture files: ScreenRecording*, *.MP4, *.mov. Stray lowercase
+    .mp4 helpers (audio_src.mp4 etc.) are uploaded but do NOT license it — in a
+    data-dump dir video.mp4 IS the original VOD and must be uploaded itself.
+    """
+    strict = sorted({p for g in ("ScreenRecording*", "*.MP4", "*.mov") for p in d.glob(g)
+                     if p.is_file() and p.name not in NEVER_CANDIDATES})
+    extra = sorted({p for p in d.glob("*.mp4")
+                    if p.is_file() and p.name not in NEVER_CANDIDATES and p not in strict})
+    if strict:
+        return strict + extra, True
     v = d / "video.mp4"
-    return ([v], False) if v.exists() else ([], False)
+    return (extra + ([v] if v.exists() else []), False)
 
 
 def upload(path: Path, drive_name: str):
+    # gws refuses --upload paths outside the cwd -> run from the file's dir.
     meta = json.dumps({"name": drive_name, "parents": [FOLDER_ID]})
-    r = sh(["gws", "drive", "files", "create", "--upload", str(path),
-            "--json", meta, "--params", '{"fields":"id,name,size,md5Checksum"}'])
+    r = sh(["gws", "drive", "files", "create", "--upload", path.name,
+            "--json", meta, "--params", '{"fields":"id,name,size,md5Checksum"}'],
+           cwd=str(path.parent))
     raw = r.stdout
     start = raw.find("{")
     if r.returncode != 0 or start < 0:

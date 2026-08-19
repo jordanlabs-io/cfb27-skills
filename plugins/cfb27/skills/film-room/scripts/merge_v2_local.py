@@ -19,7 +19,8 @@ V2_FIELDS = ["off_formation", "def_shell_pre", "cb_depth_pre", "play_type",
              "motion_type", "motion_response", "def_front", "box_count", "nickel_present",
              "rushers", "cb_relation", "lb_pass_action", "crosser_handoff",
              "qb_drop", "target_area", "run_direction", "pressure",
-             "menu_visible", "menu_side", "screen_call", "menu_tiles"]
+             "menu_visible", "menu_side", "screen_call", "menu_tiles",
+             "def_shell_initial", "adjust_seq", "playart_delta", "postsnap_confirms"]
 NEW_COLS = ["v2_" + f for f in V2_FIELDS] + ["man_zone_verdict", "mz_confidence", "v2_src"]
 
 

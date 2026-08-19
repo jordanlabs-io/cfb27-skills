@@ -166,6 +166,7 @@ def main():
     blocks = parse_blocks(batchdir)
 
     rows = []
+    transcript_rows = []
     prev = {"poss": None, "snap": None}
     for p in plays:
         n = int(p["n"])
@@ -235,8 +236,8 @@ def main():
             "adjust_note": b.get("adjust_note", ""),
             "def_adjust": b.get("def_adjust", ""),
             "confidence": b.get("confidence", ""), "note": b.get("note", ""),
-            "transcript": txt,
         })
+        transcript_rows.append({"n": n, "transcript": txt})
         if snap:
             prev = {"poss": p["poss"], "snap": snap}
 
@@ -244,6 +245,14 @@ def main():
         w = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
         w.writeheader()
         w.writerows(rows)
+    # Verbatim per-window transcript lives in a sidecar, not the deliverable
+    # CSV — it is only consumed during step-7 adjudication, and inlining it
+    # roughly doubled row size in the vault copy.
+    side = re.sub(r"\.csv$", "", out_csv) + "_transcript.csv"
+    with open(side, "w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=["n", "transcript"])
+        w.writeheader()
+        w.writerows(transcript_rows)
     charted = sum(1 for r in rows if r["play_type"])
     print(f"{len(rows)} plays assembled; {charted} charted; -> {out_csv}")
 

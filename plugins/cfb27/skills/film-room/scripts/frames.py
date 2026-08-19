@@ -14,9 +14,11 @@ For each play window from segment.py's plays.csv:
 
 Usage:
   frames.py VIDEO PLAYS_CSV OUTDIR [--plays 1,4,9|20-45] [--ghost-secs 3.2]
+           [--procs N]
 """
 import argparse
 import csv
+import multiprocessing
 import os
 import re
 import shutil
@@ -24,7 +26,7 @@ import subprocess
 import sys
 import tempfile
 
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageDraw
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import segment as seg
@@ -32,6 +34,7 @@ import segment as seg
 FIELD_CROP = "iw:ih*0.85:0:0"     # cut the scorebug strip off the bottom
 STRIP_OFFSETS = [0.4, 0.9, 1.5, 2.1, 2.7, 3.3]
 PREPLAY_OFFSETS = [-8.0, -5.0, -3.0, -1.2]   # lineup -> snap alignment
+SEQ_OFFSETS = [-12.0, -9.7, -7.4, -5.1, -2.8, -0.5]  # presnap_seq label grid
 MOTION_FPS = 4
 MOTION_LOOKBACK = 25.0            # search the last N s of the window for the snap
 PLAY_MOTION_SECS = 2.0            # sustained motion needed to call it a snap
@@ -254,6 +257,35 @@ def preplay(video, snap, out):
     return True
 
 
+def presnap_seq(video, snap, out):
+    """Timestamp-labeled 3x2 grid, snap-12s -> snap-0.5s, reading order = time
+    order. The adjustment read: initial alignment (top-left) through audibles /
+    shifts / coverage rotations to the final look just before the snap
+    (bottom-right). Each cell is stamped with its offset so agents can order
+    WHEN an adjustment happened, which preplay.jpg's unlabeled cells cannot."""
+    with tempfile.TemporaryDirectory() as td:
+        cells = []
+        for i, off in enumerate(SEQ_OFFSETS):
+            fp = os.path.join(td, f"sq{i}.jpg")
+            grab(video, snap + off, fp, width=640)
+            if not os.path.exists(fp):
+                continue
+            im = Image.open(fp).convert("RGB")
+            d = ImageDraw.Draw(im)
+            label = f"snap{off:+.1f}s"
+            d.rectangle([0, 0, 8 * len(label) + 10, 22], fill="black")
+            d.text((5, 4), label, fill="yellow")
+            cells.append(im)
+        if len(cells) < 2:
+            return False
+        cw, ch = cells[0].size
+        grid = Image.new("RGB", (cw * 3 + 8, ch * 2 + 4), "black")
+        for i, im in enumerate(cells):
+            grid.paste(im, ((i % 3) * (cw + 4), (i // 3) * (ch + 2)))
+        grid.save(out, quality=85)
+    return True
+
+
 def strip(video, snap, out):
     with tempfile.TemporaryDirectory() as td:
         cells = []
@@ -271,6 +303,77 @@ def strip(video, snap, out):
         grid.save(out, quality=85)
 
 
+def process_play(job):
+    """Everything for one play window. Runs in a worker process; returns the
+    status line(s) so the parent prints them in play order."""
+    video, outdir, ghost_secs, vw, vh, p = job
+    n = p["n"]
+    notes = []
+    t_first, t_last = float(p["t_first"]), float(p["t_last"])
+    pdir = os.path.join(outdir, f"play{int(n):03d}")
+    os.makedirs(pdir, exist_ok=True)
+
+    boxes = seg.scaled_boxes(vw, vh)
+    pc_stop = pc_stop_time(video, boxes, t_first, t_last - 4)
+    m0 = max(t_first, t_last - MOTION_LOOKBACK)
+    prof = motion_profile(video, m0, t_last + 2)
+    if pc_stop is not None:
+        # prefer the play-clock signal; use motion onset when it agrees
+        snap_motion = find_snap(prof, t_last)
+        snap = snap_motion if abs(snap_motion - pc_stop) <= 3 else pc_stop + 0.5
+    else:
+        # no play-clock signal: the snap is the LAST onset before the end
+        # region, never the stillest (that one is the play-call menu)
+        snap = find_snap(prof, t_last, mode="last")
+
+    # Clamp into the window. Every estimator above can hand back a time
+    # outside [t_first, t_last] on degenerate input; on UNC-Vanderbilt five
+    # short windows all collapsed onto one out-of-window value (4021.5s, in
+    # the postgame menus) and two of them were charted as real plays off
+    # composites cut from the wrong part of the video.
+    short = (t_last - t_first) <= SHORT_WINDOW
+    clamped = min(max(snap, t_first), max(t_first, t_last - 1))
+    if abs(clamped - snap) > 0.05:
+        notes.append(f"  play {n}: snap {snap:.1f}s outside window "
+                     f"{t_first:.1f}-{t_last:.1f} -> clamped to {clamped:.1f}s")
+        snap = clamped
+
+    # HUD gate: re-grab at successively later onsets while the frame just
+    # after the estimated snap still reads PRE-PLAY / SUBS
+    later = [t for _, t in motion_onsets(prof, t_last) if t > snap + 0.5]
+    hbox = preplay_box(vw, vh)
+    unreliable = False
+    for _attempt in range(3):
+        grab(video, snap - 1.2, os.path.join(pdir, "presnap.jpg"))
+        ok = ghost(video, snap, ghost_secs, os.path.join(pdir, "ghost.jpg"))
+        strip(video, snap, os.path.join(pdir, "strip.jpg"))
+        if not hud_says_presnap(video, hbox, snap + STRIP_OFFSETS[0]):
+            break
+        if not later or _attempt == 2:   # 2 retries, then give up
+            unreliable = True
+            break
+        snap = later.pop(0)              # only advance if we re-grab
+
+    pp_ok = preplay(video, snap, os.path.join(pdir, "preplay.jpg"))
+    sq_ok = presnap_seq(video, snap, os.path.join(pdir, "presnap_seq.jpg"))
+    grab(video, t_last - 0.5, os.path.join(pdir, "result.jpg"))
+    if short:
+        unreliable = True
+    flag = " snap_unreliable=1" if unreliable else ""
+    flag += f" short_window={t_last - t_first:.1f}s" if short else ""
+    with open(os.path.join(pdir, "meta.txt"), "w") as f:
+        f.write(f"play={n} dd={p['dd']} qtr={p['qtr']} clock={p['clock']}\n"
+                f"window={t_first}-{t_last} snap_est={snap:.1f} "
+                f"ghost={'ok' if ok else 'FAILED'} "
+                f"preplay={'ok' if pp_ok else 'FAILED'} "
+                f"presnap_seq={'ok' if sq_ok else 'FAILED'}{flag}\n")
+    notes.append(f"play {n}: dd={p['dd']:<9s} snap≈{snap:7.1f}s "
+                 f"ghost={'ok' if ok else 'FAIL'}"
+                 f"{' UNRELIABLE' if unreliable else ''}"
+                 f"{' SHORT-WINDOW' if short else ''}")
+    return "\n".join(notes)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("video")
@@ -279,6 +382,9 @@ def main():
     ap.add_argument("--plays", default=None,
                     help="play numbers: '1,4,9', a range '20-45', or a mix")
     ap.add_argument("--ghost-secs", type=float, default=3.2)
+    ap.add_argument("--procs", type=int,
+                    default=max(1, (os.cpu_count() or 4) - 2),
+                    help="parallel play workers (default: cpu count - 2)")
     args = ap.parse_args()
 
     plays = list(csv.DictReader(open(args.plays_csv)))
@@ -290,76 +396,19 @@ def main():
             sys.exit(f"--plays: {len(missing)} selected play(s) not in "
                      f"{args.plays_csv}: {sorted(missing, key=int)[:10]}")
     os.makedirs(args.outdir, exist_ok=True)
-    done = 0
 
-    for p in plays:
-        n = p["n"]
-        if wanted and n not in wanted:
-            continue
-        done += 1
-        t_first, t_last = float(p["t_first"]), float(p["t_last"])
-        pdir = os.path.join(args.outdir, f"play{int(n):03d}")
-        os.makedirs(pdir, exist_ok=True)
+    vw, vh, _ = seg.video_info(args.video)
+    jobs = [(args.video, args.outdir, args.ghost_secs, vw, vh, p)
+            for p in plays if not wanted or p["n"] in wanted]
 
-        vw, vh, _ = seg.video_info(args.video)
-        boxes = seg.scaled_boxes(vw, vh)
-        pc_stop = pc_stop_time(args.video, boxes, t_first, t_last - 4)
-        m0 = max(t_first, t_last - MOTION_LOOKBACK)
-        prof = motion_profile(args.video, m0, t_last + 2)
-        if pc_stop is not None:
-            # prefer the play-clock signal; use motion onset when it agrees
-            snap_motion = find_snap(prof, t_last)
-            snap = snap_motion if abs(snap_motion - pc_stop) <= 3 else pc_stop + 0.5
-        else:
-            # no play-clock signal: the snap is the LAST onset before the end
-            # region, never the stillest (that one is the play-call menu)
-            snap = find_snap(prof, t_last, mode="last")
-
-        # Clamp into the window. Every estimator above can hand back a time
-        # outside [t_first, t_last] on degenerate input; on UNC-Vanderbilt five
-        # short windows all collapsed onto one out-of-window value (4021.5s, in
-        # the postgame menus) and two of them were charted as real plays off
-        # composites cut from the wrong part of the video.
-        short = (t_last - t_first) <= SHORT_WINDOW
-        clamped = min(max(snap, t_first), max(t_first, t_last - 1))
-        if abs(clamped - snap) > 0.05:
-            print(f"  play {n}: snap {snap:.1f}s outside window "
-                  f"{t_first:.1f}-{t_last:.1f} -> clamped to {clamped:.1f}s")
-            snap = clamped
-
-        # HUD gate: re-grab at successively later onsets while the frame just
-        # after the estimated snap still reads PRE-PLAY / SUBS
-        later = [t for _, t in motion_onsets(prof, t_last) if t > snap + 0.5]
-        hbox = preplay_box(vw, vh)
-        unreliable = False
-        for _attempt in range(3):
-            grab(args.video, snap - 1.2, os.path.join(pdir, "presnap.jpg"))
-            ok = ghost(args.video, snap, args.ghost_secs, os.path.join(pdir, "ghost.jpg"))
-            strip(args.video, snap, os.path.join(pdir, "strip.jpg"))
-            if not hud_says_presnap(args.video, hbox, snap + STRIP_OFFSETS[0]):
-                break
-            if not later or _attempt == 2:   # 2 retries, then give up
-                unreliable = True
-                break
-            snap = later.pop(0)              # only advance if we re-grab
-
-        pp_ok = preplay(args.video, snap, os.path.join(pdir, "preplay.jpg"))
-        grab(args.video, t_last - 0.5, os.path.join(pdir, "result.jpg"))
-        if short:
-            unreliable = True
-        flag = " snap_unreliable=1" if unreliable else ""
-        flag += f" short_window={t_last - t_first:.1f}s" if short else ""
-        with open(os.path.join(pdir, "meta.txt"), "w") as f:
-            f.write(f"play={n} dd={p['dd']} qtr={p['qtr']} clock={p['clock']}\n"
-                    f"window={t_first}-{t_last} snap_est={snap:.1f} "
-                    f"ghost={'ok' if ok else 'FAILED'} "
-                    f"preplay={'ok' if pp_ok else 'FAILED'}{flag}\n")
-        print(f"play {n}: dd={p['dd']:<9s} snap≈{snap:7.1f}s "
-              f"ghost={'ok' if ok else 'FAIL'}"
-              f"{' UNRELIABLE' if unreliable else ''}"
-              f"{' SHORT-WINDOW' if short else ''}")
-
-    print(f"frames written for {done} play(s)")
+    if args.procs <= 1 or len(jobs) <= 1:
+        for job in jobs:
+            print(process_play(job), flush=True)
+    else:
+        with multiprocessing.Pool(min(args.procs, len(jobs))) as pool:
+            for line in pool.imap(process_play, jobs):
+                print(line, flush=True)
+    print(f"frames written for {len(jobs)} play(s)")
 
 
 if __name__ == "__main__":

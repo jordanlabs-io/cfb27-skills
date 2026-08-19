@@ -7,31 +7,81 @@ For each play in seg/plays.csv:
   - list frames.py composites (presnap/ghost/strip/result) if present
 Group plays into batches of 8 by possession side, write batches/batchNN.txt manifests.
 
-Usage: prep_batches.py GAMEDIR TEAM_L TEAM_R [SEAM_T OWNER_A OWNER_B]
+Usage: prep_batches.py GAMEDIR TEAM_L TEAM_R [SEAM_T OWNER_A OWNER_B] [--tiles]
   TEAM_L/TEAM_R = scorebug left/right team names (poss column is L/R)
   SEAM_T = concat boundary sec; screen owner = OWNER_A before, OWNER_B after
   (no seam args -> constant owner OWNER_A if given, else TEAM_L)
+  --tiles: split each menu band into two 960-wide tiles. The API downsamples
+    any image over 1568px on the long edge, so a 1920-wide band loses ~18%
+    of its text resolution; two <=1568px tiles keep native resolution at
+    ~1.5x the image tokens. Use when tile names / counters come back garbled.
 """
 import csv
 import os
 import subprocess
 import sys
+import tempfile
 
-GAMEDIR, TEAM_L, TEAM_R = sys.argv[1], sys.argv[2], sys.argv[3]
-SEAM = float(sys.argv[4]) if len(sys.argv) > 4 else None
-OWNER_A = sys.argv[5] if len(sys.argv) > 5 else TEAM_L
-OWNER_B = sys.argv[6] if len(sys.argv) > 6 else OWNER_A
+ARGS = [a for a in sys.argv[1:] if a != "--tiles"]
+TILES = "--tiles" in sys.argv
+GAMEDIR, TEAM_L, TEAM_R = ARGS[0], ARGS[1], ARGS[2]
+SEAM = float(ARGS[3]) if len(ARGS) > 3 else None
+OWNER_A = ARGS[4] if len(ARGS) > 4 else TEAM_L
+OWNER_B = ARGS[5] if len(ARGS) > 5 else OWNER_A
 VIDEO = os.path.join(GAMEDIR, "video.mp4")
 BATCH_SIZE = 8
 
+# >=2 of these in an OCR pass over the band = a play-call/adjustment overlay
+# is up (used to keep pre-snap playart_check grabs; field frames don't hit).
+PLAYART_MARKERS = ("CALLS", "AVG", "AUDIBLE", "PROTECTION", "COVER",
+                   "PERSONNEL", "ADJUSTMENT", "BLITZ", "FORMATION")
 
-def grab(t, out):
+
+def grab(t, out, x0=0, w=1920):
     if os.path.exists(out):
         return
     # full-res lower-half crop: play-call tiles + personnel tabs + counters stay legible
     subprocess.run(["ffmpeg", "-y", "-v", "error", "-ss", f"{t:.1f}", "-i", VIDEO,
-                    "-frames:v", "1", "-vf", "crop=1920:620:0:460", "-q:v", "4", out],
+                    "-frames:v", "1", "-vf", f"crop={w}:620:{x0}:460", "-q:v", "4", out],
                    check=False)
+
+
+def grab_menu(t, pdir, stem):
+    """Grab the menu band as one 1920-wide image, or two native-res tiles."""
+    outs = []
+    if TILES:
+        for suffix, x0 in (("_L", 0), ("_R", 960)):
+            out = os.path.join(pdir, f"{stem}{suffix}.jpg")
+            grab(t, out, x0=x0, w=960)
+            if os.path.exists(out):
+                outs.append(os.path.basename(out))
+    else:
+        out = os.path.join(pdir, f"{stem}.jpg")
+        grab(t, out)
+        if os.path.exists(out):
+            outs.append(os.path.basename(out))
+    return outs
+
+
+def band_is_menu(t):
+    """OCR gate: True when the band at time t shows a menu/adjustment overlay.
+    Fails closed (False) when OCR is unavailable — a missing dep must not
+    start attaching two extra field crops to every play."""
+    try:
+        from PIL import Image
+        import pytesseract
+    except ImportError:
+        return False
+    with tempfile.TemporaryDirectory() as td:
+        fp = os.path.join(td, "band.jpg")
+        grab(t, fp)
+        if not os.path.exists(fp):
+            return False
+        try:
+            txt = pytesseract.image_to_string(Image.open(fp)).upper()
+        except Exception:
+            return False
+    return sum(m in txt for m in PLAYART_MARKERS) >= 2
 
 
 plays = list(csv.DictReader(open(os.path.join(GAMEDIR, "seg/plays.csv"))))
@@ -59,11 +109,20 @@ for p in plays:
     if gap_b - gap_a >= 4:
         for i, frac in enumerate((0.3, 0.6, 0.85), 1):
             t = gap_a + (gap_b - gap_a) * frac
-            out = os.path.join(pdir, f"menu{i}.jpg")
-            grab(t, out)
-            if os.path.exists(out):
-                menus.append(f"menu{i}.jpg")
-    imgs = [f for f in ("preplay.jpg", "presnap.jpg", "ghost.jpg", "strip.jpg", "result.jpg")
+            menus += grab_menu(t, pdir, f"menu{i}")
+    # Pre-snap play-art re-checks: a coach re-opening play art between the
+    # lineup and the snap reveals the original call AND post-audible art.
+    # OCR-gated so field frames don't get grabbed as menu payload.
+    if snap:
+        for i, off in enumerate((-6.0, -2.5), 1):
+            t = snap + off
+            if t > gap_b and band_is_menu(t):
+                menus += grab_menu(t, pdir, f"playart_check{i}")
+    # presnap_seq (labeled 6-cell sequence) supersedes preplay (unlabeled 2x2);
+    # older film dirs without it fall back to preplay. Never send both.
+    pre = "presnap_seq.jpg" if os.path.exists(os.path.join(pdir, "presnap_seq.jpg")) \
+        else "preplay.jpg"
+    imgs = [f for f in (pre, "presnap.jpg", "ghost.jpg", "strip.jpg", "result.jpg")
             if os.path.exists(os.path.join(pdir, f))]
     manifest_rows.append((n, p, imgs, menus))
     prev_end = t1
