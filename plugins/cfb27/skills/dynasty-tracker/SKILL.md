@@ -47,6 +47,10 @@ Apply these verbatim. Each event has a fixed set of destination files:
 - **Standings / conference table** → a **new** `league/standings/<year>-w<NN>.md` snapshot. Season logs and rival-team notes **link** to it (`[[dynasties/<slug>/league/standings/2027-w09|Week 9 standings]]`); they never restate the table. Same rule as H2H: one canonical home, never a second tally.
 - **Coach level, points, abilities, facilities, NIL budget** → a **new** `coach-state/<year>-w<NN>.md` snapshot.
 - **League coach leaderboard** → a **new** `league/coach-stats/<year>-w<NN>.md` + `.csv`, **and** an *In-game coach card* block in each league member's `league/teams/<slug>.md`. Two places max. `_dynasty.md` keeps the *plan* (the build you are working toward); the snapshot holds the *measured state*. Do not record live numbers in both.
+- **Menu-screen captures (film-room Lane C ingest)** — the film-room skill's dynasty-menu lane writes into this vault following THESE conventions; the shapes it may create beyond the standard files:
+  - `seasons/<year>/box-scores/<week>-<opp>.md` — one per captured postgame box score: quarter line, team-totals table, per-player stat-line table. Provenance line (screen type + capture date) required; numbers verbatim from the screen, `[sic]` on garbles.
+  - standings/rankings captures → a **new** `league/standings/<year>-w<NN>.md` snapshot per the bullet above. Standings are a snapshot record, never a W/L tally (the two-places-max rule for H2H still holds).
+  - Roster screens may fill `roster.md`'s `Archetype`/`Dev trait`/`Status` cells (the fields CFB Labs imports can't supply); schedule screens may fill placeholder rows in the season results table. Same tables, same columns — Lane C never invents new columns, and `verify_dynasties.py` must pass after every Lane C merge.
 
 # Schemas
 

@@ -6,11 +6,14 @@ Claude haiku vision agents are the primary charting lane (both input lanes). Thi
 
 Chart like a coach breaking down film — a fixed scan sequence, not a free-form description:
 
-1. **Pre-snap (presnap.jpg):** personnel on the field → formation + strength → backfield set → alignment oddities (nub TE, bunch, reduced splits) → motion man and type. Defense: front (count down linemen), box count, shell (safety count + depth), CB depth/leverage, nickel present.
-1b. **Pre-play adjustments (presnap_seq.jpg — 3×2 grid, each cell STAMPED with its offset, snap−12 → snap−0.5s; older film sends the unlabeled 2×2 preplay.jpg instead, snap−8/−5/−3/−1.2s):** find the first cell showing a full offensive set = `formation_initial`, and its shell = `def_shell_initial`. Compare against the snap alignment (`formation`). Different formation = `presnap_adjust: audible`; same personnel re-aligned = `shift`; only a motion man moved = `motion-only`; identical = `none`. Because the cells are timestamped, also chart the SEQUENCE: `adjust_seq` = ordered list of what changed and when, using the cell labels (e.g. `["-7.4s: TE trades across", "-2.8s: safety walks down, 1-high"]`); empty list when nothing moved. Early cells showing the play-call menu are normal (the call screen) — read them as menu intel, and mark `formation_initial: menu` if no set is visible in any early cell. Watch the defense across the same cells for its answer: `def_adjust` = `shell-shift` (safety structure changed), `front-shift` (line/LB alignment slid), `late-show` (pressure look appearing after the offense set), or `none`. Real-football interpretation of what an audible/check means lives in `references/football-iq.md` — consult it when writing scout-report narratives, not per-play.
+1. **Pre-snap (presnap.jpg):** personnel on the field → formation + strength → backfield set → alignment oddities (nub TE, bunch, reduced splits) → motion man and type → ball hash (`ball_hash`). Defense: front (count down linemen), box count, shell (safety count + depth), CB depth/leverage, nickel present. **v3 tell fields, all from this frame:** `cb_leverage_pre` (outside CB's shade vs the WR: inside / outside / head-up; per-side difference = `mixed`), `saf_depth_band` (deepest safety: <10 / 10-14 / 15+; two safeties in clearly different bands = `split`), and — trips sets only — `saf_nickel_trips_side` (safety AND nickel on the trips side = `both`; safety opposite the trips = `safety-opposite`; non-trips = `n/a`). These are alignment observations, not coverage conclusions — chart what you see, the derivation names families downstream.
+1a. **Full-frame HUD (fullframe.jpg):** read the scorebug independently — `hud_dd` (down & distance as printed), `hud_poss` (which side's score box carries the possession bar: L or R), `hud_score`. Transcribe exactly what the HUD shows; if unreadable, `unknown`. Never reconcile with anything — disagreements with the machine HUD row are exactly what this field exists to surface.
+1a2. **Play-art preview (playart.jpg, when provided):** this is an UNCROPPED pair from the pre-snap call-screen window. ONLY if a play-art overlay is actually visible: `off_playart` (short phrase from route stems / blocking arrows), `def_playart_zones` (verbatim zone colors/shapes, e.g. "2 deep dark-blue, 4 yellow hooks"), `def_playart_coverage` (family per the playart-key zone-color legend — allowed here and only here, because the art IS the call being displayed, not an inference). No overlay visible → omit all three keys entirely.
+1b. **Pre-play adjustments (presnap_seq.jpg — 3×2 grid, each cell STAMPED with its offset, snap−12 → snap−0.5s; older film sends the unlabeled 2×2 preplay.jpg instead, snap−8/−5/−3/−1.2s):** find the first cell showing a full offensive set = `formation_initial`, and its shell = `def_shell_initial`. Compare against the snap alignment (`formation`). Different formation = `presnap_adjust: audible`; same personnel re-aligned = `shift`; only a motion man moved = `motion-only`; identical = `none`. Because the cells are timestamped, also chart the SEQUENCE: `adjust_seq` = ordered list of what changed and when, using the cell labels (e.g. `["-7.4s: TE trades across", "-2.8s: safety walks down, 1-high"]`); empty list when nothing moved. **Compare against the first NON-MENU cell** — a menu in the earliest cell never makes the comparison impossible; use the earliest cell that shows a set. **QB animation (`qb_presnap_anim`, this grid only):** arm-extended "come through" wave = `wave`; QB squat = `squat`; double toe-tap = `double-tap`; QB and a receiver touching helmets = `helmet-touch`; nothing seen = `none`. These are multi-second animations — a positive read is valuable, `none` is the normal case and is NOT a pass tell by itself. Early cells showing the play-call menu are normal (the call screen) — read them as menu intel, and mark `formation_initial: menu` if no set is visible in any early cell. Watch the defense across the same cells for its answer: `def_adjust` = `shell-shift` (safety structure changed), `front-shift` (line/LB alignment slid), `late-show` (pressure look appearing after the offense set), or `none`. Real-football interpretation of what an audible/check means lives in `references/football-iq.md` — consult it when writing scout-report narratives, not per-play.
 1c. **Play-art re-checks (playart_check*.jpg, Lane B, when present):** the coach re-opened play art between lineup and snap — the art shows the ORIGINAL call. `playart_delta` = one line on how the final pre-snap look differs from that art (e.g. "art shows Trips Right; at snap RB flexed, now empty"); `none` when identical, `unknown` without a clear read. Play-art rules from step 5 still hold: art = options/assignments, never proof of the call made.
 2. **Snap keys (ghost.jpg + strip tiles 1-3, +0.4 to +1.5s — the best coverage info; later tiles tighten onto the ball):** did the shell rotate (2-high → 1-high spin-down)? CB technique at the snap (press jam / off / bail)? Rusher count? LB first step (run-with / spot-drop / blitz / run-fit)? Motion response (follow = man tell, slide/static = zone tell)?
-3. **Play flow (full strip + ghost trails):** run/pass, concept, QB drop depth/direction, route distribution or blocking scheme, run direction, crosser handoff (trail vs pass-off).
+2b. **Front behavior (ghost trails on the DL):** trails crossing/exchanging = `dl_stunt_seen: twist`; the whole line sliding one way = `slant`; a rusher looping wide around a penetrator = `loop`; straight rushes = `none`. Record the BEHAVIOR only — never name a stunt (TEX/EXIT/...); the analyst names it later from menu tiles + the catalog.
+3. **Play flow (full strip + ghost trails):** run/pass, concept, QB drop depth/direction, route distribution or blocking scheme, run direction, crosser handoff (trail vs pass-off). **Mesh behavior:** run fake then throw look = `pa_fake: yes`; mesh held while the QB stares at one defender = `rpo_look: yes` (either can be yes on a run that pulled). Screens: `screen_dir` = which side the screen released. **Busts:** a receiver running genuinely uncovered, or a defender clearly abandoning his zone = `def_bust: yes` — chart it even when you can't explain it; failure attribution happens downstream.
 4. **Outcome cues (result.jpg):** pressure state only (clean/hurried/hit/sacked). **Never results/yards** — those come from transcript or HUD adjudication.
 5. **Menus (Lane B menu crops):** transcribe, don't interpret — every legible tile verbatim.
 
@@ -29,6 +32,8 @@ Chart like a coach breaking down film — a fixed scan sequence, not a free-form
 - **Chart ONLY from the images provided for that play** — never borrow imagery or menu content from an adjacent play or from memory. `menu_tiles` may come from dedicated menu crops OR from menus genuinely visible inside the play images (strips often catch the call screen); if no provided image shows menus, `menu_visible: false`, `menu_tiles: []`.
 - **Emit key names verbatim from the schema** (`def_coverage`, not `coverage`; `def_shell_pre`, not `shell`). `fanout.py` matches keys exactly — a renamed key silently drops the column.
 - **"unknown" beats a guess** — a confident wrong read is worse than a blank.
+- **v3 tell fields are behaviors, never conclusions.** Chart the shade, the depth band, the animation, the crossing trails. Never emit a stunt name, a match-check name (Bingo/Box/Lock/...), or a coverage family from alignment alone — the ONE exception is `def_playart_coverage`, and only off a genuinely visible play-art overlay (the art is the call itself). `qb_presnap_anim` comes ONLY from the preplay grid; `none` is not a pass tell without motion context. `hud_*` fields are transcription of the fullframe scorebug, never reconciled with anything.
+- **Schema authority: `references/chart-schema.md`** (machine twin `scripts/chart_schema.py`). On any conflict between this prompt and that file, that file wins.
 - **run vs pass needs positive evidence** (ghost trails releasing downfield, QB drop, handoff mesh). Ghost is the primary play-flow source; without a clear ghost read, prefer the strip — and if neither is conclusive, keep `play_type` but drop `confidence` to `low` and say why.
 - **No result guessing:** no yards, no complete/incomplete, no scoring claims.
 - Post-snap judgment fields (`def_safeties_post`, `def_zone_type`, `def_coverage`) ONLY when ghost/strip clearly shows the deep structure at the top of the drop — else unknown. `def_safeties_post` is read at the top of the drop, NOT pre-snap.
@@ -50,10 +55,14 @@ Chart like a coach breaking down film — a fixed scan sequence, not a free-form
 - Per play the agent receives: play_images (presnap_seq.jpg = 3x2 timestamp-labeled
   pre-snap grid snap−12→−0.5s — or on older film preplay.jpg, an unlabeled 2x2
   snap−8→−1.2s; presnap.jpg; ghost.jpg = min|max long-exposure pair, player paths as
-  streaks; strip.jpg = 3x2 snap→+3.3s; result.jpg), up to 3 menu_images (full-res
+  streaks; strip.jpg = 3x2 snap→+3.3s; result.jpg; fullframe.jpg = UNCROPPED
+  snap−1.2s with scorebug — the hud_* source; playart.jpg = uncropped snap−8/−5
+  pair — playart_* ONLY if an art overlay is visible), up to 3 menu_images (full-res
   lower-half crops from the gap BEFORE the snap; with --tiles each is two 960px
   native-res tiles _L/_R), and possibly playart_check images (the coach re-opened
   play art between lineup and snap — see read-order step 1c).
+- <Paste the "Condensed table for batch prompts" from references/presnap-tells.md
+  here (≤10 lines) — tells inform reads, never override observed behavior.>
 ```
 
 ## Superset-JSON schema (one object per play; emit EVERY key)
@@ -82,6 +91,19 @@ Use `"unknown"`/`"n/a"`/`"none"` rather than omitting — except `def_coverage`,
   "target_area": "short-L/M/R|mid-L/M/R|deep-L/M/R|n/a|unknown",
   "run_direction": "L-edge|L-gap|middle|R-gap|R-edge|n/a|unknown",
   "pressure": "clean|hurried|hit|sacked|n/a|unknown",
+  "cb_leverage_pre": "inside|outside|head-up|mixed|unknown",
+  "saf_depth_band": "<10|10-14|15+|split|unknown",
+  "saf_nickel_trips_side": "both|safety-opposite|n/a|unknown",
+  "ball_hash": "left|middle|right|unknown",
+  "qb_presnap_anim": "wave|squat|double-tap|helmet-touch|none|unknown",
+  "pa_fake": "yes|no|n/a|unknown", "rpo_look": "yes|no|n/a|unknown",
+  "dl_stunt_seen": "twist|slant|loop|none|unknown",
+  "def_bust": "yes|no|unknown", "screen_dir": "L|R|middle|n/a|unknown",
+  "hud_dd": "verbatim scorebug down&distance from fullframe.jpg, or unknown",
+  "hud_poss": "L|R|unknown", "hud_score": "verbatim NN-NN or unknown",
+  "off_playart": "OMIT unless playart overlay visible: concept from route stems",
+  "def_playart_zones": "OMIT unless visible: verbatim zone colors/shapes",
+  "def_playart_coverage": "OMIT unless visible: family per playart-key legend",
   "formation_initial": "first full set in presnap_seq/preplay grid, or menu|unknown",
   "def_shell_initial": "shell in that same first-set cell: 2-high|1-high|0-high|unknown",
   "presnap_adjust": "audible|shift|motion-only|none|unknown",

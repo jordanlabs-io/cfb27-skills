@@ -26,6 +26,29 @@ def slugify(name):
     return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-")
 
 
+def normalise_plays(rows):
+    """Tile-name normalisation (flagged on Maryland + Northwestern reports):
+    the same tile can be transcribed with and without a leading team/package
+    token ('NICKEL 3-3 CUB COVER 3 BUZZ' vs 'UNC NICKEL 3-3 CUB COVER 3 BUZZ'),
+    double-booking its counter history. Within one owner's ledger, when
+    dropping a play name's first word yields another play name that exists,
+    fold the longer name onto the shorter (the un-prefixed form). Whitespace
+    and case are canonicalised first. Counters are never altered — only the
+    play KEY they file under."""
+    canon = {}
+    for r in rows:
+        key = re.sub(r"\s+", " ", (r["play"] or "").strip().upper())
+        r["play"] = key
+        canon[key] = True
+    folded = 0
+    for r in rows:
+        parts = r["play"].split(" ", 1)
+        if len(parts) == 2 and parts[1] in canon:
+            r["play"] = parts[1]
+            folded += 1
+    return folded
+
+
 def main():
     if len(sys.argv) < 3:
         sys.exit(__doc__)
@@ -51,6 +74,9 @@ def main():
     fields = ["film", "owner", "play", "tag", "calls", "avg_yds",
               "starred", "sightings"]
     for owner, rows in sorted(ledgers.items()):
+        folded = normalise_plays(rows)
+        if folded:
+            print(f"[{owner}] folded {folded} team-prefixed tile name(s)")
         rows.sort(key=lambda r: (r["play"], r["film"]))
         path = os.path.join(out_dir, f"{owner}.csv")
         with open(path, "w", newline="") as f:

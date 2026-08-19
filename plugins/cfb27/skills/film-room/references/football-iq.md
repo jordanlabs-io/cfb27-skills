@@ -53,6 +53,12 @@ The NFL's own 8-class coverage classifier (player tracking, ensemble model) inde
 - **Motion response is our edge** — NGS doesn't decompose it as a feature; the motion test stays our highest-value man/zone discriminator.
 - **Prevent** is a situational class: gate it on down/distance/clock context, not shell geometry alone.
 
+## Leverage & field geometry (feeds `cb_leverage_pre`/`ball_hash`, v3)
+
+- **Leverage is assignment leaked pre-snap:** a corner shades where his help ISN'T. Inside shade = funneling out = he expects to carry the receiver himself (man lean); outside shade = funneling into help = zone/C1-with-hole lean; squared head-up over the receiver = read technique (quarters/match lean). Principle is real football; the game-verified depth/shade numbers live in `references/presnap-tells.md` (mechanics authority) — and **coverage shells can fake all of it on human opponents**, so leverage informs, post-snap confirms.
+- **Hash sets the field:** the ball on a hash creates a field (wide) side and a boundary (short) side. Defenses declare strength and rotate help to the field; the boundary corner lives alone. Read field/boundary BEFORE formation — space is the first constraint on both call sheets ("the side with the most space you cover first"). Feeds derived `field_side`; split-field calls (C6/C9) only make sense against this read.
+- **Depth stagger between the two sides** (one corner low/squatted, the other deep/square) is the split-field giveaway — chart it as `cb_leverage_pre: mixed` / `saf_depth_band: split`, never as a family name.
+
 ## Pre-play & audible interpretation (feeds `presnap_adjust`/`def_adjust`)
 
 - "**You don't audible for no reason**" — every check is set-up or answer. Formation audible after seeing the shell = attacking a structural weakness; log WHAT they checked into vs. which look.

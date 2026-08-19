@@ -20,6 +20,7 @@ Each tell is an independently observable behavior. `assemble.py` votes them into
 | Second-level reaction | `lb_pass_action` | LB/nickel turns and RUNS with a back or TE crossing (`run-with`) | LB drops straight back to a spot and hovers (`spot`), or blitzes (`blitz`) | MED |
 | Crosser handling | `crosser_handoff` | one defender trails a crossing route wall-to-wall (`trail`) | crosser is passed between defenders (`pass-off`) | MED - only when a crosser exists (`none` otherwise) |
 | Blitz math | `rushers` | 5+ rushers usually = man behind it (cover-0/1) | 3-4 rushers neutral | HIGH - count bodies crossing the LOS |
+| CB static leverage (v3, WEAK) | `cb_leverage_pre` | inside shade pre-snap (+1 man) | outside/head-up abstain | MED — **UNVALIDATED**; coverage shells fake it on human ranked opponents. Hand-verify 10 reads per film before trusting (see validation ledger). |
 
 Derivation (in `assemble.py`, deterministic):
 - `follow` motion or `trail` crosser or majority `chase` corners → **man**
@@ -30,37 +31,18 @@ Derivation (in `assemble.py`, deterministic):
 The pro respot then only adjudicates: family name, safeties_post, spot-drop vs match,
 and any play the tell-vote flags as conflicted.
 
-## Full v2 field schema
+## Field schema — canonical source moved (v3, 2026-08-18)
 
-### Pre-snap (flash tier)
-- `off_formation`, `off_personnel` (banner OCR still wins when present)
-- `motion_type`: jet / orbit / short / across / shift / none
-- `motion_response`: follow / slide / static / no-motion  ← man/zone tell #1
-- `def_front`: even / odd / bear / okie / unknown; `box_count`: integer 5-9
-- `def_shell_pre`: 2-high / 1-high / 0-high (validated 9/10)
-- `cb_depth_pre`: press / off / mixed (validated 7-9/10)
-- `nickel_present`: y/n (slot corner vs 3rd LB - personnel package read)
-
-### Post-snap behaviors (flash tier)
-- `play_type`: run / pass / pa-pass / rpo / screen / no-play
-- `rushers`: integer count crossing the LOS
-- `cb_relation`: chase / squat / land / mixed  ← tell #2
-- `lb_pass_action`: run-with / spot / blitz / run-fit  ← tell #3
-- `crosser_handoff`: trail / pass-off / none  ← tell #4
-- `qb_drop`: 3-step / 5-step / rollout-L / rollout-R / boot
-- `target_area`: short-L/M/R, mid-L/M/R, deep-L/M/R (9-zone grid)
-- `run_direction`: L-edge / L-gap / middle / R-gap / R-edge (runs only)
-- `pressure`: clean / hurried / hit / sacked (pocket outcome)
-
-### Judgment (pro tier ONLY - flash writes nothing here)
-- `def_safeties_post` (4/10 on flash x2 tests - hard-blocked)
-- `def_zone_type` (spot-drop vs match), `def_coverage` family, `def_rotation` direction
-- `disguise`: pre-snap shell ≠ post-snap structure beyond simple spin-down
-
-### Derived in assemble.py (no model)
-- `man_zone_verdict` + `mz_confidence` (count of agreeing tells) - from the tell stack
-- `def_rotation` from shell_pre vs safeties_post (existing)
-- result / yards / key_event stay transcript+HUD sourced (existing authority order)
+**The schema now lives in `references/chart-schema.md`** (machine twin
+`scripts/chart_schema.py`) — this section's old v2 listing carried enums the
+pipeline never shipped (`play_type: pa-pass/rpo/screen`, `def_front:
+even/odd/bear/okie`, a `disguise` field that never landed in any CSV) and is
+retired. `play_type` stays `run|pass|non-play`; the pa/rpo/screen distinction is
+now behavior fields (`pa_fake`/`rpo_look`/`screen_dir`) plus the derived
+`play_style`. Tier routing survives unchanged: flash charts behaviors, pro
+adjudicates judgment fields, assemble/merge derive abstractions
+(`man_zone_verdict`, `def_rotation`, `coverage_candidates`, `field_side`,
+`play_style`, `hud_conflict`).
 
 ## Sampling
 - Charting clips: `fps: 2` in `videoMetadata` (default 1fps can miss jet motion & CB flip).
@@ -89,12 +71,30 @@ in-depth, but every claim carries its denominator and source tier. Required sect
 6. **Exploits & counters** — specific, actionable: "their nickel travels with jet
    motion (man tell, 6/7) → motion to diagnose, then attack the vacated flat."
    Every exploit cites the plays (n=...) it's built on.
-7. **Data quality block** — plays charted / windows / CHECK rows / provisional fields.
+7. **Series log & adjustments** (v3, from `series_book.py` + `series_book.csv`) —
+   formation→play-family rep counts with 100%-pairing flags ("can't do it
+   twice"), per-series defensive sequencing (sky-then-match style shifts),
+   first-drive probe script vs rest-of-game, decoy-shift analysis (formation
+   charted pre-snap vs post-shift — see defense-catalog.md), and the
+   **failure-attribution narrative**: each momentum-swinging loss classified as
+   scheme loss / missed tackle / engine bug (cite `def_bust` rows and the
+   known-bug list in defense-catalog.md — a bug is NEVER a tendency). Close
+   with a **patch-era line**: which patch window the film sits in and which
+   tells/mechanics that dates (wiki patch notes).
+8. **Data quality block** — plays charted / windows / CHECK rows / provisional
+   fields / hud_conflict count / duplicate-window candidates from
+   validate_chart. Coverage claims name their source tier via
+   `def_coverage_src` (playart > agent > derived); `coverage_candidates` rows
+   are leans and never enter tendency denominators.
 
 **Rival dossier** (`league/teams/<member>.md`): running multi-game aggregates of the
 same splits with per-game sample sizes, trend arrows across meetings, and a "book"
 section: 3-5 bullet game-plan directives with citations. Update, never overwrite —
-old reads get superseded-by notes, not deletion.
+old reads get superseded-by notes, not deletion. v3 adds an **"Adjustment
+habits"** subsection: does this coach adjust series-to-series (sequencing
+evidence from series_book) or call static (exploitable with any check system)?
+Each film entry carries a `patch_era:` note so tendencies can be discounted
+when a patch invalidates the mechanics they rode on.
 
 **Recaps/self-scout**: same rigor on our own tendencies (what we showed = what
 opponents will scout: our motion tells, our target bias by down, our run direction
@@ -116,3 +116,13 @@ respot hasn't confirmed. Tendencies on <5 snaps are "flashes", never percentages
   "zone-lean", never as a count in a tendency split); pro family overrides the
   tell verdict whenever both exist. Expect the tell stack to under-call man
   against man-heavy opponents until a man-side validation sample exists.
+- **v3 standing tasks (2026-08-18, all open until measured):**
+  (a) man-side validation — still needs a man-heavy film with hand truth;
+  (b) `cb_leverage_pre` — hand-verify 10 reads on the first v3-charted film
+  before the +1 man weight is trusted; (c) `qb_presnap_anim` fire rate — if
+  ≈0 across a full game, raise the preplay-grid densification option
+  (extra −2.5s cell in frames.py) with the user; (d) `def_playart_coverage` —
+  spot-check 5 play-art reads against the playart-key on the first film that
+  produces any; (e) re-measure `presnap_adjust` and `def_rotation` fill rates
+  vs the 2026-08-18 audit baseline (presnap_adjust 6-18% non-none,
+  def_rotation ~0%) after the first v3 chart.

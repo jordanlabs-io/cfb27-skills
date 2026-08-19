@@ -211,6 +211,37 @@ def grab(video, t, out, width=1280):
          "-vf", f"crop={FIELD_CROP},scale={width}:-2", "-q:v", "4", out])
 
 
+def fullgrab(video, t, out, width=1280):
+    """Uncropped grab — keeps the scorebug/HUD and any overlay. v3: vision
+    agents read poss/dd/score off this frame as the always-on second HUD
+    reader (chart-schema.md hud_* fields)."""
+    run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
+         "-ss", f"{max(t, 0):.2f}", "-i", video, "-frames:v", "1",
+         "-vf", f"scale={width}:-2", "-q:v", "4", out])
+
+
+def playart(video, snap, out):
+    """1x2 UNCROPPED pair at snap-8 / snap-5 — the window where the play-call
+    screen / pre-snap play-art preview is legitimately up. This is a CANDIDATE
+    frame: agents fill off_playart / def_playart_* ONLY when an art overlay is
+    actually visible in it, else omit those keys (chart-schema.md)."""
+    with tempfile.TemporaryDirectory() as td:
+        cells = []
+        for i, off in enumerate(PREPLAY_OFFSETS[:2]):
+            fp = os.path.join(td, f"pa{i}.jpg")
+            fullgrab(video, snap + off, fp, width=800)
+            if os.path.exists(fp):
+                cells.append(Image.open(fp).convert("RGB"))
+        if not cells:
+            return False
+        cw, ch = cells[0].size
+        pair = Image.new("RGB", (cw * len(cells) + 8, ch), "black")
+        for i, im in enumerate(cells):
+            pair.paste(im, (i * (cw + 8), 0))
+        pair.save(out, quality=85)
+    return True
+
+
 def ghost(video, snap, secs, out):
     """Stabilized long-exposure pair: min-blend | max-blend."""
     with tempfile.TemporaryDirectory() as td:
@@ -357,6 +388,8 @@ def process_play(job):
     pp_ok = preplay(video, snap, os.path.join(pdir, "preplay.jpg"))
     sq_ok = presnap_seq(video, snap, os.path.join(pdir, "presnap_seq.jpg"))
     grab(video, t_last - 0.5, os.path.join(pdir, "result.jpg"))
+    fullgrab(video, snap - 1.2, os.path.join(pdir, "fullframe.jpg"))
+    playart(video, snap, os.path.join(pdir, "playart.jpg"))
     if short:
         unreliable = True
     flag = " snap_unreliable=1" if unreliable else ""

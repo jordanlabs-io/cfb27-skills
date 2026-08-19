@@ -52,6 +52,22 @@ for n, r in reads.items():
 if fixed:
     print(f"normalised {fixed} off-schema play_type values")
 
+# v3: normalise every enum field via the canonical map (case drift like
+# False/false, ambiguous def_zone_type "zone", etc). Values the map doesn't
+# cover stay as-is — validate_chart.py flags them for recheck instead.
+sys.path.insert(0, SCRIPTS)
+import chart_schema as cs  # noqa: E402
+norm_count = 0
+for n, r in reads.items():
+    for field in cs.ENUMS:
+        if field in r and r[field] is not None:
+            nv = cs.normalise(field, r[field])
+            if nv != str(r[field]).strip():
+                r[field] = nv
+                norm_count += 1
+if norm_count:
+    print(f"normalised {norm_count} enum values via chart_schema")
+
 # 3. rewrite legacy blocks + jsonl from the merged set
 bdir = os.path.join(gamedir, "batches_merged")
 os.makedirs(bdir, exist_ok=True)

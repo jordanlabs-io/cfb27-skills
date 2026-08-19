@@ -55,7 +55,14 @@ COVERAGE_TABLE = {
     ("2", "man"): "cover-2-man",
     ("2", "spot-drop"): "cover-2", ("2", "match"): "cover-4",
 }
-SAFETY_N = {"2": "2", "1": "1", "0": "0", "2-high": "2", "1-high": "1", "0-high": "0"}
+SAFETY_N = {"2": "2", "1": "1", "0": "0", "3": "3",
+            "2-high": "2", "1-high": "1", "0-high": "0", "3-high": "3",
+            "two": "2", "one": "1", "zero": "0", "three": "3",
+            "two high": "2", "one high": "1", "zero high": "0"}
+# Low-confidence rotation fallback: free-text hints in def_post_snap that the
+# shell moved, used ONLY to fill def_rotation_lc (never def_rotation).
+ROTATION_HINT = re.compile(r"\b(spin|spun|rotat|roll(ed|s|ing)?|single[- ]high|"
+                           r"drops? down|invert)\w*", re.I)
 
 
 def norm_safeties(v):
@@ -113,6 +120,11 @@ def derive_man_zone(read):
             man += 1      # heavy pressure usually means man behind it
     except (TypeError, ValueError):
         pass
+    # v3: static inside shade is a weak man tell (Trey Thomas stack,
+    # references/presnap-tells.md). Weak because coverage shells fake it on
+    # human ranked opponents; hand-verify before trusting in a man-heavy film.
+    if (read.get("cb_leverage_pre") or "").lower() == "inside":
+        man += 1
     if man and zone and abs(man - zone) < 2:
         return "conflicted", 0   # flag for pro adjudication (match looks live here)
     if man > zone:
@@ -231,6 +243,14 @@ def main():
                                                 b.get("def_zone_type", ""))),
             "def_rotation": derive_rotation(b.get("def_shell_pre", ""),
                                             b.get("def_safeties_post", "")),
+            # low-confidence lane: free-text rotation hints, kept separate so
+            # tendency splits can choose the strict column
+            "def_rotation_lc": (
+                "rotation-hinted"
+                if derive_rotation(b.get("def_shell_pre", ""),
+                                   b.get("def_safeties_post", "")) == "unknown"
+                and ROTATION_HINT.search(b.get("def_post_snap", "") or "")
+                else ""),
             "formation_initial": b.get("formation_initial", ""),
             "presnap_adjust": b.get("presnap_adjust", ""),
             "adjust_note": b.get("adjust_note", ""),
