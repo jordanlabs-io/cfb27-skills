@@ -64,6 +64,25 @@ did not: its 1,552 transcribed frames were assembled operationally across two pa
 therefore records what was read without recording a decision anyone can re-derive. Later captures
 should not repeat that — the `.keep` file is what makes coverage auditable instead of merely counted.
 
+## Check a value space before trusting a reading
+
+`dynasties/_wiki/` in the vault is canonical game knowledge scraped from CFB Labs, MaxPlaysCFB and
+CollegeFootball.gg — enumerations and formulas that hold in every save. **Use it as a decoder while
+transcribing, not just as strategy reading**, because a known value space turns an unreadable glyph
+into a solvable one:
+
+| Want to check | Page |
+| --- | --- |
+| `P TIER` pin values, and each school's pipeline regions | `recruiting/pipelines.md` |
+| How many archetypes a position actually has | `player-development/ability-requirements.md` |
+| Whether a trait name on a player card is real | `player-development/player-abilities.md` |
+| Coach ability names, trees, tiers and point costs | `coach-progression/coach-abilities.md` |
+| What gem/bust status changes | `recruiting/scouting-and-gems.md` |
+
+This is how the `P TIER` error was caught: the pin was being transcribed as `6 8 9 B S`, and the
+canonical page says pipelines have exactly five tiers. A reading outside the value space is a
+misread, and it is only visible if you know the value space.
+
 ## Reading the screens
 
 Common to all of them: the top-right HUD (currency counters, LVL, Job Security), the header
@@ -77,10 +96,24 @@ table transcribed without its category chip is unusable.
   TEAM SCHEDULE and appears beside schools inside a recruit's Top Schools list. It is how you tell a
   league game from a CPU game without asking, and it settled which 2027 fixtures belonged in
   `league/h2h.md`.
-- **The coloured map-pin is the pipeline glyph.** The same pin appears beside some hometowns on a
-  player card and in the `P TIER` column of a recruit's Top Schools table. Transcribe the character
-  inside it verbatim as a string — `1 2 3 4 6 8 9`, `B`, or `S`. Do not rank the letters against the
-  numbers and do not rewrite the label as "pipeline"; the screen never spells it out.
+- **The coloured map-pin is the pipeline glyph, and its value space is 1-5 — nothing else.** The
+  same pin appears beside some hometowns on a player card and in the `P TIER` column of a recruit's
+  Top Schools table. **Read the colour first, then the digit**, because the colour is unambiguous at
+  20px and the digit is not:
+
+  | Pin colour | Tier |
+  | --- | --- |
+  | bronze / copper | **1** |
+  | silver / grey | **2** |
+  | gold | **3** |
+  | teal | **4** |
+  | magenta / purple | **5** |
+
+  **A magenta pin is always a 5.** Its stylised `5` — flat top bar, rounded lower bowl — is the single
+  most misread glyph on any CFB27 screen: in the 2027 Week 9 dump it came back as `6`, `8`, `9`, `B`
+  and `S` across 22 rows and **was never once transcribed correctly**, while every 1, 2, 3 and 4 was
+  right. If you are about to write a `P TIER` outside 1-5, you have misread a 5. Anything genuinely
+  unreadable (an unlit or black pin) is `?`.
 - **`Total Yards = Total Offense + PR + KR`** on the box score, exactly, on every captured team-line.
   Use it as an arithmetic check on a scroll you suspect you misread — but if the check fails, suspect
   your transcription before you report a game bug.
@@ -134,9 +167,10 @@ prospect's card:
   P TIER | MULT`, with a `Projected Cutoff` divider and sometimes a `Locked Out` divider. Your own
   row number against the cutoff row is the single most useful number on the screen: rank 9 of 9
   with a cutoff at 5 means you are losing him regardless of how much interest shows.
-  `P TIER` is the pipeline column — a coloured pin per school holding `1 2 3 4 6 8 9`, `B` or `S`.
-  Transcribe the character verbatim as a string; do not rank the letters against the numbers, and
-  do not rewrite the label as "pipeline" — the screen never spells it out.
+  `P TIER` is the pipeline column — a coloured pin per school holding **1-5 only**; read the colour
+  (see the glyph table above), and treat any reading outside 1-5 as a misread magenta 5. Tier 5 is
+  strongest. Cross-check a school's plausible tier against
+  `dynasties/_wiki/recruiting/pipelines.md`, which carries the per-school region tiers.
 - Right side: `Action Summary` (what you spent last week) and `Dealbreaker` with Have/Need grades.
 
 → `recruiting/high-school/<slug>.md` frontmatter + `recruiting/races.csv`.

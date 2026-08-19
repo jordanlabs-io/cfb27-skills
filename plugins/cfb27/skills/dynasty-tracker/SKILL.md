@@ -100,7 +100,7 @@ archetype: "Dual Threat"
 hometown: "Wichita, KS"
 height_in: 73
 weight_lb: 202
-p_tier: 6               # YOUR "P TIER" value in his Top Schools row — see below
+p_tier: 5               # YOUR "P TIER" value in his Top Schools row — int 1-5, see below
 
 # --- scouted reveals: ONLY from the recruit card's Scouting tab ---
 scouting_pct: 0         # 0-100, the "Scouting (N%)" sub-tab label
@@ -130,7 +130,16 @@ Two decoys sit on the same screen: the top-right HUD currency chips are gem-shap
 
 **`p_tier` is pipeline strength (user-confirmed 2026-08-18).** The Top Schools table has a column headed `P TIER`, one coloured map-pin per school with a character inside; the same glyph sits beside hometowns on player and recruit cards. The user confirms the recruiting board reads out **pipeline strength** among the card's fields, so `P TIER` is that value: how strong a given school's pipeline is into that recruit's hometown, and your own row's value is the one that matters to you.
 
-Observed values: `1 2 3 4 6 8 9` plus `B` and `S`. **Store it as a string, never an int** — the ordering of the letters against the digits is not known, and `S` on a purple pin looks like a top tier rather than a low one. Keep the field named for the screen (`p_tier`); record the character, not an interpretation of it.
+**Values are `1`-`5` and nothing else** (5 strongest), corroborated by
+`dynasties/_wiki/recruiting/pipelines.md`, which documents the game's five pipeline tiers and each
+school's regions. Store it as an **integer**, or `unknown` if the pin is unreadable.
+
+This corrects an earlier reading. Values `6 8 9 B S` were recorded from the 2027 Week 9 capture and
+carried here as "store it as a string, the ordering is not known" — all 22 were misreads of the
+magenta `5` pin, confirmed against the frames rank-by-rank. Read the pin's **colour** first
+(bronze 1, silver 2, gold 3, teal 4, magenta 5); the digit is unreliable at that size. Keep the
+field named for the screen (`p_tier`), and reject anything outside 1-5 at capture time rather than
+storing it.
 
 **Why these are frontmatter and not prose.** The Bases views query frontmatter only. A recruit note whose ranks, NIL and board status live in the body renders as an almost-empty row on the live board — the data is *stored* but not *usable*. Anything you would ever sort or filter a board by belongs up here; narrative (top-schools list, visit history, why he fits) belongs in the body.
 

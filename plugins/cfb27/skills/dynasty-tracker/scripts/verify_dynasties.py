@@ -200,6 +200,14 @@ def main(vault: str) -> int:
             problems.append(f"{rel}: invalid scout_grade '{fm['scout_grade']}' (expected {sorted(SCOUT_GRADE_ENUM)})")
         if "scouting_pct" in fm and is_int(fm["scouting_pct"]) and not 0 <= int(fm["scouting_pct"]) <= 100:
             problems.append(f"{rel}: scouting_pct {fm['scouting_pct']} out of range 0-100")
+        # p_tier is the pipeline pin: 1-5 only. Anything else is a misread magenta 5
+        # (see dynasty-tracker/SKILL.md and dynasties/_wiki/recruiting/pipelines.md).
+        if "p_tier" in fm and str(fm["p_tier"]) != "unknown":
+            v = str(fm["p_tier"])
+            if not (v.isdigit() and 1 <= int(v) <= 5):
+                problems.append(
+                    f"{rel}: p_tier {fm['p_tier']!r} outside 1-5 — re-read the pin's colour "
+                    f"(bronze 1, silver 2, gold 3, teal 4, magenta 5); 6/8/9/B/S are misread 5s")
         # A race rank you cannot place inside its own field is a transcription slip,
         # not a judgement call -- catch it here rather than in a Bases view.
         if is_int(fm.get("race_rank")) and is_int(fm.get("race_size")) and int(fm["race_rank"]) > int(fm["race_size"]):
