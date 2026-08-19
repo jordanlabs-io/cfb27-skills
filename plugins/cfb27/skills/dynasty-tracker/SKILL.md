@@ -128,9 +128,9 @@ Two decoys sit on the same screen: the top-right HUD currency chips are gem-shap
 
 `ovr` is a different matter — no recruit card in this capture showed one, at any scouting level. Leave it `0` until a screen produces it.
 
-**`p_tier` is the pipeline field — record the screen's code, not your expansion of it.** The Top Schools table has a column literally headed **`P TIER`**, one value per school, drawn as a coloured map-pin glyph with a character inside. The *same* glyph appears beside a hometown on player and recruit cards (a gold pin reading "3" beside Riverview FL; "9" elsewhere), and is absent on hometowns that are in no one's pipeline — so `P TIER` is a per-school, per-hometown pipeline strength, and your own row's value is the number that matters to you.
+**`p_tier` is pipeline strength (user-confirmed 2026-08-18).** The Top Schools table has a column headed `P TIER`, one coloured map-pin per school with a character inside; the same glyph sits beside hometowns on player and recruit cards. The user confirms the recruiting board reads out **pipeline strength** among the card's fields, so `P TIER` is that value: how strong a given school's pipeline is into that recruit's hometown, and your own row's value is the one that matters to you.
 
-Observed values: `1 2 3 4 6 8 9` plus `B` and `S`. **Store it as a string, never an int** — and never expand "P" to "Pipeline" in a field name or a claim. The screen says `P TIER`; that it means pipeline tier is a very good inference, and the ordering of the letters against the numbers is not known at all. Record the code; let a later capture with a legend settle the semantics.
+Observed values: `1 2 3 4 6 8 9` plus `B` and `S`. **Store it as a string, never an int** — the ordering of the letters against the digits is not known, and `S` on a purple pin looks like a top tier rather than a low one. Keep the field named for the screen (`p_tier`); record the character, not an interpretation of it.
 
 **Why these are frontmatter and not prose.** The Bases views query frontmatter only. A recruit note whose ranks, NIL and board status live in the body renders as an almost-empty row on the live board — the data is *stored* but not *usable*. Anything you would ever sort or filter a board by belongs up here; narrative (top-schools list, visit history, why he fits) belongs in the body.
 
