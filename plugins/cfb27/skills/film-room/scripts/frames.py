@@ -68,11 +68,36 @@ def parse_play_selector(spec):
     return want
 
 
+class CmdError(RuntimeError):
+    """A required ffmpeg/ffprobe invocation failed. Raised (not sys.exit) so
+    it survives the trip out of a multiprocessing worker: SystemExit only
+    kills the worker process — the parent kept exiting 0 while writing empty
+    play dirs (2026-08-19: a brew upgrade broke ffprobe's libx265 dylib and
+    72 real plays got charted as non-play off 'play_images: NONE')."""
+
+
 def run(cmd, ok_fail=False):
-    r = subprocess.run(cmd, capture_output=True, text=True)
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True)
+    except OSError as e:   # binary missing / not executable
+        if ok_fail:
+            return subprocess.CompletedProcess(cmd, 127, "", str(e))
+        raise CmdError(f"command failed to launch: {cmd[0]}: {e}")
     if r.returncode != 0 and not ok_fail:
-        sys.exit(f"command failed: {' '.join(cmd[:8])}...\n{r.stderr[-500:]}")
+        raise CmdError(f"command failed: {' '.join(cmd[:8])}...\n{r.stderr[-500:]}")
     return r
+
+
+def preflight():
+    """Fail fast if ffprobe/ffmpeg can't even print a version (e.g. a broken
+    dylib after a brew upgrade) — before any play dirs get created."""
+    for tool in ("ffprobe", "ffmpeg"):
+        r = run([tool, "-version"], ok_fail=True)
+        if r.returncode != 0:
+            sys.exit(f"{tool} is broken (exit {r.returncode}):\n"
+                     f"{r.stderr[-300:]}\n"
+                     f"fix the ffmpeg install (brew reinstall ffmpeg) before "
+                     f"charting — a partial run writes empty play dirs")
 
 
 def motion_profile(video, t0, t1):
@@ -428,19 +453,38 @@ def main():
         if missing:
             sys.exit(f"--plays: {len(missing)} selected play(s) not in "
                      f"{args.plays_csv}: {sorted(missing, key=int)[:10]}")
+    preflight()
     os.makedirs(args.outdir, exist_ok=True)
 
     vw, vh, _ = seg.video_info(args.video)
     jobs = [(args.video, args.outdir, args.ghost_secs, vw, vh, p)
             for p in plays if not wanted or p["n"] in wanted]
 
-    if args.procs <= 1 or len(jobs) <= 1:
-        for job in jobs:
-            print(process_play(job), flush=True)
-    else:
-        with multiprocessing.Pool(min(args.procs, len(jobs))) as pool:
-            for line in pool.imap(process_play, jobs):
-                print(line, flush=True)
+    try:
+        if args.procs <= 1 or len(jobs) <= 1:
+            for job in jobs:
+                print(process_play(job), flush=True)
+        else:
+            with multiprocessing.Pool(min(args.procs, len(jobs))) as pool:
+                for line in pool.imap(process_play, jobs):
+                    print(line, flush=True)
+    except CmdError as e:
+        sys.exit(f"ffmpeg/ffprobe failure during frame extraction:\n{e}")
+
+    # A play dir with no images means every grab silently produced nothing —
+    # downstream prep_batches would emit 'play_images: NONE' manifests and the
+    # play would be charted as non-play. Fail the run instead.
+    empty = []
+    for job in jobs:
+        pdir = os.path.join(args.outdir, f"play{int(job[5]['n']):03d}")
+        if not os.path.isdir(pdir) or not any(
+                f.lower().endswith((".jpg", ".jpeg", ".png"))
+                for f in os.listdir(pdir)):
+            empty.append(job[5]["n"])
+    if empty:
+        sys.exit(f"ERROR: {len(empty)} play dir(s) contain no images: "
+                 f"{empty[:10]}{'...' if len(empty) > 10 else ''} — "
+                 f"frame extraction is broken, not charting-ready")
     print(f"frames written for {len(jobs)} play(s)")
 
 
