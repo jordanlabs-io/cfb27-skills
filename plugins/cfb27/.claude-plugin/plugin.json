@@ -1,7 +1,7 @@
 {
   "name": "cfb27",
   "description": "The complete CFB 27 dynasty toolkit: film-room charting pipeline, dynasty save tracking, opponent scouting reports as multi-page branded visual reports, transcript-sourced strategy wiki imports, newsletter production, and cinematic action-shot generation.",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "author": {
     "name": "Elijah Williams"
   },
