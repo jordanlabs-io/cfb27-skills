@@ -1,5 +1,10 @@
 # The PDF brief — design system + render pipeline
 
+**The compact alternate, not the default** — the branded standard is the
+multi-page visual report (`visual-report.md`). Use this when the recipient asked
+for something short, when there is no charted film to illustrate, or when the
+content does not fill the visual pages.
+
 Two fixed Letter pages. Page 1 = "The Book on <coach>" (identity, tells, QB,
 danger men, three-keys band). Page 2 = "The Game Plan" (diagram, attack, stop,
 manage, self-scout band). The template (`assets/brief-template.html`) is the

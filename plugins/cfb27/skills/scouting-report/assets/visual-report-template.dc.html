@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="c003b09d-08b8-4e6c-9b6a-11b62d832dd5"></script>
+
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("281ac5d6-d350-46b5-abf6-113d662fe57b") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3ba9c0e8-162d-40ba-9dc8-097a9dc00da1") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("a905aafc-36df-40c7-b572-0d3b62b7188c") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("a5586a5c-48fc-4ec3-a9b5-73b537901987") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("3b95da4b-d920-4581-9c40-7c82438b25d6") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("5354f076-93fc-49dd-af0c-6b2be44413c3") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("fccd2de7-8428-4c64-9505-2a67a7aa9178") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("e850c987-fba7-4b49-a484-8390ae42c83e") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("835fe0bd-7171-40b7-90c9-f8002d4ebb69") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("d8157679-b87d-4293-8a25-b65cce69bfdb") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("0e77ddc6-c62e-4f9b-a520-c623de1cea31") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("95f26abd-0f7c-428f-a82a-6ea83c1f9fd4") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("dd29558f-7484-4aaa-b2ae-7bd2b05074ac") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("9ddefaf0-112a-4ebd-baab-f70600ee04d1") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'IBM Plex Mono';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("0356576a-defb-4d63-9c59-9462ee664aa9") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("6d712a0e-5649-4f27-9066-94b9d2df7575") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("79d24c7c-1fd8-47ef-8058-4e0f03c942b6") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("ad13024f-4a76-4204-9929-52b002b3687e") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("4e0aeb67-5773-4f9d-af02-4cedd928b0bb") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("188358cf-3341-4d1b-ab8a-99aea7947133") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("6d712a0e-5649-4f27-9066-94b9d2df7575") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("79d24c7c-1fd8-47ef-8058-4e0f03c942b6") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("ad13024f-4a76-4204-9929-52b002b3687e") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("4e0aeb67-5773-4f9d-af02-4cedd928b0bb") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("188358cf-3341-4d1b-ab8a-99aea7947133") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("6d712a0e-5649-4f27-9066-94b9d2df7575") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("79d24c7c-1fd8-47ef-8058-4e0f03c942b6") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("ad13024f-4a76-4204-9929-52b002b3687e") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("4e0aeb67-5773-4f9d-af02-4cedd928b0bb") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("188358cf-3341-4d1b-ab8a-99aea7947133") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("6d712a0e-5649-4f27-9066-94b9d2df7575") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("79d24c7c-1fd8-47ef-8058-4e0f03c942b6") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("ad13024f-4a76-4204-9929-52b002b3687e") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("4e0aeb67-5773-4f9d-af02-4cedd928b0bb") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("188358cf-3341-4d1b-ab8a-99aea7947133") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("4032eda1-3e92-43de-9a2b-7adf857c87ed") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("8b5e6084-6a61-4568-ad5a-ad623eb88d4c") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("0d6f0479-69da-4272-bdbe-8b560478699f") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("2b79e200-d1bf-4b84-a70f-19a4241ad8cc") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("09828660-55b1-4006-ac1c-30ad91d925bf") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("7cce3b6b-c74e-4632-ac4b-f24798accf7d") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("b82d53a7-ea9e-40da-bfcc-214734f6bcff") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("be43725a-cef4-429b-bb71-3aa2d034bdeb") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("de809e15-bb3a-4f16-b0de-8c6ed1b6a062") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("6269b71e-a39e-44fe-9394-b18355827065") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("07078576-f28a-4f25-bd0d-7b5fd37c3323") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("435147e2-2fa0-4048-a15c-ad9bdbb843cb") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("b82d53a7-ea9e-40da-bfcc-214734f6bcff") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("be43725a-cef4-429b-bb71-3aa2d034bdeb") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("de809e15-bb3a-4f16-b0de-8c6ed1b6a062") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("6269b71e-a39e-44fe-9394-b18355827065") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("07078576-f28a-4f25-bd0d-7b5fd37c3323") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("435147e2-2fa0-4048-a15c-ad9bdbb843cb") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("b82d53a7-ea9e-40da-bfcc-214734f6bcff") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("be43725a-cef4-429b-bb71-3aa2d034bdeb") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* greek */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("de809e15-bb3a-4f16-b0de-8c6ed1b6a062") format('woff2');
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("6269b71e-a39e-44fe-9394-b18355827065") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("07078576-f28a-4f25-bd0d-7b5fd37c3323") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Source Serif 4';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("435147e2-2fa0-4048-a15c-ad9bdbb843cb") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+body { margin: 0; }
+a { color: #2C5080; } a:hover { color: #13294B; }
+</style>
+<script src="720d404d-65ee-43ce-9030-80d8a854d9b3"></script>
+</helmet>
+<doc-page size="letter" style="position: absolute; left: 2px; top: 3px">
+
+<section class="page" data-screen-label="01 Cover" style="background: #F2EFE6; color: #13294B; font-family: 'Source Serif 4', Georgia, serif;">
+  <div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column;">
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+
+    <div style="height: 62px; flex: none; box-sizing: border-box; background: #13294B; color: #FFFFFF; padding: 0 44px; display: flex; align-items: center; gap: 16px;">
+      <img src="50dccc63-04fb-4e5c-b293-37ac2ce4a24f" alt="Interlocking NC" style="height: 30px; width: auto; object-fit: contain; display: block;">
+      <div style="flex: 1;">
+        <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 15px; letter-spacing: 0.17em; text-transform: uppercase; line-height: 1;">Carolina Football</div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.17em; text-transform: uppercase; color: #B7D7ED; margin-top: 3px;">Opponent Scouting Report</div>
+      </div>
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #B7D7ED; text-align: right; line-height: 1.6;">Coaches copy<br>Not for distribution</div>
+    </div>
+
+    <sc-if value="{{ showPhotos }}" hint-placeholder-val="{{ true }}">
+      <div style="height: 440px; flex: none; position: relative; background: #13294B;">
+        <img src="8bebc738-2e93-413e-9385-227586c723e1" alt="Vanderbilt quarterback Arrington Maiden on a designed keep up the middle, two Carolina defenders converging" style="width: 100%; height: 100%; object-fit: cover; display: block">
+        <img src="df9aa0ff-9fa8-4b3d-b249-4050749baf1a" alt="" style="position: absolute; top: -1px; height: 52px; width: auto; display: block; left: 767px">
+        <div style="position: absolute; left: 0; bottom: 0; background: #13294B; color: #B7D7ED; font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; padding: 6px 12px;">QB #15 Maiden — designed keep, A-gap</div>
+      </div>
+    </sc-if>
+
+    <div style="flex: 1; min-height: 0; box-sizing: border-box; padding: 16px 44px; display: flex; flex-direction: column; justify-content: space-between; gap: 10px;" data-comment-anchor="15e4545d79-div">
+      <div>
+        <div style="display: flex; align-items: center; gap: 9px;">
+          <img src="f8804761-e433-4ea6-97ff-e784762c7269" alt="" style="height: 10px; width: auto; display: block;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.19em; text-transform: uppercase; color: #5B6670;">Week 11 · 2027 · Sat Nov 13, 12:30 · Kenan Stadium</div>
+        </div>
+        <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 76px; line-height: 0.84; letter-spacing: -0.01em; text-transform: uppercase; margin: 7px 0 0;">Vanderbilt</div>
+        <div style="font-family: Oswald, Arial, sans-serif; font-weight: 500; font-size: 20px; letter-spacing: 0.05em; text-transform: uppercase; color: #2C5080; margin-top: 5px;">#24 Commodores — Miles Brown</div>
+        <div style="font-size: 13.5px; line-height: 1.45; margin-top: 10px; max-width: 700px; text-wrap: pretty;">Two weeks before the Rutgers decider, off the strangest stretch of his season: a road win at <strong>#3 Baylor</strong>, a <strong>28-point home loss to West Virginia</strong> that dropped him #14 to #24 — then a <strong>56–28 answer at Arizona</strong>, captured off his own screen. First in the SEC in rushing, third down and red-zone touchdowns. <strong>His call sheet is now on the record.</strong></div>
+      </div>
+
+      <div>
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.19em; text-transform: uppercase; color: #5B6670; margin-bottom: 7px;">2027 form — through 9 games</div>
+        <div style="display: grid; grid-template-columns: repeat(9, 1fr); gap: 1px; background: #13294B; border: 1px solid #13294B;">
+          <div style="background: #F2EFE6; padding: 6px 8px; text-align: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 14px; line-height: 1; color: #2C5080;">W&nbsp;&nbsp;<span style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 400; color: #13294B;">49–24</span></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">at Cin</div></div>
+          <div style="background: #F2EFE6; padding: 6px 8px; text-align: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 14px; line-height: 1; color: #2C5080;">W&nbsp;&nbsp;<span style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 400; color: #13294B;">38–13</span></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">at Stan</div></div>
+          <div style="background: #F2EFE6; padding: 6px 8px; text-align: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 14px; line-height: 1; color: #2C5080;">W&nbsp;&nbsp;<span style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 400; color: #13294B;">58–20</span></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">UVA</div></div>
+          <div style="background: #F2EFE6; padding: 6px 8px; text-align: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 14px; line-height: 1; color: #2C5080;">W&nbsp;&nbsp;<span style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 400; color: #13294B;">30–21</span></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">BGSU</div></div>
+          <div style="background: #F2EFE6; padding: 6px 8px; text-align: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 14px; line-height: 1; color: #8C2F1F;">L&nbsp;&nbsp;<span style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 400; color: #13294B;">36–49</span></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">Rutgers</div></div>
+          <div style="background: #F2EFE6; padding: 6px 8px; text-align: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 14px; line-height: 1; color: #2C5080;">W&nbsp;&nbsp;<span style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 400; color: #13294B;">35–28</span></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">N'western</div></div>
+          <div style="background: #EDF5FB; padding: 6px 8px; text-align: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 14px; line-height: 1; color: #2C5080;">W&nbsp;&nbsp;<span style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 400; color: #13294B;">37–31</span></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">at #3 Bay</div></div>
+          <div style="background: #F7E9E6; padding: 6px 8px; text-align: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 14px; line-height: 1; color: #8C2F1F;">L&nbsp;&nbsp;<span style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 400; color: #13294B;">28–56</span></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">WVU</div></div>
+          <div style="background: #EDF5FB; padding: 6px 8px; text-align: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 14px; line-height: 1; color: #2C5080;">W&nbsp;&nbsp;<span style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; font-weight: 400; color: #13294B;">56–28</span></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.06em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">at Ariz</div></div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #13294B; border: 1px solid #13294B;">
+        <div style="background: #F2EFE6; padding: 8px 11px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #5B6670;">Vanderbilt</div>
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 25px; line-height: 1.1;">7–2</div>
+        </div>
+        <div style="background: #F2EFE6; padding: 8px 11px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #5B6670;">Carolina · #25</div>
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 25px; line-height: 1.1;">6–3</div>
+        </div>
+        <div style="background: #F2EFE6; padding: 8px 11px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #5B6670;">Series</div>
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 25px; line-height: 1.1; color: #2C5080;">1–0</div>
+        </div>
+        <div style="background: #F2EFE6; padding: 8px 11px;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #5B6670;">Last meeting</div>
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 25px; line-height: 1.1;">35–14</div>
+        </div>
+      </div>
+
+      <div style="background: #13294B; color: #FFFFFF; padding: 15px 18px; border-left: 4px solid #4B9CD3;">
+        <div style="font-size: 13px; line-height: 1.45; text-wrap: pretty;"><strong style="color: #4B9CD3;">The thesis.</strong> He wins between the 20s with the SEC's best ground game, converts the money downs at the best rate in the league, and finishes: the #1 red-zone offense in the conference. The 2026 book on him is dead.</div>
+          <div style="font-size: 13px; line-height: 1.45; color: #B7D7ED; text-wrap: pretty; margin-top: 7px;"><strong style="color: #FFFFFF;">Still true:</strong> everything goes through the middle of the field, he almost never throws it in for six, and his pass rush cannot get home. Your red-zone defense is the league's best. Whoever's red-zone identity survives wins.</div>
+      </div>
+    </div>
+
+    <div style="height: 30px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #C9C3B2;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #5B6670;">Updated 2026·08·19 · 5 films + his call sheet · Wk 10 stat sheet</div>
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.1em; color: #2C5080;">01 / 07</div>
+    </div>
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+  </div>
+</section>
+
+<section class="page" data-screen-label="02 The Book Changed" style="background: #F2EFE6; color: #13294B; font-family: 'Source Serif 4', Georgia, serif;">
+  <div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column;">
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+    <div style="height: 76px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #13294B;">
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 38px; line-height: 1; color: #4B9CD3;">01</div>
+      <div style="flex: 1;">
+        <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 27px; line-height: 1; text-transform: uppercase; letter-spacing: 0.01em;">The book changed</div>
+        <div style="font-size: 12px; color: #5B6670; margin-top: 3px;">Two seasons of film, one new stat sheet. Where they disagree, the stat sheet wins.</div>
+      </div>
+      <img src="33006f50-1060-40f7-a7ea-f8d3f68258f6" alt="" style="height: 26px; width: auto; object-fit: contain; display: block;">
+    </div>
+
+    <div style="flex: 1; min-height: 0; margin: 12px 0; box-sizing: border-box; padding: 0 44px; display: grid; grid-template-rows: auto auto 277px; gap: 12px;">
+      <div style="min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="min-height: 0; border: 1px solid #13294B; border-left: 4px solid #8C2F1F; background: #FFFFFF; padding: 15px 17px; display: flex; flex-direction: column;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #8C2F1F;">Retired — do not play these</div>
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; gap: 13px; margin-top: 10px;">
+            <div style="font-size: 13px; line-height: 1.5;"><strong>“He dies on third down.”</strong> The film's 3-for-18 is two seasons stale. He is <strong>58% (39/67), 1st in the SEC</strong>.</div>
+            <div style="font-size: 13px; line-height: 1.5;"><strong>“Gun means pass.”</strong> Retired across three films. He ran out of shotgun 29 times against you.</div>
+            <div style="font-size: 13px; line-height: 1.5;"><strong>“Hunt the ball.”</strong> The −5 margin is gone. Six giveaways in eight games, best in the league.</div>
+            <div style="font-size: 13px; line-height: 1.5;"><strong>“A lead makes him fold.”</strong> Shut out after halftime in '26; closed Baylor at 70% pass with the lead in '27.</div>
+          </div>
+        </div>
+        <div style="min-height: 0; border: 1px solid #13294B; border-left: 4px solid #4B9CD3; background: #FFFFFF; padding: 15px 17px; display: flex; flex-direction: column;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #2C5080;">Confirmed — five films deep</div>
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start; gap: 13px; margin-top: 10px;">
+            <div style="font-size: 13px; line-height: 1.5;"><strong>Runs go middle.</strong> Five films strong — 9 of 15 interior at Arizona. <strong>The left edge is dead.</strong></div>
+            <div style="font-size: 13px; line-height: 1.5;"><strong>4th down is a weapon.</strong> 11/19 on the season; the go/kick line sits around five yards.</div>
+            <div style="font-size: 13px; line-height: 1.5;"><strong>Alignment is honest — identity-grade.</strong> Zero called audibles in a full game off his own screen.</div>
+            <div style="font-size: 13px; line-height: 1.5;"><strong>He will not pressure you.</strong> 2-high, corners off, rush four on 41 of 48 Arizona pass snaps, one rotation all game.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="min-height: 0; display: flex; flex-direction: column;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: #5B6670; margin-bottom: 6px; flex: none;">Season shape — Week 10 stat sheet · his 8 games vs your 9</div>
+        <sc-raw-table style="width: 100%; flex: 1; border-collapse: collapse; font-size: 13px; border: 1px solid #13294B;">
+          <sc-raw-thead>
+            <sc-raw-tr style="background: #13294B; color: #FFFFFF;">
+              <sc-raw-th style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.13em; text-transform: uppercase; text-align: left; padding: 8px 11px; font-weight: 500;">Measure</sc-raw-th>
+              <sc-raw-th style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.13em; text-transform: uppercase; text-align: right; padding: 8px 11px; font-weight: 500; width: 82px;">Vandy</sc-raw-th>
+              <sc-raw-th style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.13em; text-transform: uppercase; text-align: right; padding: 8px 11px; font-weight: 500; width: 82px;">Carolina</sc-raw-th>
+              <sc-raw-th style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.13em; text-transform: uppercase; text-align: left; padding: 8px 11px; font-weight: 500;">Read</sc-raw-th>
+            </sc-raw-tr>
+          </sc-raw-thead>
+          <sc-raw-tbody>
+            <sc-raw-tr><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 500; text-transform: uppercase;">Points/game</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px;">38.9</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px;">38.7</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6;">Dead even. A shootout on paper.</sc-raw-td></sc-raw-tr>
+            <sc-raw-tr><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 500; text-transform: uppercase;">Rush YPG</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: #2C5080;">237.6</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px;">152.2</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6;">1st in the SEC. This is who he is.</sc-raw-td></sc-raw-tr>
+            <sc-raw-tr><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 500; text-transform: uppercase;">Pass YPG</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px;">213.6</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: #2C5080;">293.1</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6;">1st in the SEC — yours. Mirror images.</sc-raw-td></sc-raw-tr>
+            <sc-raw-tr><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 500; text-transform: uppercase;">Rush / pass TD</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px;">30 / 11</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px;">16 / 26</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6;">He almost never throws it in for six.</sc-raw-td></sc-raw-tr>
+            <sc-raw-tr><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 500; text-transform: uppercase;">3rd down</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: #2C5080;">58%</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px;">39%</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6;">Best in the league. Force <em>long</em>.</sc-raw-td></sc-raw-tr>
+            <sc-raw-tr><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 500; text-transform: uppercase;">Sacks/game</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px;">1.5</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: #2C5080;">3.1</sc-raw-td><sc-raw-td style="padding: 4px 11px; border-bottom: 1px solid #DCD6C6;">You will have time. He will not.</sc-raw-td></sc-raw-tr>
+            <sc-raw-tr><sc-raw-td style="padding: 4px 11px; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 500; text-transform: uppercase;">Giveaways</sc-raw-td><sc-raw-td style="padding: 4px 11px; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 600; color: #2C5080;">6</sc-raw-td><sc-raw-td style="padding: 4px 11px; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #8C2F1F;">18</sc-raw-td><sc-raw-td style="padding: 4px 11px;">Best in the SEC against nearly the worst.</sc-raw-td></sc-raw-tr>
+          </sc-raw-tbody>
+        </sc-raw-table>
+        <div style="flex: none; background: #EAE5D8; border-left: 4px solid #4B9CD3; padding: 8px 13px; font-size: 13px; line-height: 1.5; margin-top: 8px;"><strong>The WVU wobble was one week.</strong> He answered with 56–28 at Arizona — and <strong>his defense scored three touchdowns</strong> there, incl. a 97-yard pick-six. Passive is not harmless once you're in obvious passing downs.</div>
+      </div>
+
+      <div style="min-height: 0; display: grid; grid-template-columns: 1.15fr 1fr; gap: 12px;">
+        <div style="min-height: 0; background: #13294B; color: #FFFFFF; padding: 15px 18px; display: flex; flex-direction: column;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #4B9CD3; flex: none;">The man across the field — his in-game card</div>
+          <div style="display: flex; align-items: baseline; gap: 10px; margin: 8px 0 12px; flex: none;">
+            <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 26px; line-height: 1; text-transform: uppercase;">Miles Brown</div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #B7D7ED;">Lvl 15 · Recruiter · Prestige C</div>
+          </div>
+          <div style="flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 14px; align-content: start;">
+            <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: #4B9CD3;">Offense</div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 17px; line-height: 1.2;">Spread</div></div>
+            <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: #4B9CD3;">Defense</div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 17px; line-height: 1.2;">3-3-5</div></div>
+            <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: #4B9CD3;">Alma mater</div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 17px; line-height: 1.2;">Air Force</div></div>
+            <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: #4B9CD3;">At Vanderbilt</div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 17px; line-height: 1.2;">13–8</div></div>
+            <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: #4B9CD3;">vs Top 25</div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 17px; line-height: 1.2;">3–2</div></div>
+            <div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.12em; text-transform: uppercase; color: #4B9CD3;">Bowls · rivals</div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 17px; line-height: 1.2;">1–0 · 2–0</div></div>
+          </div>
+          <div style="font-size: 12px; line-height: 1.45; color: #B7D7ED; flex: none; margin-top: 10px;">A recruiter archetype on a C-prestige roster that grades OVR 84 / OFF 84 / DEF 84 — he is winning with a scheme fit, not a talent gap. <strong style="color: #FFFFFF;">3–2 against the Top 25 says he does not shrink in these games.</strong></div>
+        </div>
+
+        <div style="min-height: 0; border: 1px solid #13294B; background: #FFFFFF; padding: 15px 18px; display: flex; flex-direction: column;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #8C2F1F; flex: none;">Dead tells — do not build a plan on these</div>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 11px; margin-top: 10px;">
+            <div style="display: flex; gap: 11px; align-items: flex-start;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 15px; color: #A2AAAD; width: 60px; flex-shrink: 0; text-transform: uppercase;">Gun</div><div style="font-size: 12.5px; line-height: 1.45;">Not a pass tell. He ran from shotgun <strong>29 times</strong> against you and 40% of the time on the Rutgers film.</div></div>
+            <div style="display: flex; gap: 11px; align-items: flex-start;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 15px; color: #A2AAAD; width: 60px; flex-shrink: 0; text-transform: uppercase;">Motion</div><div style="font-size: 12.5px; line-height: 1.45;">Noise. <strong>3 of 73</strong> snaps in the head-to-head; pre-snap adjustments near zero. His alignment is honest.</div></div>
+            <div style="display: flex; gap: 11px; align-items: flex-start;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 15px; color: #A2AAAD; width: 60px; flex-shrink: 0; text-transform: uppercase;">Tempo</div><div style="font-size: 12.5px; line-height: 1.45;">Situational, not identity. Hurry-up cooled <strong>47% to 23%</strong> across films and tracks the scoreboard.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 30px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #C9C3B2;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #5B6670;">Carolina Football · Vanderbilt / Wk 11 2027</div>
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.1em; color: #2C5080;">02 / 07</div>
+    </div>
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+  </div>
+</section>
+
+<section class="page" data-screen-label="03 Red Zone" style="background: #F2EFE6; color: #13294B; font-family: 'Source Serif 4', Georgia, serif;">
+  <div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column;">
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+    <div style="height: 76px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #13294B;">
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 38px; line-height: 1; color: #4B9CD3;">02</div>
+      <div style="flex: 1;">
+        <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 27px; line-height: 1; text-transform: uppercase; letter-spacing: 0.01em;">The game inside the game</div>
+        <div style="font-size: 12px; color: #5B6670; margin-top: 3px;">His best thing against your best thing, twenty yards from the goal line.</div>
+      </div>
+      <img src="33006f50-1060-40f7-a7ea-f8d3f68258f6" alt="" style="height: 26px; width: auto; object-fit: contain; display: block;">
+    </div>
+
+    <div style="flex: 1; min-height: 0; margin: 12px 0; box-sizing: border-box; padding: 0 44px; display: grid; grid-template-rows: auto 383px auto 199px; gap: 12px;">
+      <div style="min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="min-height: 0; background: #13294B; color: #FFFFFF; padding: 15px 18px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #4B9CD3;">His red-zone offense · 1st in SEC</div>
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 62px; line-height: 1; margin: 4px 0 0;">63<span style="font-size: 30px;">%</span></div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.06em; color: #B7D7ED; margin-top: 3px;">31 TD · 4 FG · 49 trips · 71% score rate</div>
+        </div>
+        <div style="min-height: 0; background: #4B9CD3; color: #13294B; padding: 15px 18px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase;">Your red-zone defense · 1st in SEC</div>
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 62px; line-height: 1; margin: 4px 0 0;">22<span style="font-size: 30px;">%</span></div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.06em; margin-top: 3px;">8 TD · 4 FG · 36 trips · the trump card</div>
+        </div>
+      </div>
+
+      <sc-if value="{{ showPhotos }}" hint-placeholder-val="{{ true }}">
+        <div style="width: 731px; margin: 0 auto; position: relative; background: #13294B; border: 1px solid #13294B; height: 383px">
+          <img src="16f0ea18-1d93-46ba-86f2-5987d393b038" alt="Carolina defenders stopping the Vanderbilt back short of the goal line" style="width: 100%; height: 100%; object-fit: cover; display: block">
+          <img src="df9aa0ff-9fa8-4b3d-b249-4050749baf1a" alt="" style="position: absolute; right: 0; top: 0; height: 46px; width: auto; display: block;">
+          <div style="position: absolute; left: 0; bottom: 0; background: #13294B; color: #B7D7ED; font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; padding: 4px 11px;">Force the settle — a 4th-down stop inside the 10 beats a takeaway anywhere else</div>
+        </div>
+      </sc-if>
+
+      <div style="min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="min-height: 0; border: 1px solid #13294B; border-left: 4px solid #8C2F1F; background: #FFFFFF; padding: 14px 17px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #8C2F1F; margin-bottom: 5px;">The loss condition</div>
+          <div style="font-size: 13px; line-height: 1.5;">You are <strong>41% on 48 trips</strong> — 20 touchdowns, six field goals. Kicking three while he scores six loses a game you out-gain, exactly the way Rutgers out-scored him by 13 while being out-gained by 136.</div>
+        </div>
+        <div style="min-height: 0; background: #13294B; color: #FFFFFF; padding: 14px 17px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #4B9CD3; margin-bottom: 5px;">Make him kick</div>
+          <div style="font-size: 13px; line-height: 1.5;">Four field goals in eight games means he almost never accepts three. Force the settle and his identity breaks for the afternoon — a 4th-down stop inside the 10 is worth more than a takeaway anywhere else.</div>
+        </div>
+      </div>
+
+      <div style="min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="min-height: 0; border: 1px solid #13294B; background: #FFFFFF; padding: 14px 17px; display: flex; flex-direction: column;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #5B6670; flex: none;">Precedent — Rutgers, Week 5 '27</div>
+          <div style="display: flex; align-items: flex-end; gap: 18px; margin: 9px 0 8px; flex: none;">
+            <div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 30px; line-height: 1; color: #2C5080;">520</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">Vandy yards</div></div>
+            <div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 30px; line-height: 1;">384</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">Rutgers yards</div></div>
+            <div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 30px; line-height: 1; color: #8C2F1F;">−13</div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">Final margin</div></div>
+          </div>
+          <div style="font-size: 12.5px; line-height: 1.45; flex: none;">He out-gained Rutgers by 136 with <strong>23 first downs</strong> and lost by 13. <strong>His yards died between the 20s.</strong> That is the one game plan on record that beat him at full strength — and it did not require out-gaining him.</div>
+        </div>
+        <div style="min-height: 0; border: 1px solid #13294B; background: #FFFFFF; padding: 14px 17px; display: flex; flex-direction: column;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #5B6670; flex: none;">How you did it in '26 — UNC 35–14</div>
+          <div style="display: flex; gap: 1px; background: #C9C3B2; border: 1px solid #C9C3B2; margin: 9px 0 8px; flex: none;">
+            <div style="background: #F2EFE6; flex: 1; padding: 6px 4px; text-align: center;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670;">Q1</div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 15px; margin-top: 2px;">7–7</div></div>
+            <div style="background: #F2EFE6; flex: 1; padding: 6px 4px; text-align: center;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670;">Q2</div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 15px; margin-top: 2px;">7–7</div></div>
+            <div style="background: #EDF5FB; flex: 1; padding: 6px 4px; text-align: center;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #2C5080;">Q3</div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 15px; margin-top: 2px; color: #2C5080;">7–0</div></div>
+            <div style="background: #EDF5FB; flex: 1; padding: 6px 4px; text-align: center;"><div style="font-family: 'IBM Plex Mono', monospace; font-size: 7.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #2C5080;">Q4</div><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 15px; margin-top: 2px; color: #2C5080;">14–0</div></div>
+          </div>
+          <div style="font-size: 12.5px; line-height: 1.45; flex: none;">You shut him out after halftime and De'Mon June went <strong>14 carries, 116 yards, 2 TD</strong>. But <strong style="color: #8C2F1F;">two of your five touchdowns came on a punt return and a fumble return</strong> — against a team that has now given the ball away six times all season, that subsidy is gone.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 30px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #C9C3B2;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #5B6670;">Carolina Football · Vanderbilt / Wk 11 2027</div>
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.1em; color: #2C5080;">03 / 07</div>
+    </div>
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+  </div>
+</section>
+
+<section class="page" data-screen-label="04 His Offense" style="background: #F2EFE6; color: #13294B; font-family: 'Source Serif 4', Georgia, serif;">
+  <div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column;">
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+    <div style="height: 76px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #13294B;">
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 38px; line-height: 1; color: #4B9CD3;">03</div>
+      <div style="flex: 1;">
+        <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 27px; line-height: 1; text-transform: uppercase; letter-spacing: 0.01em;">His offense</div>
+        <div style="font-size: 12px; color: #5B6670; margin-top: 3px;">Spread formation, downhill identity. Everything lives in the middle of the field.</div>
+      </div>
+      <img src="33006f50-1060-40f7-a7ea-f8d3f68258f6" alt="" style="height: 26px; width: auto; object-fit: contain; display: block;">
+    </div>
+
+    <div style="flex: 1; min-height: 0; margin: 12px 0; box-sizing: border-box; padding: 0 44px; display: grid; grid-template-rows: 96px 1fr auto 322px; gap: 12px;">
+      <div style="min-height: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #13294B; border: 1px solid #13294B;">
+        <div style="background: #FFFFFF; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 27px; line-height: 1;">451<span style="font-size: 15px;">.3</span></div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; margin-top: 4px;">Total YPG · 2nd</div>
+        </div>
+        <div style="background: #FFFFFF; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 27px; line-height: 1;">24<span style="font-size: 15px;">.6</span></div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; margin-top: 4px;">1st downs/gm · 1st</div>
+        </div>
+        <div style="background: #FFFFFF; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 27px; line-height: 1;">11<span style="font-size: 15px;">/19</span></div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; margin-top: 4px;">4th down · 57%</div>
+        </div>
+        <div style="background: #FFFFFF; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 27px; line-height: 1;">84</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; margin-top: 4px;">OVR · Spread / 3-3-5</div>
+        </div>
+      </div>
+
+      <div style="min-height: 0; display: grid; grid-template-columns: 1fr 0.72fr 1.06fr; gap: 12px;">
+        <div style="min-height: 0; border: 1px solid #13294B; background: #FFFFFF; padding: 14px 17px; display: flex; flex-direction: column;">
+          <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex: none;" data-comment-anchor="7b31ce25e6-div">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: #5B6670;">Charted run direction</div>
+            <div style="display: flex; gap: 8px; font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.04em; text-transform: uppercase; color: #5B6670; white-space: nowrap;">
+              <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 9px; height: 9px; background: #13294B;"></div>'26 h2h · 37</div>
+              <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 9px; height: 9px; background: #4B9CD3;"></div>'27 film · 39</div>
+            </div>
+          </div>
+          <div style="flex: none; display: flex; flex-direction: column; justify-content: flex-start; gap: 6px; margin: 9px 0;">
+            <div style="display: flex; align-items: center; gap: 9px;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; width: 48px; color: #5B6670; text-transform: uppercase; flex-shrink: 0;">Middle</div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+                <div style="display: flex; align-items: center; gap: 6px;"><div style="height: 10px; width: 80%; background: #13294B;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; width: 15px; flex-shrink: 0;">20</div></div>
+                <div style="display: flex; align-items: center; gap: 6px;"><div style="height: 10px; width: 100%; background: #4B9CD3;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; width: 15px; flex-shrink: 0;">25</div></div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 9px;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; width: 48px; color: #5B6670; text-transform: uppercase; flex-shrink: 0;">R edge</div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+                <div style="display: flex; align-items: center; gap: 6px;"><div style="height: 10px; width: 36%; background: #13294B;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; width: 15px; flex-shrink: 0;">9</div></div>
+                <div style="display: flex; align-items: center; gap: 6px;"><div style="height: 10px; width: 16%; background: #4B9CD3;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; width: 15px; flex-shrink: 0;">4</div></div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 9px;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; width: 48px; color: #5B6670; text-transform: uppercase; flex-shrink: 0;">L gap</div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+                <div style="display: flex; align-items: center; gap: 6px;"><div style="height: 10px; width: 20%; background: #13294B;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; width: 15px; flex-shrink: 0;">5</div></div>
+                <div style="display: flex; align-items: center; gap: 6px;"><div style="height: 10px; width: 12%; background: #4B9CD3;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; width: 15px; flex-shrink: 0;">3</div></div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 9px;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; width: 48px; color: #5B6670; text-transform: uppercase; flex-shrink: 0;">R gap</div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+                <div style="display: flex; align-items: center; gap: 6px;"><div style="height: 10px; width: 8%; background: #13294B;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; width: 15px; flex-shrink: 0;">2</div></div>
+                <div style="display: flex; align-items: center; gap: 6px;"><div style="height: 10px; width: 16%; background: #4B9CD3;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; width: 15px; flex-shrink: 0;">4</div></div>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 9px;">
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9.5px; width: 48px; color: #5B6670; text-transform: uppercase; flex-shrink: 0;">L edge</div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
+                <div style="display: flex; align-items: center; gap: 6px;"><div style="height: 10px; width: 4%; background: #13294B;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; width: 15px; flex-shrink: 0;">1</div></div>
+                <div style="display: flex; align-items: center; gap: 6px;"><div style="height: 10px; width: 12%; background: #4B9CD3;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 10px; width: 15px; flex-shrink: 0;">3</div></div>
+              </div>
+            </div>
+          </div>
+          <div style="font-size: 11.5px; color: #5B6670; line-height: 1.5; flex: none;"><strong style="color: #13294B;">64% of his '27 carries went middle, 82% interior.</strong> His own sheet agrees: Pistol Ace HB Dive is the top run, 7 all-time calls. Left edge a non-threat in both seasons.</div>
+        </div>
+        <div style="min-height: 0; border: 1px solid #13294B; background: #FFFFFF; padding: 14px 17px; display: flex; flex-direction: column;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: #5B6670; flex: none;">Pass rate by down — '26 h2h · 73 snaps</div>
+          <div style="flex: none; display: flex; align-items: flex-end; gap: 8px; margin: 12px 0 10px; border-bottom: 1px solid #C9C3B2; padding-bottom: 7px;">
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 17px; line-height: 1;">42%</div><div style="width: 100%; height: 110px; background: #4B9CD3;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670;">1st</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 17px; line-height: 1;">50%</div><div style="width: 100%; height: 131px; background: #4B9CD3;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670;">2nd</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 17px; line-height: 1;">58%</div><div style="width: 100%; height: 152px; background: #13294B;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670;">3rd</div></div>
+            <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 5px;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 17px; line-height: 1;">33%</div><div style="width: 100%; height: 86px; background: #4B9CD3;"></div><div style="font-family: 'IBM Plex Mono', monospace; font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670;">4th</div></div>
+          </div>
+          <div style="font-size: 11.5px; color: #5B6670; line-height: 1.5; flex: none;">Run-first early. He throws only when the sticks force it.</div>
+        </div>
+        <div style="min-height: 0; display: flex; flex-direction: column; gap: 1px; background: #13294B; border: 1px solid #13294B;">
+          <div style="background: #FFFFFF; padding: 12px 15px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;">
+              <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 1; text-transform: uppercase;">Keyjuan Brown</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; white-space: nowrap;">#3 · HB · SR</div>
+            </div>
+            <div style="font-size: 11.5px; line-height: 1.5; color: #2C5080; margin-top: 4px;"><strong>The danger man.</strong> #3 on the Heisman, Maxwell, Walter Camp and Hornung lists. Prints HB/WR/WB — he moves. Know where he is every snap.</div>
+          </div>
+          <div style="background: #FFFFFF; padding: 12px 15px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+            <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 8px;">
+              <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 1; text-transform: uppercase;">Arrington Maiden</div>
+              <div style="font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; white-space: nowrap;">#15 · QB · SO</div>
+            </div>
+            <div style="font-size: 11.5px; line-height: 1.5; color: #2C5080; margin-top: 4px;"><strong>Pure Runner.</strong> Scores on designed keeps. Spy him in the red zone and on money downs.</div>
+          </div>
+          <div style="background: #EAE5D8; padding: 6px 13px; flex: none; display: flex; align-items: center;">
+            <div style="font-size: 10.5px; line-height: 1.3;"><strong>Also:</strong> WR <strong>Tristen Brown #5</strong>, top-10 Jet returner — kick away. <strong>OC Pritchard</strong> is #6 on the Broyles list.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="min-height: 0; background: #13294B; color: #FFFFFF; border-left: 4px solid #4B9CD3; padding: 12px 17px; display: grid; grid-template-columns: auto 1fr; gap: 8px 20px; align-items: center;">
+        <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #4B9CD3; grid-column: 1 / -1;">New — his call sheet, captured off his own screen at Arizona</div>
+        <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 19px; line-height: 1.1; text-transform: uppercase; white-space: nowrap;">Y Trips WK<br><span style="font-size: 12px; font-weight: 500; color: #B7D7ED;">is the passing identity</span></div>
+        <div style="font-size: 12.5px; line-height: 1.5;"><strong>619 Sail is his most-called pass — 18 all-time calls</strong> — with Mesh and China Smash (15.0 avg) off the same set. Flood beats spot-drop Cover 3: carry the sail with a match call or Cover 6 to the trips side, and the counters say he will come back to it. <strong style="color: #4B9CD3;">Also on the sheet: a FAKE PAT (K flip pass)</strong> — plus RIM / SKU / onside kick menus. Hands team awake on every kick.</div>
+      </div>
+
+      <sc-if value="{{ showPhotos }}" hint-placeholder-val="{{ true }}">
+          <div style="width: 723px; margin: 0 auto; position: relative; background: #13294B; border: 1px solid #13294B; height: 328px; overflow: visible">
+            
+            <div style="position: absolute; left: 0; bottom: 0; background: #13294B; color: #B7D7ED; font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; padding: 4px 11px;">#3 Keyjuan Brown — interior cutback</div>
+          <img src="b9a8580f-1aa4-4f4b-b0d3-1ef5afd4de44" alt="Vanderbilt back number 3 Brown cutting back inside against a Carolina defender" style="width: 100%; height: 100%; object-fit: cover; display: block; position: static"></div>
+      </sc-if>
+    </div>
+
+    <div style="height: 30px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #C9C3B2;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #5B6670;">Carolina Football · Vanderbilt / Wk 11 2027</div>
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.1em; color: #2C5080;">04 / 07</div>
+    </div>
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+  </div>
+</section>
+
+<section class="page" data-screen-label="05 Stopping Him" style="background: #F2EFE6; color: #13294B; font-family: 'Source Serif 4', Georgia, serif;">
+  <div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column;">
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+    <div style="height: 76px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #13294B;">
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 38px; line-height: 1; color: #4B9CD3;">04</div>
+      <div style="flex: 1;">
+        <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 27px; line-height: 1; text-transform: uppercase; letter-spacing: 0.01em;">Stopping him</div>
+        <div style="font-size: 12px; color: #5B6670; margin-top: 3px;">Situation in, call out. Take this one to the couch.</div>
+      </div>
+      <img src="33006f50-1060-40f7-a7ea-f8d3f68258f6" alt="" style="height: 26px; width: auto; object-fit: contain; display: block;">
+    </div>
+
+    <div style="flex: 1; min-height: 0; margin: 12px 0; box-sizing: border-box; padding: 0 44px; display: grid; grid-template-rows: 1fr auto 132px; gap: 12px;">
+      <sc-raw-table style="width: 100%; min-height: 0; border-collapse: collapse; font-size: 13px; border: 1px solid #13294B;">
+        <sc-raw-thead>
+          <sc-raw-tr style="background: #13294B; color: #FFFFFF;">
+            <sc-raw-th style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.13em; text-transform: uppercase; text-align: left; padding: 8px 11px; font-weight: 500; width: 168px;">Situation</sc-raw-th>
+            <sc-raw-th style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.13em; text-transform: uppercase; text-align: left; padding: 8px 11px; font-weight: 500; width: 178px;">Call</sc-raw-th>
+            <sc-raw-th style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.13em; text-transform: uppercase; text-align: left; padding: 8px 11px; font-weight: 500;">Why</sc-raw-th>
+          </sc-raw-tr>
+        </sc-raw-thead>
+        <sc-raw-tbody>
+          <sc-raw-tr><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">1st &amp; 10, any look</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase; color: #2C5080;">Cub Buzz L/R</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6;">Play the run regardless of formation. Buzz drops the safety into the hook where his middle throws live.</sc-raw-td></sc-raw-tr>
+          <sc-raw-tr><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: #2C5080; font-weight: 600;">Y Trips WK shows (3×1)</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase; color: #2C5080;">Match / Cov 6 to trips</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6;"><strong>His #1 call lives here: 619 Sail (18 all-time)</strong>, Mesh and China Smash off the same set. Carry the sail — spot-drop Cover 3 loses to the flood.</sc-raw-td></sc-raw-tr>
+          <sc-raw-tr><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">2nd &amp; medium</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase;">Sam Will Blitz</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6;">Your cleanest pressure all season — <strong>0.9 avg allowed</strong>. Spend it here, not on 3rd &amp; long.</sc-raw-td></sc-raw-tr>
+          <sc-raw-tr><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">2nd &amp; short, heavy box</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase;">Cub Cover 3, gaps aggressive</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6;">More bodies in the box, one deep safety in run support. Do not give up the easy first.</sc-raw-td></sc-raw-tr>
+          <sc-raw-tr><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">3rd &amp; 1–6</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase;">Cub Buzz, box stacked</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6;">He is 58% on 3rd. Treat every one of these as a two-down series.</sc-raw-td></sc-raw-tr>
+          <sc-raw-tr><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: #2C5080; font-weight: 600;">3rd &amp; 7+</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase; color: #2C5080;">Pass-commit the base shell</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6;"><strong>His one remaining weak split.</strong> No blitz — pass-commit puts the four-man rush on top of the same coverage.</sc-raw-td></sc-raw-tr>
+          <sc-raw-tr><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">4th &amp; 5 or less, past the 50</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase; color: #2C5080;">Goal-line front, spy the QB</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6;"><strong>Assume he goes.</strong> 11/19 on the season, go/kick line near five yards.</sc-raw-td></sc-raw-tr>
+          <sc-raw-tr><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">Maiden under centre / read look</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase;">Tampa 2 contain</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6;">Ends to hook-curls, tackle to a spy/QB spot. Scramblers do not expect it.</sc-raw-td></sc-raw-tr>
+          <sc-raw-tr><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em;">Red zone</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase; color: #2C5080;">Cover 2, user the weak hook</sc-raw-td><sc-raw-td style="padding: 6px 11px; border-bottom: 1px solid #DCD6C6;">Corners in curl-flats, safeties inside quarters. The user sits in his middle-of-field habit.</sc-raw-td></sc-raw-tr>
+          <sc-raw-tr><sc-raw-td style="padding: 6px 11px; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: #8C2F1F; font-weight: 600;">Never</sc-raw-td><sc-raw-td style="padding: 6px 11px; font-family: Oswald, Arial, sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase; color: #8C2F1F;">Nickel Double Mug Mid Blitz</sc-raw-td><sc-raw-td style="padding: 6px 11px;"><strong>11.4 avg allowed on the season ledger.</strong> His middle-of-field comfort is exactly the all-out counter zone.</sc-raw-td></sc-raw-tr>
+        </sc-raw-tbody>
+      </sc-raw-table>
+
+      <div style="min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="min-height: 0; background: #FFFFFF; border: 1px solid #13294B; border-left: 4px solid #8C2F1F; padding: 14px 17px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #8C2F1F; margin-bottom: 5px;">Hard rule</div>
+          <div style="font-size: 13px; line-height: 1.5;">A 3rd-down stop that leaves 4th &amp; 3 is not a stop. Inside five yards to go, past midfield, defend four downs — and do not spend a timeout or a personnel group as if the series is over.</div>
+        </div>
+        <div style="min-height: 0; background: #FFFFFF; border: 1px solid #13294B; border-left: 4px solid #4B9CD3; padding: 14px 17px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #2C5080; margin-bottom: 5px;">Earn the long yardage</div>
+          <div style="font-size: 13px; line-height: 1.5;">3rd &amp; 7+ is the only split still in your favour, and disguise does not create it. TFLs on first and second down do. Negative plays early beat any coverage rotation you can show him.</div>
+        </div>
+      </div>
+
+      <div style="min-height: 0; border: 1px solid #13294B; background: #FFFFFF; padding: 16px 20px 18px; display: flex; flex-direction: column;">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex: none;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.17em; text-transform: uppercase; color: #5B6670;">3rd &amp; 7+ by film — the only split still yours</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670;">Season 3rd down: 39/67 · 58% · 1st in SEC</div>
+        </div>
+        <div style="flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #C9C3B2; border: 1px solid #C9C3B2; margin-top: 13px;">
+          <div style="background: #F2EFE6; padding: 12px 14px; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 22px; line-height: 1; color: #2C5080;">1<span style="font-size: 13px;">/13</span></div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.09em; text-transform: uppercase; color: #5B6670; margin-top: 6px;">'26 vs you · 8%</div>
+          </div>
+          <div style="background: #F2EFE6; padding: 12px 14px; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 22px; line-height: 1;">2<span style="font-size: 13px;">/5</span></div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.09em; text-transform: uppercase; color: #5B6670; margin-top: 6px;">'27 Rutgers · 40%</div>
+          </div>
+          <div style="background: #F2EFE6; padding: 12px 14px; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 22px; line-height: 1;">2<span style="font-size: 13px;">/6</span></div>
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.09em; text-transform: uppercase; color: #5B6670; margin-top: 6px;">'27 Baylor Q4 · 33%</div>
+          </div>
+          <div style="background: #13294B; color: #FFFFFF; padding: 12px 14px; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 11.5px; line-height: 1.4;">Weakest in every charted game. <strong style="color: #4B9CD3;">Force long, not just third.</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 30px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #C9C3B2;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #5B6670;">Carolina Football · Vanderbilt / Wk 11 2027</div>
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.1em; color: #2C5080;">05 / 07</div>
+    </div>
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+  </div>
+</section>
+
+<section class="page" data-screen-label="06 Attacking Him" style="background: #F2EFE6; color: #13294B; font-family: 'Source Serif 4', Georgia, serif;">
+  <div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column;">
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+    <div style="height: 76px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #13294B;">
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 38px; line-height: 1; color: #4B9CD3;">05</div>
+      <div style="flex: 1;">
+        <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 27px; line-height: 1; text-transform: uppercase; letter-spacing: 0.01em;">Attacking his defense</div>
+        <div style="font-size: 12px; color: #5B6670; margin-top: 3px;">Two-high, off corners, rush four — now confirmed at scale by his own screen and call sheet.</div>
+      </div>
+      <img src="33006f50-1060-40f7-a7ea-f8d3f68258f6" alt="" style="height: 26px; width: auto; object-fit: contain; display: block;">
+    </div>
+
+    <div style="flex: 1; min-height: 0; margin: 12px 0; box-sizing: border-box; padding: 0 44px; display: grid; grid-template-rows: 315px auto auto 80px; gap: 12px;">
+      <div style="min-height: 0; display: grid; grid-template-columns: 466px 1fr; gap: 12px;">
+        <sc-if value="{{ showPhotos }}" hint-placeholder-val="{{ true }}">
+          <div style="min-height: 0; position: relative; background: #13294B; border: 1px solid #13294B;">
+            <img src="10bde758-fad9-4564-bf80-9b63e0b5ab56" alt="Carolina quarterback throwing from a clean pocket against a two-high Vanderbilt shell" style="width: 100%; height: 100%; object-fit: contain; display: block;">
+            <img src="df9aa0ff-9fa8-4b3d-b249-4050749baf1a" alt="" style="position: absolute; right: 0; top: 0; height: 44px; width: auto; display: block;">
+            <div style="position: absolute; left: 0; bottom: 0; background: #13294B; color: #B7D7ED; font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; padding: 4px 11px;">1 sack in 20 Baylor Q4 snaps</div>
+          </div>
+        </sc-if>
+        <div style="min-height: 0; display: flex; flex-direction: column; gap: 1px; background: #13294B; border: 1px solid #13294B;">
+          <div style="background: #FFFFFF; padding: 12px 15px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #5B6670;">2-high pre-snap · Ariz film</div>
+            <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 30px; line-height: 1; margin-top: 2px;">35<span style="font-size: 17px;">/62</span></div>
+          </div>
+          <div style="background: #FFFFFF; padding: 12px 15px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #5B6670;">Corners off · Ariz film</div>
+            <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 30px; line-height: 1; margin-top: 2px;">38<span style="font-size: 17px;">/62</span></div>
+          </div>
+          <div style="background: #FFFFFF; padding: 12px 15px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #5B6670;">Sacks in 8 games</div>
+            <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 30px; line-height: 1; margin-top: 2px; color: #2C5080;">12</div>
+          </div>
+          <div style="background: #FFFFFF; padding: 12px 15px; flex: 1; display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #5B6670;">Rush 4 · Ariz pass snaps</div>
+            <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 30px; line-height: 1; margin-top: 2px; color: #2C5080;">41<span style="font-size: 17px;">/48</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="min-height: 0; display: flex; flex-direction: column; gap: 1px; background: #13294B; border: 1px solid #13294B;">
+        <div style="background: #FFFFFF; padding: 7px 13px; flex: 1; display: flex; gap: 12px; align-items: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; color: #4B9CD3; width: 18px; flex-shrink: 0;">1</div><div style="font-size: 13px; line-height: 1.5;"><strong>Throw first.</strong> Your 293.1 pass YPG leads the league; his rush produced one sack in 20 Baylor Q4 snaps. You beat this exact defense 35–14 by throwing at it — 196 yards on 16 attempts, a 40-yard touchdown, clean pockets most of the night.</div></div>
+        <div style="background: #FFFFFF; padding: 7px 13px; flex: 1; display: flex; gap: 12px; align-items: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; color: #4B9CD3; width: 18px; flex-shrink: 0;">2</div><div style="font-size: 13px; line-height: 1.5;"><strong>Hit the two-high shell with the Cover 2 / Cover 4 rows of the 466.</strong> Smash and corner-post hole shots from Bunch Str Offset, seam benders, four verts, Dagger.</div></div>
+        <div style="background: #FFFFFF; padding: 7px 13px; flex: 1; display: flex; gap: 12px; align-items: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; color: #4B9CD3; width: 18px; flex-shrink: 0;">3</div><div style="font-size: 13px; line-height: 1.5;"><strong>Read the palms rule pre-snap.</strong> If #2 releases to the flat and the corner reacts, that side plays as Cover 2 — take the hole shot. If #2 stays home and the corner stays on #1, it is quarters, and <strong>quarters is where scissors lives:</strong> post from #1 crossing a corner from #2, back isolated on the space-backer.</div></div>
+        <div style="background: #FFFFFF; padding: 7px 13px; flex: 1; display: flex; gap: 12px; align-items: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; color: #4B9CD3; width: 18px; flex-shrink: 0;">4</div><div style="font-size: 13px; line-height: 1.5;"><strong>Run into the light box he gives you.</strong> Six-man boxes on half his snaps in the '26 film with the corners off. RPO glance/bubble and inside zone/duo keep him honest and set up play-action back over the middle he vacates.</div></div>
+        <div style="background: #FFFFFF; padding: 7px 13px; flex: 1; display: flex; gap: 12px; align-items: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; color: #4B9CD3; width: 18px; flex-shrink: 0;">5</div><div style="font-size: 13px; line-height: 1.5;"><strong>On long yardage, take the underneath space.</strong> He goes to a conservative deep shell against the explosive play, which hands you open grass short — one completion plus a missed tackle is still a big gain.</div></div>
+        <div style="background: #FFFFFF; padding: 7px 13px; flex: 1; display: flex; gap: 12px; align-items: center;"><div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; color: #8C2F1F; width: 18px; flex-shrink: 0;">6</div><div style="font-size: 13px; line-height: 1.5;"><strong>Finish drives with touchdowns.</strong> His goal-line sheet is <strong>coverage-first — Quarters (5), C3 Match (4), Nickel 2 Trap (3)</strong>: fades and picks over power inside the 5.</div></div>
+      </div>
+
+      <div style="min-height: 0; background: #13294B; color: #FFFFFF; padding: 14px 17px; border-left: 4px solid #4B9CD3; display: flex; flex-direction: column; justify-content: center;">
+        <div style="font-size: 13px; line-height: 1.5;"><strong style="color: #4B9CD3;">Your unscouted card.</strong> Your '26 profile against him was gun-heavy — 26 of 31 windows — and you almost never showed under-centre. <strong>Shotgun Power I Tight is a genuine surprise card for 4th &amp; short and the red zone.</strong></div>
+      </div>
+
+      <div style="min-height: 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; background: #13294B; border: 1px solid #13294B;">
+        <div style="background: #FFFFFF; padding: 6px 12px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 1;">11<span style="font-size: 11px;"> · 4.1</span></div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">Tampa 2 — top call. Mid-hole seam.</div>
+        </div>
+        <div style="background: #FFFFFF; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 1;">8<span style="font-size: 11px;"> · 3.2</span></div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">Cov 1 Contain — throw, spy is home</div>
+        </div>
+        <div style="background: #FFFFFF; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 1;">7<span style="font-size: 11px;"> · 1.8</span></div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">Storm Brave — his best blitz</div>
+        </div>
+        <div style="background: #FFFFFF; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 18px; line-height: 1;">7<span style="font-size: 11px;"> · 5.2</span></div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.1em; text-transform: uppercase; color: #5B6670; margin-top: 3px;">Penny Quarters — palms read</div>
+        </div>
+        <div style="background: #8C2F1F; color: #FFFFFF; padding: 8px 12px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-size: 11.5px; line-height: 1.4;"><strong>His leak: Cov 1 SS Blitz, 21.5 avg.</strong> Single-high pressure shows = shot play.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 30px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #C9C3B2;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #5B6670;">Carolina Football · Vanderbilt / Wk 11 2027</div>
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.1em; color: #2C5080;">06 / 07</div>
+    </div>
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+  </div>
+</section>
+
+<section class="page" data-screen-label="07 Self-Scout + Log" style="background: #F2EFE6; color: #13294B; font-family: 'Source Serif 4', Georgia, serif;">
+  <div style="height: 100%; box-sizing: border-box; display: flex; flex-direction: column;">
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+    <div style="height: 76px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; gap: 14px; border-bottom: 2px solid #13294B;">
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 700; font-size: 38px; line-height: 1; color: #4B9CD3;">06</div>
+      <div style="flex: 1;">
+        <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 27px; line-height: 1; text-transform: uppercase; letter-spacing: 0.01em;">Self-scout &amp; live log</div>
+        <div style="font-size: 12px; color: #5B6670; margin-top: 3px;">What he owns on you, what this book doesn't know, and what to bank live.</div>
+      </div>
+      <img src="33006f50-1060-40f7-a7ea-f8d3f68258f6" alt="" style="height: 26px; width: auto; object-fit: contain; display: block;">
+    </div>
+
+    <div style="flex: 1; min-height: 0; margin: 12px 0; box-sizing: border-box; padding: 0 44px; display: grid; grid-template-rows: auto auto 1fr; gap: 12px;">
+      <div style="min-height: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #13294B; border: 1px solid #13294B;">
+        <div style="background: #FFFFFF; padding: 13px 16px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 4px;">Your money-down tell is total</div>
+          <div style="font-size: 12px; line-height: 1.5;">3rd down 0 run / 4 pass. 4th down 0 run / 1 pass. Past second down in the '26 head-to-head you threw it every single time — a free read for a coach who rushes four and sits in shells. <strong>The fix is cheap: run or QB-keep on one early 3rd &amp; short, on script.</strong></div>
+        </div>
+        <div style="background: #FFFFFF; padding: 13px 16px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 4px;">You live on one page of the sheet</div>
+          <div style="font-size: 12px; line-height: 1.5;">Cover 1 Robber (19), Cover 4 Show 2 (18) and Cover 3 Buzz (17) were over half your calls against him, and the season ledger holds at 85+ Nickel 3-3 Cub Cover 3 Buzz. <strong>Break tendency early — show the quarters/palms page and the Tampa 2 you barely use.</strong></div>
+        </div>
+        <div style="background: #FFFFFF; padding: 13px 16px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 4px;">Ball security is your risk, not his</div>
+          <div style="font-size: 12px; line-height: 1.5;">You have thrown <strong>17 interceptions, 15 by O'Neill</strong> — most among the contenders — against a team that has given it away six times all season. In '26 you won on a punt return and a fumble return. <strong>That subsidy is not coming back.</strong></div>
+        </div>
+        <div style="background: #FFFFFF; padding: 13px 16px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 15px; text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 4px;">Manage the sixty minutes</div>
+          <div style="font-size: 12px; line-height: 1.5;">The lead script is dead — plan a full game. Match his 4th-down posture; his defense allows 219.5 pass YPG. You are at 2.0 penalties a game, worst of the top group, and he profiles clean. Don't gift the league's best 3rd-down offense free resets.</div>
+        </div>
+      </div>
+
+      <div style="min-height: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #13294B; border: 1px solid #13294B;">
+        <div style="background: #13294B; color: #FFFFFF; padding: 12px 14px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #4B9CD3;">Proof-grade</div>
+          <div style="font-size: 11px; line-height: 1.48; margin-top: 3px;">Week 10 stat and standings screens. The game's own numbers.</div>
+        </div>
+        <div style="background: #FFFFFF; padding: 8px 11px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #5B6670;">Hand-verified</div>
+          <div style="font-size: 11px; line-height: 1.48; margin-top: 3px;">'26 head-to-head. 116 windows, possession by eye — a season old.</div>
+        </div>
+        <div style="background: #FFFFFF; padding: 8px 11px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #5B6670;">Directional</div>
+          <div style="font-size: 11px; line-height: 1.48; margin-top: 3px;">Northwestern 29 snaps · Rutgers 42 · Baylor 20, Q4 only · Arizona full game, 131 windows.</div>
+        </div>
+        <div style="background: #FFFFFF; padding: 8px 11px; display: flex; flex-direction: column; justify-content: center;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.15em; text-transform: uppercase; color: #2C5080;">Captured — his call sheet</div>
+          <div style="font-size: 11px; line-height: 1.48; margin-top: 3px;">All-time counters off his own screen at Arizona. Call-sheet truth; low-count rows are leads.</div>
+        </div>
+      </div>
+
+      <div style="min-height: 0; display: grid; grid-template-columns: 1.24fr 1fr; gap: 12px;">
+        <div style="min-height: 0; display: flex; flex-direction: column;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: #5B6670; flex: none;">Two reps, then bank the read</div>
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; margin-top: 6px;">
+            <div style="display: flex; gap: 11px; align-items: center; padding: 5px 0; border-bottom: 1px solid #DCD6C6;"><div style="width: 14px; height: 14px; border: 2px solid #13294B; flex-shrink: 0;"></div><div style="font-size: 12px;">Still run-first on early downs, or did the WVU loss change the install?</div></div>
+            <div style="display: flex; gap: 11px; align-items: center; padding: 5px 0; border-bottom: 1px solid #DCD6C6;"><div style="width: 14px; height: 14px; border: 2px solid #13294B; flex-shrink: 0;"></div><div style="font-size: 12px;">Do the runs still go middle, and is the left edge still dead?</div></div>
+            <div style="display: flex; gap: 11px; align-items: center; padding: 5px 0; border-bottom: 1px solid #DCD6C6;"><div style="width: 14px; height: 14px; border: 2px solid #13294B; flex-shrink: 0;"></div><div style="font-size: 12px;">How many designed Maiden keeps, and where?</div></div>
+            <div style="display: flex; gap: 11px; align-items: center; padding: 5px 0; border-bottom: 1px solid #DCD6C6;"><div style="width: 14px; height: 14px; border: 2px solid #13294B; flex-shrink: 0;"></div><div style="font-size: 12px;">Still 2-high with corners off, or did he add press?</div></div>
+            <div style="display: flex; gap: 11px; align-items: center; padding: 5px 0; border-bottom: 1px solid #DCD6C6;"><div style="width: 14px; height: 14px; border: 2px solid #13294B; flex-shrink: 0;"></div><div style="font-size: 12px;">Storm Brave / Nickel 2 Trap are on his sheet — did either show, and when?</div></div>
+            <div style="display: flex; gap: 11px; align-items: center; padding: 5px 0; border-bottom: 1px solid #DCD6C6;"><div style="width: 14px; height: 14px; border: 2px solid #13294B; flex-shrink: 0;"></div><div style="font-size: 12px;">Where is Keyjuan Brown aligned — backfield, slot, or wide?</div></div>
+            <div style="display: flex; gap: 11px; align-items: center; padding: 5px 0; border-bottom: 1px solid #DCD6C6;"><div style="width: 14px; height: 14px; border: 2px solid #13294B; flex-shrink: 0;"></div><div style="font-size: 12px;">Every 4th down: did he go, and from what distance?</div></div>
+            <div style="display: flex; gap: 11px; align-items: center; padding: 5px 0; border-bottom: 1px solid #DCD6C6;"><div style="width: 14px; height: 14px; border: 2px solid #13294B; flex-shrink: 0;"></div><div style="font-size: 12px;">Red-zone trips: how many ended in a kick?</div></div>
+            <div style="display: flex; gap: 11px; align-items: center; padding: 5px 0; border-bottom: 1px solid #DCD6C6;"><div style="width: 14px; height: 14px; border: 2px solid #13294B; flex-shrink: 0;"></div><div style="font-size: 12px;">First 3rd &amp; short: did you run it and poison the read?</div></div>
+          </div>
+        </div>
+        <div style="min-height: 0; display: flex; flex-direction: column;">
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: #5B6670; flex: none;">Notes</div>
+          <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; margin: 6px 0;">
+            <div style="border-bottom: 1px solid #C9C3B2;"></div>
+            <div style="border-bottom: 1px solid #C9C3B2;"></div>
+            <div style="border-bottom: 1px solid #C9C3B2;"></div>
+            <div style="border-bottom: 1px solid #C9C3B2;"></div>
+            <div style="border-bottom: 1px solid #C9C3B2;"></div>
+          </div>
+          <div style="flex: none; background: #EAE5D8; border-left: 4px solid #4B9CD3; padding: 8px 12px; font-size: 11.5px; line-height: 1.5;"><strong>Post-game:</strong> capture his screen again. His counters are ALL-TIME totals — the deltas from the Arizona baseline reveal exactly what he called against YOU.</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="height: 30px; flex: none; box-sizing: border-box; padding: 0 44px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #C9C3B2;">
+      <div style="font-family: 'IBM Plex Mono', monospace; font-size: 8px; letter-spacing: 0.14em; text-transform: uppercase; color: #5B6670;">Unknown at kickoff: his Week 11 board · anything installed after the WVU loss</div>
+      <div style="font-family: Oswald, Arial, sans-serif; font-weight: 600; font-size: 12px; letter-spacing: 0.1em; color: #2C5080;">07 / 07</div>
+    </div>
+    <div style="height: 22px; flex: none; background: #13294B url(&quot;d6cc4bee-24a2-4714-8a33-7bd3b77f98bd&quot;) repeat-x center bottom; background-size: auto 100%;"></div>
+  </div>
+</section>
+
+</doc-page>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;showPhotos&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Report contents&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    return { showPhotos: this.props.showPhotos ?? true };
+  }
+}
+</script>
+
+
+</body></html>

@@ -1,14 +1,17 @@
 ---
 name: scouting-report
-description: Build a full matchup scouting report + game plan ("the book") on a CFB 27 league opponent, for the user's own upcoming game OR to hand to another league member you want to win. Fuses the rival dossier, every charted film-room game, call-sheet counter ledgers, H2H/season context, and cited wiki strategy into a vault report plus a school-branded two-page PDF brief. Use whenever the user says "scouting report", "game plan", "scout <team>", "prep me for <team/coach>", "help <league member> beat <team>", "put together the book on <coach>", or wants opponent tendencies packaged as a document — even if they don't name a deliverable format. Capturing dynasty data belongs to dynasty-tracker; charting new film belongs to film-room; this skill only reads what they produced.
+description: Build a full matchup scouting report + game plan ("the book") on a CFB 27 league opponent, for the user's own upcoming game OR to hand to another league member you want to win. Fuses the rival dossier, every charted film-room game, call-sheet counter ledgers, H2H/season context, and cited wiki strategy into a vault markdown report plus a school-branded multi-page visual scouting report (PDF). Use whenever the user says "scouting report", "game plan", "scout <team>", "prep me for <team/coach>", "help <league member> beat <team>", "put together the book on <coach>", or wants opponent tendencies packaged as a document — even if they don't name a deliverable format. The branded standard is the multi-page image-led visual report; a phone-ready 2-page PDF brief is the compact alternate. Capturing dynasty data belongs to dynasty-tracker; charting new film belongs to film-room; this skill only reads what they produced.
 ---
 
 # Scouting Report — the book on one opponent
 
 One report = scope → gather → weigh → write → brand → verify. The deliverable is
-two artifacts: a fully-sourced vault report and a 2-page PDF brief the recipient
-coach can read on a phone. The worked example that set this format:
-`dynasties/north-carolina/film-room/2027-wvu-vs-maryland-gameplan.md` (+ .pdf).
+two artifacts: a fully-sourced vault markdown report and a school-branded visual
+report PDF. The markdown report is always written — it is the source of record
+that both PDF formats read from. The worked example that set the branded format:
+`dynasties/north-carolina/film-room/2027-unc-vs-vanderbilt-gameplan.md` (+ the
+Vanderbilt visual report). The earlier 2-page-brief example
+(`2027-wvu-vs-maryland-gameplan.md`) is superseded as the visual standard.
 
 ## 1. Scope the request
 
@@ -106,7 +109,41 @@ Structure (adapt emphasis to the matchup, keep the spine):
 
 Number the plan lists — order = priority, and a coach mid-game reads ranked keys.
 
-## 6. The PDF brief
+## 6. Pick the deliverable format
+
+The markdown vault report (§5) is always produced. On top of it, one of two PDFs:
+
+- **The visual report** (§6a) — **the default and the branded standard.** 6 to 8
+  Letter pages in the school's real brand with game renders, the full call sheet,
+  personnel, head-to-head and game management. This is what a scouting report
+  looks like unless there is a reason it can't be.
+- **The 2-page PDF brief** (§6b) — the compact alternate. A phone read for one
+  coach the night before: keys only, one chalk diagram, no photos. Use it when the
+  recipient asked for something short, when no charted film exists to illustrate,
+  or when the vault report has less ranked content than the visual pages need.
+
+Default to the visual report; ask only if the request implies the short form.
+Building both is fine and cheap — the brief is a subset of the visual report's
+content. Either way, re-check §2 before handing a PDF to a recipient who is not
+the user: more pages means more chances to leak counter numbers.
+
+## 6a. The visual report (default)
+
+Read `references/visual-report.md` for the build order, the chrome and type
+system, brand-asset rules, imagery sizing, the page inventory, and the
+fixed-height layout failures that eat the most time (`align-content:
+space-between` phantom gutters above all). Essentials: read the school's real
+brand assets before laying anything out; identical chrome on every page; three
+typefaces (condensed display, serif body, mono labels) and an eight-color palette;
+one captioned render per content page at its true aspect ratio, never cropped or
+letterboxed; explicit `grid-template-rows` with a single `1fr` track; every
+pixel of freed space filled with real vault content. Start from
+`assets/visual-report-template.dc.html` (the Vanderbilt document source) and
+check your work against `assets/visual-report-example-vanderbilt.html` (the
+rendered bundle). Save the PDF next to the vault report; deliver via
+SendUserFile.
+
+## 6b. The 2-page PDF brief (compact alternate)
 
 Read `references/pdf-brief.md` for the design system, school color tokens, layout
 rules, and render pipeline. Essentials: 2 fixed Letter pages in the beneficiary's
