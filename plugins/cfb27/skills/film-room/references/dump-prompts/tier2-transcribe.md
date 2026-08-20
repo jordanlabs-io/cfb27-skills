@@ -24,10 +24,40 @@ for each block.
 - **"unknown" beats a guess.** A digit you cannot resolve (78-or-76) is `?`. Never coin-flip.
   A team logo you cannot name is `unknown`, never a plausible guess.
 - Numbers matter more than prose. Get every digit right; re-read the frame if unsure.
+- **Check the screen's own arithmetic and re-read anything that fails.** Quarter scores sum to
+  Final (**including OT / 2OT columns — read the period headers, do not assume four**);
+  Rushing + Passing = Total Offense; Total Yards = Total Offense + PR + KR; the two T.O.P
+  values sum to 24:00; DIFF = PF − PA; TD% = TD/ATT; AVG = YARDS/attempts; FG% = FGM/FGA.
+  A failed identity means **go back and re-read the cell** — never adjust a number to make the
+  arithmetic work, and never compute a cell you could not read.
+- **Use the printed column headers verbatim.** Where a table has none, do not invent a combined
+  column: the standings card list is `OVERALL` and `CONF` (from `8-1 (4-1)`), never a single
+  `W-L (CONF)`. Two captures that name columns differently cannot be compared week to week.
+- **Do not supply the season or week from context.** Most screens do not state them — the
+  full-column standings screen carries no year anywhere. Record what is printed; if nothing is,
+  leave it out. The capture supplies the coordinate, not you.
 - Many consecutive frames show the SAME screen with a different row highlighted or scrolled.
   **Merge them into ONE table** — union of all rows seen, no duplicate rows. If a scroll skipped
   rows (a gap in an obvious sequence), say so explicitly with the word `GAP`.
-- If a frame is blurred/mid-transition, skip it and note `f_XXXX unreadable`.
+- **The table merges. The side panel does NOT.** The detail card tracks the cursor, so it shows
+  a DIFFERENT player in every frame of a scroll. Emit one card block per frame, each headed by
+  its own `f_NNNN`. Merging a run's rows with one arbitrary card writes one player's height,
+  hometown, archetype and rating under another player's name, and nothing downstream can
+  detect it because both halves are internally consistent.
+- **Tables also scroll SIDEWAYS.** If a horizontal scrollbar sits under the table, name the
+  first and last visible columns and write `H-SCROLL: columns beyond <LAST> not captured`.
+  A merged run gives you complete rows and silently incomplete columns.
+- If a frame is blurred/mid-transition, skip it and note `f_XXXX unreadable`. (Frames that
+  failed `frame_quality.py` have already been removed from your batch — but say so if one
+  slipped through. Do NOT transcribe a frame you cannot read: a previous pass produced a
+  complete standings table from an illegible frame that was **52% correct**.)
+- **`---` on screen means the game is showing NO VALUE.** Record it as `---`. It is not zero,
+  not "no", and not unreadable — it was perfectly legible and simply empty.
+- **Never count star glyphs.** Record the rating cell as an observation (`4 solid + 1 outline`)
+  or just `stars: see stars_cv`. A filled star is solid and an unfilled one is a hollow
+  outline that still carries ink, and every attempt to eyeball this over-counts by exactly
+  one. `scripts/stars_cv.py` measures it correctly; you will not. The same applies to any
+  colour-coded field — say "row rendered in red", not "injured".
 - Do NOT summarise or editorialise. Output the data.
 - **A side panel can lag the list.** When a highlighted row and its card disagree, the card may
   still be rendering the previously-selected player. Transcribe what you see and say the two

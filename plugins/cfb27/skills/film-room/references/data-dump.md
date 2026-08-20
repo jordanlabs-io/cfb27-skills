@@ -19,8 +19,16 @@ Two rules come straight out of that:
 
 1. **Sample nothing.** Film can be sampled because a play lasts seconds and repeats. A menu scroll
    cannot: every scroll position is different rows. Dedup by hash, never by stride.
-2. **Write the coverage ledger into the capture `_index.md`** — frames total / classified /
-   transcribed / dropped-as-duplicate. An uncounted gap is an invisible gap.
+2. **Run `frame_quality.py` before tier-1 and exclude what it rejects.** A model will not
+   refuse an illegible frame — it transcribes a coin flip (measured 52% correct against the
+   same screen captured sharp) and reports nothing wrong. About 10% of screen runs have no
+   usable frame. Rejected frames are counted in the ledger as `dropped-as-illegible`, which
+   keeps rule 3 honest: an excluded frame is a visible gap, an invented table is not.
+3. **Write the coverage ledger into the capture `_index.md`** — frames total / classified /
+   transcribed / dropped-as-duplicate / dropped-as-illegible. An uncounted gap is an
+   invisible gap.
+
+See `menu-extraction.md` for the full set of measured Lane C failure modes and their gates.
 
 ## Pipeline
 

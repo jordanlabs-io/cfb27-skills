@@ -97,8 +97,13 @@ Triage signals at intake: URL vs dropped file; `ffprobe` aspect ratio; audio str
 
 Menu-only footage/screenshots (postgame box scores, schedule/season records, standings, awards, roster screens, recruiting boards) → structured vault updates in `dynasties/`, following dynasty-tracker conventions. This lane never touches play charts and is validated by `verify_dynasties.py`, not `validate_chart.py`.
 
+0. **Quality gate (before any model sees a frame):** `frame_quality.py FRAMES_DIR OUT.json` — Laplacian variance over the table band; frames below threshold are excluded from transcription. **Not optional.** A vision model does not refuse an illegible frame: handed a motion-blurred standings screen it returns a full 9-row table with an empty unreadable list that is **52% correct**. The tier-1 `readable` flag does not catch this — it marked that exact frame `readable: true, visible_rows: 9`. ~10% of screen runs have no usable frame at all. See `references/menu-extraction.md`.
 1. **Dedupe + order:** for a full menu-paging VOD, use the PROVEN dump machinery — `dhash.py` (hash/calib/dedupe) → `dump_batches.py` → `dump_chapters.py`, with **`dump_reconcile.py` as the coverage gate** (exit non-zero if any dedup survivor was never transcribed) — per `references/data-dump.md`. `menu_ingest.py VIDEO_OR_DIR OUTDIR` (→ `OUTDIR/screens/scrNNNN.jpg` + `manifest.csv`) is the lighter path for a short clip or a folder of screenshots; it has no coverage gate, so never use it for a multi-hundred-frame dump.
-2. **Classify + transcribe (haiku vision, ≤12 screens/batch):** each screen gets a type label (`box-score | schedule | standings | awards | roster | recruiting | coach | other`) + **verbatim transcription** — numbers exactly as displayed, garbles quoted with `[sic]`, never inferred or totaled (agent contracts: `references/dump-prompts/`). Emit one JSON object per screen to `OUTDIR/menu-intel.jsonl`.
+2. **Classify + transcribe (≤12 screens/batch):** each screen gets a category **and a layout variant** (screen title + tab/chip state) + **verbatim transcription** — numbers exactly as displayed, garbles quoted with `[sic]`, never inferred or totaled (agent contracts: `references/dump-prompts/`). Emit one JSON object per screen to `OUTDIR/menu-intel.jsonl`.
+   - **Category is not a schema.** Measured: 12 of 20 frames classified `recruiting_board` were not recruiting boards (ten were the **My School** tab). `standings` is two screens, `team_stats` is two. Transcribe to the *variant's* shape; if the screen does not match the expected shape, emit no rows and say why.
+   - **Transcription runs on a Sonnet-class model, not Haiku.** Measured on the same 101 screens: 98.5% vs 76.5% precision, and Haiku's self-reported confidence is anti-informative (its 0.90 bucket beat its 1.00 bucket). Haiku is fine for tier-1 classification only.
+   - **Never let the model count glyphs.** Star ratings go through `stars_cv.py` (6/6 vs the model's 3/6 — and an explicit prompt fix made the model *worse*, 2/6). Same for red injured rows and green progression arrows: transcribe the observation, let a script decode it.
+2b. **Arithmetic self-check (before merge):** every numeric error found in the spike was catchable by an identity printed on the screen — quarter scores sum to Final *including OT*, rush + pass = total offense, DIFF = PF − PA, TD% = TD/ATT, AVG = YARDS/attempts. A failed identity is a **re-read** instruction, never a repair instruction. Table in `references/menu-extraction.md` §5.
 3. **Structured merge → vault targets** (all tables must stay column-consistent for the verifier):
    - schedule/season-record screens → fill placeholder rows in `dynasties/<d>/seasons/<year>.md` Results table (`Week | Opponent | H/A | W/L | Score | Notes`) — this is what unblocks `archive_season.py`;
    - postgame box scores → `dynasties/<d>/seasons/<year>/box-scores/<week>-<opp>.md` (quarter line, team totals, per-player stat lines), cross-checked against the film-room game note's postgame tail;
@@ -106,6 +111,8 @@ Menu-only footage/screenshots (postgame box scores, schedule/season records, sta
    - awards / All-American / award-race screens → dated bullets in `dynasties/<d>/records.md` `## Player awards`;
    - roster screens → the fields CFB Labs can't supply (archetype, dev trait, redshirt, injury status) into the dynasty roster files;
    - league-member results seen on standings/schedule screens → cross-check `league/h2h.md` (never a third tally — h2h + season log stay the only W/L homes).
+3b. **Side panels are per-frame, tables are per-run.** Merge the table across a scroll run; **never merge the detail card** — it tracks the cursor and shows a different player every frame. Emit one card per frame, cited to its own `f_NNNN`. Getting this wrong writes one recruit's height/hometown/archetype under another recruit's name, and no consistency check catches it because both halves are internally consistent.
+3c. **Season/week come from the capture, not the screen.** The full-column standings screen carries no year at all; team stats and depth charts carry no week. Resolve the coordinate once from a screen that states it (dynasty home, Scores/Schedules both show `WEEK 10, 2027`) and apply it to the whole capture. No week-bearing screen anywhere in the capture → ask the user, don't infer.
 4. **Provenance discipline** (mirrors the dossier convention): every merged claim carries screen type + capture date; dossier-relevant menu finds land as a dated `## Menu intel` layer, update-never-overwrite. Copy `menu-intel.jsonl` to `dynasties/<d>/film-room/menu-intel/<date>-<desc>.jsonl`.
 5. **Verify:** `verify_dynasties.py` must pass; /log; archive originals per step 11.
 
@@ -141,6 +148,8 @@ The v3 schema applies to ALL film, past and future — the user directed a full 
 | `series_book.py` | `GAMEDIR TEAM_L TEAM_R` | both / 9 series intel |
 | `report_gen.py` | `GAMEDIR SLUG TEAM_L TEAM_R` | both / 9 report skeleton |
 | `menu_ingest.py` | `VIDEO_OR_DIR OUTDIR [--fps 1]` | C / 1 screen dedupe |
+| `frame_quality.py` | `FRAMES_DIR OUT.json [--min 200]` | **C / 0 legibility gate** |
+| `stars_cv.py` | `FRAME.jpg` | C / 2 star-glyph counter |
 | `chart_schema.py` | (module — imported, not run) | schema authority |
 | `archive_audit.py` | `[FILM_ROOT]` | both / 0 + 11 gate |
 | `archive_sweep.py` | `[FILM_ROOT] [--only SLUG] [--dry-run]` | both / 11 |
