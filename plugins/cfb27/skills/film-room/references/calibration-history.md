@@ -63,3 +63,52 @@ Gemini Flash 3.6 re-tested at fps=4 with a guided step-by-step prompt on the 10-
 ## Video-model architecture decision (2026-07-29) — SUPERSEDED 2026-07-30
 
 Original decision: Gemini video, clipped to play windows, as the preferred lane for any coverage re-chart (a video model dissolves snap localization via native temporal grounding; ~274k tokens/game; Twelve Labs and local Qwen3-VL/MLX rejected). **Superseded by the user's 2026-07-30 decision: Claude vision (haiku frames lane, on-plan) is primary for all charting; Gemini survives only as the optional Lane-A cloud respot** (public-YouTube delivery — see `references/my-games-twitch.md`). Reasons: the Claude lane shipped two full games reliably, runs on the Claude plan at no marginal cost, and opponent film can't be posted publicly anyway. Still open from the original decision: whether a 5-game re-chart is worth the ~12.4GB VOD re-pull (Drive IDs in each game's `drive_upload.json`).
+
+## 2026-08-21 — UNC at Rutgers (W12 2027, 123 windows): four pipeline faults
+
+First game charted on sonnet. Ground-truth key: the 92 postgame HIGHLIGHTS rows aligned to
+the 123 windows by monotonic sequence alignment (86 paired, 60 clean run/pass controls
+split 30/30). Scores `hud_dd` and `play_type` only — no scheme field has external truth.
+
+**F1 — snap localisation ~4s early on 96% of windows.** `frames.py find_snap` uses motion
+onset; on online H2H film the first sustained motion is the play-call UI, not the snap, so
+frames were cut around the call screen. Two contributing bugs, both now fixed in
+`frames.py`: `pc_stop_time` was called with `t_last - 4`, truncating the search exactly where
+the snap lives (the window is bounded by the dd change the play itself causes, so the snap
+sits near `t_last`); and it returned the last readable sample before a ≥4s gap, but the clock
+often FREEZES rather than vanishing, so that condition fires at the freeze's END — up to 4s
+late. New `snap_times.py` derives snaps from the rescued `hud_timeline` before frame
+extraction. Hand-verified: play 30 → 901 (motion 902, correct), play 23 → 708 (motion 705),
+play 21 → 651 (motion 646). Median `playclock_at_snap` 18, consistent with the ~20-24 H2H band.
+
+**F2 — ghost composites unusable on panning film.** Broadcast camera pans after the snap;
+a 3.2s min/max blend stacks the stadium on itself. Not `deshake` (regenerating without it is
+identical). Every ghost-derived field was unknown on 12/12 calibration plays. Smeared on all
+three other films spot-checked. `--no-ghost` now emits native-res `snap1..5.jpg` instead.
+
+**F3 — the coverage lane has a hard ceiling on wide-angle film.** Even at native 1568px,
+`cb_leverage_pre` and `saf_depth_band` were unknown on 12/12; post-snap fields unknown on
+~80% of snaps. Of three filled reads cross-checked against visible play art, **1 of 3 agreed**
+— fill rate is not accuracy. Coverage tendencies must come from counters or play art.
+
+**F4 — menu crops were never handed to the charting agents.** 0/123 plays had `menu_tiles`,
+silently removing rule 1 from the ingest. Recovered by a separate transcription pass (441
+tiles, 103 plays booked). Note the ownership trap: on the user's own screen every menu is the
+USER's call sheet — this film added nothing to Duis's counter book.
+
+**Model comparison (identical frames, identical prompt, only the model varying, 12 plays):**
+sonnet vs haiku — run/pass 75% / 42%; `hud_dd` 92% / 91%; scheme fields FILLED 38% / 86%;
+`def_coverage` named 1/12 vs 0/12. Inter-model agreement on scheme fields near zero
+(formation 0/12, `def_shell_pre` 2/12, `def_safeties_post` 1/12) — one model is inventing.
+Better frames moved haiku's HUD reading 73%→91% and its run/pass judgement 50%→**42%**.
+Matches `frame_quality.py`'s measured "coin flip on an illegible frame" at 52%.
+
+**Source authority ruling (user, 2026-08-21):** postgame play-by-play is the source of truth
+for the play record; film-room charting is the fallback where no PBP exists. Applied here:
+`validate_chart.py` independently flagged 4 plays as "run-labelled but outcome implies pass";
+10 were reconciled against the outcome lane. Post-reconciliation the chart agrees with the PBP
+on 61/62 scoreable plays. **Honest split: 82% is vision-only accuracy (independent); 98% is
+the chart's agreement with its own correction source and is not a model metric.**
+
+Unfixed and known: play 37 remains unchartable (7s window, snap falls outside it — a
+segmentation fault, not a snap-timing one).

@@ -1,6 +1,6 @@
 # Charting prompts — how vision agents watch film
 
-Claude haiku vision agents are the primary charting lane (both input lanes). This file is the prompt kit: read order, game-context template, superset-JSON schema, and the calibration-locked rules. Behavior-tell definitions and the deterministic man/zone derivation live in `references/extraction-framework.md`.
+Claude **sonnet** vision agents are the primary charting lane (both input lanes; haiku confabulates scheme fields — SKILL.md step 6). This file is the prompt kit: read order, game-context template, superset-JSON schema, and the calibration-locked rules. Behavior-tell definitions and the deterministic man/zone derivation live in `references/extraction-framework.md`.
 
 ## Coach's read order (structure every agent's look this way)
 
@@ -52,6 +52,10 @@ Chart like a coach breaking down film — a fixed scan sequence, not a free-form
   Possession L = <TEAM_L> offense, R = <TEAM_R> offense.
 - Final: <score + quarter line, from the postgame tail>. <Silent film: results come from
   the HUD lane — vision agents must NOT guess results.>
+- On `--no-ghost` film there is NO ghost.jpg; the agent instead gets snap1..5.jpg —
+  native-res full frames at snap +0.4/+0.9/+1.5/+2.1/+2.7s, to be stepped through as a
+  flipbook and used everywhere this file says "ghost trails". Say so in the batch prompt,
+  or the agent reports the ghost as missing evidence.
 - Per play the agent receives: play_images (presnap_seq.jpg = 3x2 timestamp-labeled
   pre-snap grid snap−12→−0.5s — or on older film preplay.jpg, an unlabeled 2x2
   snap−8→−1.2s; presnap.jpg; ghost.jpg = min|max long-exposure pair, player paths as
@@ -142,5 +146,8 @@ Read every legible play tile on menu images: title (e.g. "COVER 3 SKY"), type ta
   prefix, so the ~10 batches per game each re-pay the rubric + 3 key images unless the
   ordering and bytes are identical across batches. Never interleave per-batch content
   (batch number, play list) before the keys; put anything batch-specific after them.
-- Model: haiku (extraction task). Respawn agents stalled >10 min.
-- Provenance tag on merged columns: `v2_src=claude-haiku-4.5-frames/<date>` (frames-tier provisional). Gemini respot columns (`g_*`) get their own tag — never silently mix sources in one column.
+- Model: **sonnet** (calibration 2026-08-21 — haiku scored 42% on run/pass vs sonnet's 75% on
+  identical frames, and filled 86% of scheme fields while agreeing with sonnet on almost none
+  of them; see SKILL.md step 6). Respawn agents stalled >10 min. Transcription-only passes
+  (menu tiles, HUD rescue sheets, Lane C) stay on haiku — it is judgement that fails, not reading.
+- Provenance tag on merged columns: `v2_src=claude-sonnet-5-frames/<date>` (frames-tier provisional; older charts carry `claude-haiku-4.5-frames/<date>` and their scheme fields are lower-trust — see SKILL.md step 6). Gemini respot columns (`g_*`) get their own tag — never silently mix sources in one column.

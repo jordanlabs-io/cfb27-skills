@@ -33,6 +33,7 @@ import segment as seg
 
 FIELD_CROP = "iw:ih*0.85:0:0"     # cut the scorebug strip off the bottom
 STRIP_OFFSETS = [0.4, 0.9, 1.5, 2.1, 2.7, 3.3]
+SNAP_SINGLES = [0.4, 0.9, 1.5, 2.1, 2.7]   # --no-ghost native-res post-snap set
 PREPLAY_OFFSETS = [-8.0, -5.0, -3.0, -1.2]   # lineup -> snap alignment
 SEQ_OFFSETS = [-12.0, -9.7, -7.4, -5.1, -2.8, -0.5]  # presnap_seq label grid
 MOTION_FPS = 4
@@ -171,11 +172,18 @@ def find_snap(prof, t_last, mode="stillest"):
 
 
 def pc_stop_time(video, boxes, t0, t1):
-    """Last moment the play clock is visibly counting = just before the snap.
+    """The snap, from the play-clock lane.
 
-    The CFB 27 HUD hides the play clock once the ball is snapped, so the
-    last readable play-clock sample followed by a >=4s unreadable gap marks
-    the snap within ~0.5s.
+    CFB 27 stops the play clock at the snap. Two things follow, and getting
+    either wrong costs several seconds (calibration 2026-08-21, UNC at Rutgers):
+
+    1. The clock does not always vanish -- often it FREEZES and OCR keeps
+       reporting the same value for 3-5s until it resets to 40. So the snap is
+       where the value STOPS CHANGING, not the last readable sample. Taking the
+       last sample lands up to 4s late.
+    2. The snap usually sits near the END of the window, because the window is
+       bounded by the down-and-distance change that the play itself causes.
+       Searching only the early part of the window misses it entirely.
     """
     with tempfile.TemporaryDirectory() as td:
         run(["ffmpeg", "-hide_banner", "-loglevel", "error", "-y",
@@ -189,14 +197,21 @@ def pc_stop_time(video, boxes, t0, t1):
                 readable.append((t0 + i / 2.0, int(txt)))
     if not readable:
         return None
-    # walk from the end: find the last readable sample with no readable
-    # successor within 4s
-    for t, _v in reversed(readable):
+    # Find the terminal block and return its START. The block is either the
+    # frozen tail (same value repeating) or the gap after the clock vanishes;
+    # both mean the ball is already snapped.
+    for i in range(len(readable) - 1, -1, -1):
+        t, v = readable[i]
         later = [x for x, _ in readable if t < x <= t + 4]
-        if not later:
-            prior = [x for x, _ in readable if t - 6 <= x < t]
-            if len(prior) >= 2:   # was genuinely counting before it vanished
-                return t
+        if later:
+            continue
+        j = i
+        while j > 0 and readable[j - 1][1] == v:
+            j -= 1                      # rewind over the frozen tail
+        s = readable[j][0]
+        prior = [x for x, val in readable[:j] if s - 6 <= x < s and val != v]
+        if len(prior) >= 2:             # was genuinely counting before it stopped
+            return s
     return None
 
 
@@ -370,13 +385,22 @@ def process_play(job):
     os.makedirs(pdir, exist_ok=True)
 
     boxes = seg.scaled_boxes(vw, vh)
-    pc_stop = pc_stop_time(video, boxes, t_first, t_last - 4)
+    # search the WHOLE window: the snap sits near t_last, so the old
+    # 't_last - 4' bound cut off exactly where the snap lives
+    pc_stop = pc_stop_time(video, boxes, t_first, t_last)
     m0 = max(t_first, t_last - MOTION_LOOKBACK)
     prof = motion_profile(video, m0, t_last + 2)
-    if pc_stop is not None:
-        # prefer the play-clock signal; use motion onset when it agrees
+    if p.get("_snap_override"):
+        # seg/snaps.csv from snap_times.py -- derived from the RESCUED
+        # hud_timeline, which is far more readable than a fresh OCR pass
+        snap = float(p["_snap_override"])
+    elif pc_stop is not None:
+        # The play-clock signal wins outright. Motion onset was measured 4s
+        # early on 96% of windows of one online H2H film, because the early
+        # "motion" is the play-call UI, not the snap. Motion is only used to
+        # nudge within a second when the two already agree.
         snap_motion = find_snap(prof, t_last)
-        snap = snap_motion if abs(snap_motion - pc_stop) <= 3 else pc_stop + 0.5
+        snap = snap_motion if abs(snap_motion - pc_stop) <= 1 else pc_stop
     else:
         # no play-clock signal: the snap is the LAST onset before the end
         # region, never the stillest (that one is the play-call menu)
@@ -401,7 +425,18 @@ def process_play(job):
     unreliable = False
     for _attempt in range(3):
         grab(video, snap - 1.2, os.path.join(pdir, "presnap.jpg"))
-        ok = ghost(video, snap, ghost_secs, os.path.join(pdir, "ghost.jpg"))
+        if ghost_secs <= 0:
+            # --no-ghost: native-res singles across the post-snap window.
+            # A long-exposure blend needs a static camera; when the camera pans
+            # with the play it stacks the stadium on itself and the composite is
+            # noise. Individual frames carry strictly more information there,
+            # and at 1568px (the API's long-edge cap) each one is legible.
+            for i, off in enumerate(SNAP_SINGLES, start=1):
+                fullgrab(video, snap + off,
+                         os.path.join(pdir, f"snap{i}.jpg"), width=1568)
+            ok = True
+        else:
+            ok = ghost(video, snap, ghost_secs, os.path.join(pdir, "ghost.jpg"))
         strip(video, snap, os.path.join(pdir, "strip.jpg"))
         if not hud_says_presnap(video, hbox, snap + STRIP_OFFSETS[0]):
             break
@@ -440,12 +475,33 @@ def main():
     ap.add_argument("--plays", default=None,
                     help="play numbers: '1,4,9', a range '20-45', or a mix")
     ap.add_argument("--ghost-secs", type=float, default=3.2)
+    ap.add_argument("--snaps", default=None,
+                    help="seg/snaps.csv from snap_times.py -- play-clock snap "
+                         "times derived from the RESCUED hud_timeline. Strongly "
+                         "preferred over the in-process estimate on Lane B / "
+                         "online H2H film; falls back per-play where blank.")
+    ap.add_argument("--no-ghost", action="store_true",
+                    help="skip the long-exposure ghost pair and emit native-res "
+                         "singles at snap +0.4/+0.9/+1.5/+2.1/+2.7s instead. Use "
+                         "on film where the camera PANS after the snap -- the "
+                         "blend stacks the stadium on itself and is unreadable.")
     ap.add_argument("--procs", type=int,
                     default=max(1, (os.cpu_count() or 4) - 2),
                     help="parallel play workers (default: cpu count - 2)")
     args = ap.parse_args()
 
     plays = list(csv.DictReader(open(args.plays_csv)))
+    if args.snaps:
+        with open(args.snaps) as f:
+            overrides = {r["n"]: r.get("snap") for r in csv.DictReader(f)}
+        used = 0
+        for p in plays:
+            s = overrides.get(p["n"])
+            if s:
+                p["_snap_override"] = s
+                used += 1
+        print(f"snaps: {used}/{len(plays)} windows using play-clock snap times "
+              f"from {args.snaps}", flush=True)
     wanted = parse_play_selector(args.plays) if args.plays else None
     if wanted:
         have = {p["n"] for p in plays}
@@ -457,7 +513,8 @@ def main():
     os.makedirs(args.outdir, exist_ok=True)
 
     vw, vh, _ = seg.video_info(args.video)
-    jobs = [(args.video, args.outdir, args.ghost_secs, vw, vh, p)
+    jobs = [(args.video, args.outdir,
+             (0.0 if args.no_ghost else args.ghost_secs), vw, vh, p)
             for p in plays if not wanted or p["n"] in wanted]
 
     try:
