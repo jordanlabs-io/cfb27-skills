@@ -170,9 +170,17 @@ week-bearing screen cannot be merged without asking the user.
   period 4 and Final. Read the column headers; if the periods do not sum to the
   final, a column was missed. This silently cost two quarter lines before it
   was caught.
-- **The same field can disagree with itself on one screen.** A depth chart
-  showed D. Green at OVR 85 (with a green up-arrow) in the table row and 84 on
-  his detail card, both verified at 6×. Record both and say they disagree.
+- **Roster/depth-chart ratings are EFFECTIVE; player-card ratings are BASE.**
+  The D. Green case (OVR 85 with a green up-arrow in the table row, 84 on his
+  detail card, both verified at 6×) is NOT a disagreement — the up-arrow is a
+  coach-ability **boost** indicator, not progression (user correction
+  2026-08-21; dynasty-hq `dictionary/README.md` + schema-design §5.3). The
+  table shows the boosted (*effective*) value, the card the true (*base*) one.
+  Commit both under distinct keys (`ovr_effective` / `ovr_base` — never bare
+  `ovr`), never reconcile, never flag as a conflict. Validator: arrow present
+  ⇒ effective > base; arrow absent ⇒ equal; violation ⇒ re-read. A capture
+  with no player-card screens is **effective-only coverage** — say so in its
+  ledger rather than letting boosted values pass as true ratings.
 - **In-game toast notifications** ("Charge On - UCF") overlay the bottom-right
   and can cover a table row. They pass the sharpness gate, so they need naming
   explicitly whenever they obscure a value.
