@@ -74,11 +74,15 @@ for row in rows:
         row["tempo"] = "hurry-up" if gap < 20 else ("slow" if gap > 34 else "normal")
     prev = {"poss": row["poss"], "snap": float(snap)}
 
+pcs = sorted(float(r["playclock_at_snap"]) for r in rows if r["playclock_at_snap"])
+med = pcs[len(pcs) // 2] if pcs else -1
+if med <= 5:
+    sys.exit(f"timeline snaps: REFUSED {fixed}/{len(rows)} patches; "
+             f"median playclock_at_snap={med} indicates the wrong HUD band")
+
 with open(path, "w", newline="") as f:
     w = csv.DictWriter(f, fieldnames=rows[0].keys())
     w.writeheader()
     w.writerows(rows)
 
-pcs = sorted(float(r["playclock_at_snap"]) for r in rows if r["playclock_at_snap"])
-med = pcs[len(pcs) // 2] if pcs else -1
 print(f"timeline snaps: {fixed}/{len(rows)} plays patched; median playclock_at_snap={med}")

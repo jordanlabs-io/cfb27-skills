@@ -214,6 +214,25 @@ class FilmGateTests(unittest.TestCase):
         }]
         self.assertEqual(chart_schema.formation_adjustment_candidates(rows), [])
 
+    def test_bad_timeline_snap_lane_refuses_to_overwrite_chart(self):
+        workspace = self.film / "2027-bad-snap-vs-lane"
+        (workspace / "seg").mkdir(parents=True)
+        (workspace / "seg" / "hud_timeline.csv").write_text(
+            "t,playclock\n0,5\n1,4\n2,3\n3,\n")
+        (workspace / "seg" / "plays.csv").write_text(
+            "n,poss,t_first,t_last\n1,L,0,3\n")
+        chart = workspace / "plays_charted.csv"
+        chart.write_text(
+            "n,poss,snap_t,playclock_at_snap,sec_since_prev_snap,tempo\n"
+            "1,L,99,22,,normal\n")
+        before = chart.read_bytes()
+        proc = subprocess.run(
+            [sys.executable, str(SCRIPTS / "timeline_snaps.py"), str(workspace)],
+            text=True, capture_output=True)
+        self.assertNotEqual(proc.returncode, 0)
+        self.assertIn("REFUSED", proc.stderr)
+        self.assertEqual(chart.read_bytes(), before)
+
 
 if __name__ == "__main__":
     unittest.main()
