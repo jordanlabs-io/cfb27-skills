@@ -19,6 +19,7 @@ import audit_clips
 import assemble
 import chart_schema
 import reconcile_film
+import apply_possession_hand
 
 
 class FilmGateTests(unittest.TestCase):
@@ -232,6 +233,36 @@ class FilmGateTests(unittest.TestCase):
         self.assertNotEqual(proc.returncode, 0)
         self.assertIn("REFUSED", proc.stderr)
         self.assertEqual(chart.read_bytes(), before)
+
+    def test_hand_possession_requires_complete_unique_map(self):
+        workspace = self.film / "2027-hand-vs-map"
+        (workspace / "seg").mkdir(parents=True)
+        seg = workspace / "seg" / "plays.csv"
+        seg.write_text("n,poss,poss_src\n1,,\n2,L,colour\n")
+        hand = workspace / "hand.json"
+        hand.write_text(json.dumps([{"n": 1, "poss": "R"}]))
+        with self.assertRaisesRegex(ValueError, "must cover every play"):
+            apply_possession_hand.apply(workspace, [hand])
+        self.assertEqual(seg.read_text(), "n,poss,poss_src\n1,,\n2,L,colour\n")
+
+    def test_hand_possession_updates_seg_and_chart_with_provenance(self):
+        workspace = self.film / "2027-hand-vs-map"
+        (workspace / "seg").mkdir(parents=True)
+        seg = workspace / "seg" / "plays.csv"
+        chart = workspace / "plays_charted.csv"
+        seg.write_text("n,poss\n1,\n2,L\n")
+        chart.write_text("n,poss,play_type\n1,,run\n2,L,pass\n")
+        hand = workspace / "hand.json"
+        hand.write_text(json.dumps([
+            {"n": 1, "poss": "R"}, {"n": 2, "poss": ""}]))
+        apply_possession_hand.apply(workspace, [hand])
+        seg_rows, _ = apply_possession_hand.read_csv(seg)
+        chart_rows, _ = apply_possession_hand.read_csv(chart)
+        for rows in (seg_rows, chart_rows):
+            self.assertEqual(rows[0]["poss"], "R")
+            self.assertEqual(rows[0]["poss_src"], "hand")
+            self.assertEqual(rows[1]["poss"], "")
+            self.assertEqual(rows[1]["poss_src"], "hand_non_play")
 
 
 if __name__ == "__main__":
