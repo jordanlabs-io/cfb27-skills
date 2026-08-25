@@ -169,7 +169,9 @@ class FilmGateTests(unittest.TestCase):
             "n,qtr,clock,dd,poss,t_first,t_last,score_l,score_r\n"
             "1,1,5:00,1ST&10,L,1,2,0,0\n")
         for name in ("presnap_seq.jpg", "presnap.jpg", "fullframe.jpg",
-                     "playart.jpg", "ghost.jpg", "strip.jpg", "result.jpg"):
+                     "playart.jpg", "ghost.jpg", "snap1.jpg", "snap2.jpg",
+                     "snap3.jpg", "snap4.jpg", "snap5.jpg", "strip.jpg",
+                     "result.jpg"):
             (workspace / "film" / "play001" / name).write_bytes(b"")
         script = SCRIPTS / "prep_batches.py"
         proc = subprocess.run(
@@ -179,6 +181,9 @@ class FilmGateTests(unittest.TestCase):
         manifest = (workspace / "batches" / "batch01.txt").read_text()
         self.assertIn("fullframe.jpg", manifest)
         self.assertIn("playart.jpg", manifest)
+        for i in range(1, 6):
+            self.assertIn(f"snap{i}.jpg", manifest)
+        self.assertNotIn("ghost.jpg", manifest)
 
     def test_silent_lane_b_can_assemble_without_transcript_file(self):
         workspace = self.film / "2027-silent-vs-film"
