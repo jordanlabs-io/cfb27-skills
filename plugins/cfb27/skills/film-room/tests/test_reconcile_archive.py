@@ -15,6 +15,8 @@ sys.path.insert(0, str(SCRIPTS))
 
 import archive_sweep
 import archive_audit
+import audit_clips
+import assemble
 import reconcile_film
 
 
@@ -177,6 +179,17 @@ class FilmGateTests(unittest.TestCase):
         manifest = (workspace / "batches" / "batch01.txt").read_text()
         self.assertIn("fullframe.jpg", manifest)
         self.assertIn("playart.jpg", manifest)
+
+    def test_silent_lane_b_can_assemble_without_transcript_file(self):
+        workspace = self.film / "2027-silent-vs-film"
+        workspace.mkdir()
+        self.assertEqual(assemble.load_transcript(str(workspace)), [])
+
+    def test_silent_lane_b_clip_audit_skips_transcript_mentions(self):
+        workspace = self.film / "2027-silent-vs-audit"
+        workspace.mkdir()
+        self.assertFalse((workspace / "transcript.json").exists())
+        self.assertEqual(audit_clips.kick_mentions(str(workspace), []), (0, []))
 
 
 if __name__ == "__main__":

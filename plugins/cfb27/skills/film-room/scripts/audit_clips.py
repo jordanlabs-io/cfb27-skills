@@ -7,7 +7,7 @@ Checks per game:
   4. transcript kick/punt/FG mentions not covered by any window (special teams blindness)
 Read-only. Prints a report; writes audit_gaps.json per game dir.
 """
-import csv, json, re, sys
+import csv, json, os, re, sys
 from collections import Counter
 
 BASE = "/Users/elijah/CFB27-film"
@@ -93,7 +93,10 @@ def time_gaps(wins, thresh=180):
 
 
 def kick_mentions(gdir, wins):
-    segs = json.load(open(f"{gdir}/transcript.json"))
+    transcript = f"{gdir}/transcript.json"
+    if not os.path.exists(transcript):
+        return 0, []
+    segs = json.load(open(transcript))
     if isinstance(segs, dict):
         segs = segs["segments"]
     missed, hits = [], 0

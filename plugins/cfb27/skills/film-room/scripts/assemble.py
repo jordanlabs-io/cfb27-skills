@@ -166,15 +166,23 @@ def parse_blocks(batchdir):
     return blocks
 
 
+def load_transcript(gamedir):
+    """Return transcript segments, or an empty lane for silent Lane B film."""
+    path = os.path.join(gamedir, "transcript.json")
+    if not os.path.exists(path):
+        return []
+    transcript_data = json.load(open(path))
+    # Older Lane A workspaces stored the segment array at the document root;
+    # newer transcriptions wrap it in {"segments": [...]}. Accept both.
+    return transcript_data["segments"] if isinstance(transcript_data, dict) else transcript_data
+
+
 def main():
     gamedir, batchdir, out_csv = sys.argv[1], sys.argv[2], sys.argv[3]
     plays = list(csv.DictReader(open(os.path.join(gamedir, "seg/plays.csv"))))
     forms = {r["n"]: r for r in csv.DictReader(open(os.path.join(gamedir, "seg/formations.csv")))}
     tl = {float(r["t"]): r for r in csv.DictReader(open(os.path.join(gamedir, "seg/hud_timeline.csv")))}
-    transcript_data = json.load(open(os.path.join(gamedir, "transcript.json")))
-    # Older Lane A workspaces stored the segment array at the document root;
-    # newer transcriptions wrap it in {"segments": [...]}. Accept both.
-    trans = transcript_data["segments"] if isinstance(transcript_data, dict) else transcript_data
+    trans = load_transcript(gamedir)
     blocks = parse_blocks(batchdir)
 
     rows = []
