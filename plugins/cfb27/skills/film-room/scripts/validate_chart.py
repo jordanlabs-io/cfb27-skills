@@ -20,6 +20,9 @@ Checks:
 Usage: validate_chart.py GAMEDIR [...]
 """
 import csv
+import datetime
+import hashlib
+import json
 import os
 import re
 import sys
@@ -39,8 +42,22 @@ def _score_pair(s):
         return None
 
 
-for gamedir in sys.argv[1:]:
-    rows = list(csv.DictReader(open(f"{gamedir}/plays_charted.csv")))
+write_receipt = "--write-receipt" in sys.argv
+gamedirs = [arg for arg in sys.argv[1:] if not arg.startswith("--")]
+overall_ok = True
+
+
+def file_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for block in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+for gamedir in gamedirs:
+    chart_path = f"{gamedir}/plays_charted.csv"
+    rows = list(csv.DictReader(open(chart_path)))
     print(f"\n=== {gamedir}  ({len(rows)} windows)")
 
     # 1+2: outcome contradictions / ST language
@@ -61,14 +78,18 @@ for gamedir in sys.argv[1:]:
         print(f"    p{n} [{pt}] {nt}")
 
     # 3: game boundary
-    hits, prev, prev_q = [], None, 0
+    hits, score_backwards, quarter_resets, prev, prev_q = [], [], [], None, 0
     for x in rows:
         sc = _score_pair(x.get("score", ""))
         q = (x.get("qtr") or "").strip()
         if sc and prev and (sc[0] < prev[0] or sc[1] < prev[1]):
-            hits.append(f"p{x['n']}: score went BACKWARD {prev[0]}-{prev[1]} -> {sc[0]}-{sc[1]}")
+            msg = f"p{x['n']}: score went BACKWARD {prev[0]}-{prev[1]} -> {sc[0]}-{sc[1]}"
+            hits.append(msg)
+            score_backwards.append(msg)
         if q == "1" and prev_q >= 3:
-            hits.append(f"p{x['n']}: quarter reset to 1 after Q{prev_q}")
+            msg = f"p{x['n']}: quarter reset to 1 after Q{prev_q}"
+            hits.append(msg)
+            quarter_resets.append(msg)
         if sc:
             prev = sc
         if q.isdigit():
@@ -141,3 +162,41 @@ for gamedir in sys.argv[1:]:
     for n1, n2, dd, res in dups[:12]:
         print(f"    p{n1}/p{n2} dd={dd} result={res!r} — likely one play twice; "
               f"merge (void one as non-play with a note) before splits")
+
+    # A backward score alone is usually an OCR spike. It becomes a hard game-
+    # boundary failure only when the film also resets to Q1. The other four
+    # classes require recheck/normalisation before a report is publishable.
+    hard = {
+        "outcome_contradictions": len(bad_run),
+        "off_schema_values": sum(len(values) for values in viol.values()),
+        "presnap_adjust_inconsistencies": len(inconsistent),
+        "duplicate_window_candidates": len(dups),
+        "game_boundary": int(bool(score_backwards and quarter_resets)),
+    }
+    warnings = {
+        "special_teams_language": len(st_in_pool),
+        "score_backwards_without_q1_reset": len(score_backwards) if not quarter_resets else 0,
+    }
+    status = "pass" if not any(hard.values()) else "fail"
+    overall_ok = overall_ok and status == "pass"
+    print(f"  validation receipt status: {status.upper()} "
+          f"({sum(hard.values())} hard finding(s), {sum(warnings.values())} warning(s))")
+    if write_receipt:
+        receipt = {
+            "status": status,
+            "validated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "chart_sha256": file_sha256(chart_path),
+            "rows": len(rows),
+            "schema_version": sv or "pre-v3",
+            "hard_findings": hard,
+            "warnings": warnings,
+        }
+        target = os.path.join(gamedir, "chart_validation.json")
+        tmp = target + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(receipt, f, indent=2)
+            f.write("\n")
+        os.replace(tmp, target)
+        print(f"  wrote: {target}")
+
+sys.exit(0 if overall_ok else 1)

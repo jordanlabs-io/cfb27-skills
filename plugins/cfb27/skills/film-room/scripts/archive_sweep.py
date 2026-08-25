@@ -18,6 +18,7 @@ audit stops flagging them.
 Usage: archive_sweep.py [FILM_ROOT] [--dry-run] [--only SLUG]
 Exit 0 = every processed dir finished clean; non-zero otherwise.
 """
+import argparse
 import datetime
 import json
 import os
@@ -118,7 +119,7 @@ def upload(path: Path, drive_name: str):
     return resp
 
 
-def sweep_dir(d: Path, dry: bool):
+def sweep_dir(d: Path, dry: bool, delete_allowed: bool = False):
     slug = d.name
     marker = load_marker(d)
     known = verified_names(marker)
@@ -176,6 +177,13 @@ def sweep_dir(d: Path, dry: bool):
             {"folder": FOLDER_NAME, "folder_id": FOLDER_ID,
              "swept": str(datetime.date.today()), "files": records}, indent=1))
 
+    # Upload and deletion are intentionally separate authorities. A verified
+    # Drive copy preserves bytes, but only live vault parity licenses removing
+    # the local source or transcode.
+    if not delete_allowed:
+        print(f"[{slug}] VAULT GATE BLOCKED — upload preserved; deleting NOTHING")
+        return False
+
     # Delete: verified candidates + regenerables. video.mp4 goes only if it was
     # itself verified or the verified set covered the originals.
     for p in cands:
@@ -196,22 +204,40 @@ def sweep_dir(d: Path, dry: bool):
 
 
 def main():
-    args = [a for a in sys.argv[1:]]
-    dry = "--dry-run" in args
-    only = args[args.index("--only") + 1] if "--only" in args else None
-    pos = [a for a in args if not a.startswith("--") and a != only]
-    root = Path(pos[0]).expanduser() if pos else Path("~/CFB27-film").expanduser()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("film_root", nargs="?", default="~/CFB27-film")
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--only")
+    parser.add_argument("--vault-root", default="~/CFB27")
+    parser.add_argument("--ledger")
+    args = parser.parse_args()
+    dry = args.dry_run
+    only = args.only
+    root = Path(args.film_root).expanduser().resolve()
+    vault_root = Path(args.vault_root).expanduser().resolve()
+    ledger = Path(args.ledger).expanduser().resolve() if args.ledger else (
+        vault_root / "operations" / "film-ingest-ledger.csv")
 
     sys.path.insert(0, str(Path(__file__).parent))
     from archive_audit import audit
-    problems, _ = audit(root)
+    from reconcile_film import reconcile
+    reconciled = {r.workspace_slug: r for r in reconcile(root, vault_root, ledger)
+                  if r.workspace_slug}
+    problems, _ = audit(root, vault_root, ledger)
     ok = True
     for name, reason in problems:
         if only and name != only:
             continue
+        target = root / name
+        if not target.is_dir():
+            print(f"=== {name}: {reason} — not a workspace; deleting NOTHING")
+            ok = False
+            continue
         print(f"=== {name}: {reason}")
         try:
-            ok = sweep_dir(root / name, dry) and ok
+            state = reconciled.get(name)
+            can_delete = bool(state and state.deletion_status == "delete_ready")
+            ok = sweep_dir(target, dry, delete_allowed=can_delete) and ok
         except Exception as e:  # keep sweeping other dirs
             print(f"[{name}] SWEEP ERROR: {e}")
             ok = False
