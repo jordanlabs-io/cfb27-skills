@@ -6,6 +6,7 @@ import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
+from types import SimpleNamespace
 
 
 SCRIPTS = Path(__file__).resolve().parents[1] / "scripts"
@@ -150,6 +151,12 @@ class FilmGateTests(unittest.TestCase):
         self.assertTrue(ok)
         self.assertTrue(original.exists())
         self.assertFalse((workspace / "drive_upload.json").exists())
+
+    def test_complete_game_cannot_delete_while_corpus_is_incomplete(self):
+        ready = SimpleNamespace(deletion_status="delete_ready")
+        blocked = SimpleNamespace(deletion_status="blocked")
+        self.assertFalse(archive_sweep.corpus_delete_ready([ready, blocked]))
+        self.assertTrue(archive_sweep.corpus_delete_ready([ready]))
 
 
 if __name__ == "__main__":

@@ -203,6 +203,12 @@ def sweep_dir(d: Path, dry: bool, delete_allowed: bool = False):
     return True
 
 
+def corpus_delete_ready(states) -> bool:
+    """Deletion stays frozen until every discovered game/capture is complete."""
+    states = list(states)
+    return bool(states) and all(s.deletion_status == "delete_ready" for s in states)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("film_root", nargs="?", default="~/CFB27-film")
@@ -221,8 +227,9 @@ def main():
     sys.path.insert(0, str(Path(__file__).parent))
     from archive_audit import audit
     from reconcile_film import reconcile
-    reconciled = {r.workspace_slug: r for r in reconcile(root, vault_root, ledger)
-                  if r.workspace_slug}
+    states = reconcile(root, vault_root, ledger)
+    reconciled = {r.workspace_slug: r for r in states if r.workspace_slug}
+    corpus_ready = corpus_delete_ready(states)
     problems, _ = audit(root, vault_root, ledger)
     ok = True
     for name, reason in problems:
@@ -236,7 +243,10 @@ def main():
         print(f"=== {name}: {reason}")
         try:
             state = reconciled.get(name)
-            can_delete = bool(state and state.deletion_status == "delete_ready")
+            can_delete = bool(
+                corpus_ready and state and state.deletion_status == "delete_ready")
+            if state and state.deletion_status == "delete_ready" and not corpus_ready:
+                print(f"[{name}] GLOBAL FILM FREEZE — another source is incomplete")
             ok = sweep_dir(target, dry, delete_allowed=can_delete) and ok
         except Exception as e:  # keep sweeping other dirs
             print(f"[{name}] SWEEP ERROR: {e}")
