@@ -75,8 +75,15 @@ class FilmGateTests(unittest.TestCase):
     def test_stale_validation_receipt_blocks_deletion(self):
         workspace = self.make_game(receipt="stale")
         result = reconcile_film.game_result(self.film, self.vault, workspace)
-        self.assertEqual(result.content_status, "vault_complete")
+        self.assertEqual(result.content_status, "validation_incomplete")
         self.assertEqual(result.validation_status, "stale_receipt")
+        self.assertEqual(result.deletion_status, "blocked")
+
+    def test_failing_dynasty_verifier_blocks_deletion(self):
+        workspace = self.make_game()
+        result = reconcile_film.game_result(
+            self.film, self.vault, workspace, vault_validation_status="failed")
+        self.assertEqual(result.content_status, "validation_incomplete")
         self.assertEqual(result.deletion_status, "blocked")
 
     def test_known_alias_resolves_cross_dynasty(self):

@@ -82,14 +82,18 @@ for gamedir in gamedirs:
     for x in rows:
         sc = _score_pair(x.get("score", ""))
         q = (x.get("qtr") or "").strip()
+        try:
+            play_n = int(x.get("n") or 0)
+        except ValueError:
+            play_n = 0
         if sc and prev and (sc[0] < prev[0] or sc[1] < prev[1]):
             msg = f"p{x['n']}: score went BACKWARD {prev[0]}-{prev[1]} -> {sc[0]}-{sc[1]}"
             hits.append(msg)
-            score_backwards.append(msg)
+            score_backwards.append((play_n, msg))
         if q == "1" and prev_q >= 3:
             msg = f"p{x['n']}: quarter reset to 1 after Q{prev_q}"
             hits.append(msg)
-            quarter_resets.append(msg)
+            quarter_resets.append((play_n, msg))
         if sc:
             prev = sc
         if q.isdigit():
@@ -163,24 +167,33 @@ for gamedir in gamedirs:
         print(f"    p{n1}/p{n2} dd={dd} result={res!r} — likely one play twice; "
               f"merge (void one as non-play with a note) before splits")
 
-    # A backward score alone is usually an OCR spike. It becomes a hard game-
-    # boundary failure only when the film also resets to Q1. The other four
-    # classes require recheck/normalisation before a report is publishable.
+    # Preserve the validator's historical contract: all text/enum detectors
+    # surface review candidates. A game boundary is hard only when the Q1 reset
+    # and backward score occur in the same local window (not merely somewhere
+    # in a long chart); score OCR spikes and replay/menu frames otherwise make
+    # the old global co-occurrence test invalidate correctly adjudicated games.
+    boundary_pairs = [
+        (score_n, reset_n)
+        for score_n, _ in score_backwards
+        for reset_n, _ in quarter_resets
+        if score_n and reset_n and abs(score_n - reset_n) <= 2
+    ]
     hard = {
+        "game_boundary": len(boundary_pairs),
+    }
+    review = {
         "outcome_contradictions": len(bad_run),
         "off_schema_values": sum(len(values) for values in viol.values()),
         "presnap_adjust_inconsistencies": len(inconsistent),
         "duplicate_window_candidates": len(dups),
-        "game_boundary": int(bool(score_backwards and quarter_resets)),
-    }
-    warnings = {
         "special_teams_language": len(st_in_pool),
-        "score_backwards_without_q1_reset": len(score_backwards) if not quarter_resets else 0,
+        "score_backwards_without_local_q1_reset": (
+            len(score_backwards) if not boundary_pairs else 0),
     }
     status = "pass" if not any(hard.values()) else "fail"
     overall_ok = overall_ok and status == "pass"
     print(f"  validation receipt status: {status.upper()} "
-          f"({sum(hard.values())} hard finding(s), {sum(warnings.values())} warning(s))")
+          f"({sum(hard.values())} hard finding(s), {sum(review.values())} review finding(s))")
     if write_receipt:
         receipt = {
             "status": status,
@@ -189,7 +202,7 @@ for gamedir in gamedirs:
             "rows": len(rows),
             "schema_version": sv or "pre-v3",
             "hard_findings": hard,
-            "warnings": warnings,
+            "review_findings": review,
         }
         target = os.path.join(gamedir, "chart_validation.json")
         tmp = target + ".tmp"

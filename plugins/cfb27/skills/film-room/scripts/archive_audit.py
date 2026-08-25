@@ -40,6 +40,7 @@ CATEGORY_ORDER = (
     "MISSING VAULT CSVs",
     "MISMATCHED CSVs",
     "INVALID VALIDATION RECEIPTS",
+    "VAULT VERIFICATION FAILURES",
     "CAPTURE COVERAGE FAILURES",
     "ARCHIVE FAILURES",
     "ARCHIVE CLEANUP OWED",
@@ -166,6 +167,9 @@ def audit(root: Path, vault_root: Path | None = None, ledger: Path | None = None
             if result.validation_status != "pass" and result.workspace_sha256:
                 problem_map.setdefault(key, []).append(finding(
                     "INVALID VALIDATION RECEIPTS", result.validation_status))
+            if result.vault_validation_status != "pass":
+                problem_map.setdefault(key, []).append(finding(
+                    "VAULT VERIFICATION FAILURES", result.vault_validation_status))
 
     problems = [(name, "; ".join(reasons))
                 for name, reasons in sorted(problem_map.items())]

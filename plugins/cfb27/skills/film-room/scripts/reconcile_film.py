@@ -16,6 +16,8 @@ import csv
 import hashlib
 import json
 import re
+import subprocess
+import sys
 from dataclasses import dataclass, asdict
 from pathlib import Path
 
@@ -49,7 +51,7 @@ LEDGER_FIELDS = [
     "workspace_slug", "lane", "season", "week", "matchup",
     "vault_dynasty", "vault_game_slug", "workspace_rows", "vault_rows",
     "workspace_sha256", "vault_sha256", "note_path", "capture_index",
-    "required_capture_index", "validation_status", "content_status",
+    "required_capture_index", "validation_status", "vault_validation_status", "content_status",
     "deletion_status", "drive_id", "drive_md5", "verified_at", "notes",
 ]
 
@@ -124,6 +126,18 @@ def default_vault_target(slug: str) -> tuple[str, str]:
     return ALIASES.get(slug, ("north-carolina", slug))
 
 
+def verify_vault(vault_root: Path) -> str:
+    """Run the canonical dynasty verifier once for the reconciliation pass."""
+    verifier = (Path(__file__).resolve().parents[2] / "dynasty-tracker" /
+                "scripts" / "verify_dynasties.py")
+    if not verifier.is_file():
+        return "missing_verifier"
+    proc = subprocess.run(
+        [sys.executable, str(verifier), str(vault_root)],
+        cwd=str(vault_root), text=True, capture_output=True)
+    return "pass" if proc.returncode == 0 else "failed"
+
+
 def read_ledger(path: Path) -> dict[str, dict[str, str]]:
     if not path.is_file():
         return {}
@@ -169,6 +183,7 @@ class Result:
     capture_index: str = ""
     required_capture_index: str = ""
     validation_status: str = "not_applicable"
+    vault_validation_status: str = "not_applicable"
     content_status: str = "discovered"
     deletion_status: str = "blocked"
     drive_id: str = ""
@@ -178,7 +193,8 @@ class Result:
 
 
 def game_result(film_root: Path, vault_root: Path, workspace: Path,
-                seed: dict[str, str] | None = None) -> Result:
+                seed: dict[str, str] | None = None,
+                vault_validation_status: str = "pass") -> Result:
     seed = seed or {}
     slug = workspace.name
     dynasty, game_slug = default_vault_target(slug)
@@ -197,7 +213,8 @@ def game_result(film_root: Path, vault_root: Path, workspace: Path,
         if slug == "2027-baylor-vs-rutgers-cc" else "")
     capture_ok = (not required_capture or capture_complete(vault_root / required_capture))
     val = validation_status(workspace, chart_hash) if chart_hash else "missing_chart"
-    delete_ready = exact and val == "pass" and capture_ok
+    fully_validated = exact and val == "pass" and vault_validation_status == "pass"
+    delete_ready = fully_validated and capture_ok
     files = load_json(workspace / "files.json")
     return Result(
         source_name=seed.get("source_name") or source_name,
@@ -217,7 +234,9 @@ def game_result(film_root: Path, vault_root: Path, workspace: Path,
         note_path=str(note.relative_to(vault_root)),
         required_capture_index=required_capture,
         validation_status=val,
-        content_status="vault_complete" if exact else (
+        vault_validation_status=vault_validation_status,
+        content_status="vault_complete" if fully_validated else (
+            "validation_incomplete" if exact else
             "chart_only" if chart.is_file() else "unprocessed"),
         deletion_status="delete_ready" if delete_ready else "blocked",
         drive_id=drive_id,
@@ -228,14 +247,16 @@ def game_result(film_root: Path, vault_root: Path, workspace: Path,
 
 
 def capture_result(vault_root: Path, workspace: Path,
-                   seed: dict[str, str] | None = None) -> Result:
+                   seed: dict[str, str] | None = None,
+                   vault_validation_status: str = "pass") -> Result:
     seed = seed or {}
     target = seed.get("capture_index") or (
         f"dynasties/north-carolina/film-room/captures/{CAPTURE_TARGETS[workspace.name]}/_index.md")
     index = vault_root / target
     source_name, source_md5, source_size = source_from_workspace(workspace)
     drive_id, drive_md5, _, _ = drive_values(workspace)
-    complete = capture_complete(index)
+    coverage_complete = capture_complete(index)
+    complete = coverage_complete and vault_validation_status == "pass"
     return Result(
         source_kind="capture",
         source_name=seed.get("source_name") or source_name,
@@ -248,6 +269,7 @@ def capture_result(vault_root: Path, workspace: Path,
         matchup=seed.get("matchup") or workspace.name,
         vault_dynasty="north-carolina",
         capture_index=target,
+        vault_validation_status=vault_validation_status,
         content_status="capture_complete" if complete else "capture_incomplete",
         deletion_status="delete_ready" if complete else "blocked",
         drive_id=drive_id,
@@ -279,15 +301,19 @@ def loose_result(path: Path, seed: dict[str, str] | None = None) -> Result:
 
 def reconcile(film_root: Path, vault_root: Path, ledger: Path) -> list[Result]:
     seeds = read_ledger(ledger)
+    vault_status = verify_vault(vault_root)
     results: list[Result] = []
     for workspace in sorted(film_root.iterdir()):
         if not workspace.is_dir() or not GAME_RE.match(workspace.name):
             continue
         seed = seeds.get(workspace.name, {})
         if workspace.name in NON_GAME_DIRS:
-            results.append(capture_result(vault_root, workspace, seed))
+            results.append(capture_result(
+                vault_root, workspace, seed, vault_validation_status=vault_status))
         else:
-            results.append(game_result(film_root, vault_root, workspace, seed))
+            results.append(game_result(
+                film_root, vault_root, workspace, seed,
+                vault_validation_status=vault_status))
     for path in sorted(film_root.iterdir()):
         if not path.is_file() or path.suffix.lower() not in MEDIA_SUFFIXES:
             continue
@@ -342,7 +368,8 @@ def main() -> int:
               f"{len(blocked)}/{len(results)} sources deletion-blocked")
         for r in blocked:
             print(f"  {r.workspace_slug or r.source_name}: {r.content_status}; "
-                  f"validation={r.validation_status}")
+                  f"chart_validation={r.validation_status}; "
+                  f"vault_validation={r.vault_validation_status}")
     return 0 if not blocked else 1
 
 
