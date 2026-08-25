@@ -120,15 +120,7 @@ for gamedir in gamedirs:
             print(f"    {col}: {v!r} x{c}")
 
     # 5: presnap_adjust consistency
-    inconsistent = []
-    for r in rows:
-        fi = (r.get("formation_initial") or "").strip().lower()
-        fm = (r.get("formation") or "").strip().lower()
-        adj = (r.get("presnap_adjust") or "").strip().lower()
-        if (fi and fm and fi not in ("menu", "unknown", "n/a")
-                and fm not in ("unknown", "n/a") and fi != fm
-                and adj in ("none", "")):
-            inconsistent.append((r["n"], fi, fm))
+    inconsistent = cs.formation_adjustment_candidates(rows)
     print(f"  formation changed but presnap_adjust=none: {len(inconsistent)} (recheck candidates)")
     for n, a, b in inconsistent[:10]:
         print(f"    p{n}: {a} -> {b}")

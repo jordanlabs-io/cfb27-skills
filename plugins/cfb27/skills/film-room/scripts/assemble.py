@@ -230,7 +230,8 @@ def main():
         final_type = vis_type or tr_type
         rows.append({
             "n": n, "qtr": p["qtr"], "clock": p["clock"], "dd": p["dd"],
-            "poss": p["poss"], "score": f'{p["score_l"]}-{p["score_r"]}',
+            "poss": p["poss"], "poss_src": p.get("poss_src", ""),
+            "score": f'{p["score_l"]}-{p["score_r"]}',
             "snap_t": snap or "", "sec_since_prev_snap": gap,
             "playclock_at_snap": pc_at_snap, "tempo": tempo,
             "formation": banner if banner_ok else b.get("formation", ""),

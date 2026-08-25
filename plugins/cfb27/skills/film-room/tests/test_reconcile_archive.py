@@ -17,6 +17,7 @@ import archive_sweep
 import archive_audit
 import audit_clips
 import assemble
+import chart_schema
 import reconcile_film
 
 
@@ -164,15 +165,17 @@ class FilmGateTests(unittest.TestCase):
     def test_chart_manifest_includes_fullframe_and_playart(self):
         workspace = self.film / "2027-manifest-vs-test"
         (workspace / "seg").mkdir(parents=True)
-        (workspace / "film" / "play001").mkdir(parents=True)
-        (workspace / "seg" / "plays.csv").write_text(
-            "n,qtr,clock,dd,poss,t_first,t_last,score_l,score_r\n"
-            "1,1,5:00,1ST&10,L,1,2,0,0\n")
-        for name in ("presnap_seq.jpg", "presnap.jpg", "fullframe.jpg",
-                     "playart.jpg", "ghost.jpg", "snap1.jpg", "snap2.jpg",
-                     "snap3.jpg", "snap4.jpg", "snap5.jpg", "strip.jpg",
-                     "result.jpg"):
-            (workspace / "film" / "play001" / name).write_bytes(b"")
+        play_rows = ["n,qtr,clock,dd,poss,t_first,t_last,score_l,score_r"]
+        for n in range(1, 8):
+            pdir = workspace / "film" / f"play{n:03d}"
+            pdir.mkdir(parents=True)
+            play_rows.append(f"{n},1,5:00,1ST&10,L,{n},{n + 1},0,0")
+            for name in ("presnap_seq.jpg", "presnap.jpg", "fullframe.jpg",
+                         "playart.jpg", "ghost.jpg", "snap1.jpg", "snap2.jpg",
+                         "snap3.jpg", "snap4.jpg", "snap5.jpg", "strip.jpg",
+                         "result.jpg"):
+                (pdir / name).write_bytes(b"")
+        (workspace / "seg" / "plays.csv").write_text("\n".join(play_rows) + "\n")
         script = SCRIPTS / "prep_batches.py"
         proc = subprocess.run(
             [sys.executable, str(script), str(workspace), "Left", "Right"],
@@ -184,6 +187,7 @@ class FilmGateTests(unittest.TestCase):
         for i in range(1, 6):
             self.assertIn(f"snap{i}.jpg", manifest)
         self.assertNotIn("ghost.jpg", manifest)
+        self.assertTrue((workspace / "batches" / "batch02.txt").exists())
 
     def test_silent_lane_b_can_assemble_without_transcript_file(self):
         workspace = self.film / "2027-silent-vs-film"
@@ -195,6 +199,20 @@ class FilmGateTests(unittest.TestCase):
         workspace.mkdir()
         self.assertFalse((workspace / "transcript.json").exists())
         self.assertEqual(audit_clips.kick_mentions(str(workspace), []), (0, []))
+
+    def test_canonical_chart_uses_poss_source_and_transcript_sidecar(self):
+        self.assertIn("poss_src", chart_schema.BASE_COLUMNS)
+        self.assertNotIn("transcript", chart_schema.BASE_COLUMNS)
+
+    def test_banner_refinement_does_not_fake_a_formation_adjustment(self):
+        rows = [{
+            "n": "37",
+            "formation_initial": "Shotgun Doubles",
+            "v2_off_formation": "Shotgun Doubles",
+            "formation": "Shotgun - Wing Trips Wk",
+            "presnap_adjust": "none",
+        }]
+        self.assertEqual(chart_schema.formation_adjustment_candidates(rows), [])
 
 
 if __name__ == "__main__":

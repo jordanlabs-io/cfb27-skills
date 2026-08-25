@@ -103,7 +103,7 @@ BASE_COLUMNS = [
     "def_cb_technique", "def_zone_type", "def_coverage", "def_coverage_src",
     "coverage_candidates", "def_rotation", "def_rotation_lc",
     "formation_initial", "presnap_adjust", "adjust_note", "def_adjust",
-    "confidence", "note", "transcript",
+    "confidence", "note",
     "result", "yards", "key_event",
 ]
 DERIVED_COLUMNS = ["man_zone_verdict", "mz_confidence", "field_side",
@@ -136,3 +136,22 @@ def ordered_columns(present):
     known = [c for c in FINAL_COLUMNS if c in present]
     extras = [c for c in present if c not in FINAL_COLUMNS]
     return known + extras
+
+
+def formation_adjustment_candidates(rows):
+    """Return visual formation changes that lack a matching adjustment.
+
+    Banner OCR may refine the final formation name beyond the vision label; it
+    must not manufacture an audible. Prefer the v3 visual final formation when
+    present and fall back to the banner/legacy field for older charts.
+    """
+    inconsistent = []
+    for row in rows:
+        initial = (row.get("formation_initial") or "").strip().lower()
+        final = (row.get("v2_off_formation") or row.get("formation") or "").strip().lower()
+        adjust = (row.get("presnap_adjust") or "").strip().lower()
+        if (initial and final and initial not in ("menu", "unknown", "n/a")
+                and final not in ("unknown", "n/a") and initial != final
+                and adjust in ("none", "")):
+            inconsistent.append((row["n"], initial, final))
+    return inconsistent

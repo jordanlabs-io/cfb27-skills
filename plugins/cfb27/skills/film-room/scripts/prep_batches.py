@@ -29,7 +29,10 @@ SEAM = float(ARGS[3]) if len(ARGS) > 3 else None
 OWNER_A = ARGS[4] if len(ARGS) > 4 else TEAM_L
 OWNER_B = ARGS[5] if len(ARGS) > 5 else OWNER_A
 VIDEO = os.path.join(GAMEDIR, "video.mp4")
-BATCH_SIZE = 8
+# Native post-snap frame sets carry substantially more image payload than the
+# legacy composites. The v3 charting contract caps these batches at six plays;
+# using six universally is safe for both artifact styles.
+BATCH_SIZE = 6
 
 # >=2 of these in an OCR pass over the band = a play-call/adjustment overlay
 # is up (used to keep pre-snap playart_check grabs; field frames don't hit).
