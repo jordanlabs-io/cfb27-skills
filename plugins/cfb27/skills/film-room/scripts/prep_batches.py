@@ -122,7 +122,8 @@ for p in plays:
     # older film dirs without it fall back to preplay. Never send both.
     pre = "presnap_seq.jpg" if os.path.exists(os.path.join(pdir, "presnap_seq.jpg")) \
         else "preplay.jpg"
-    imgs = [f for f in (pre, "presnap.jpg", "ghost.jpg", "strip.jpg", "result.jpg")
+    imgs = [f for f in (pre, "presnap.jpg", "fullframe.jpg", "playart.jpg",
+                        "ghost.jpg", "strip.jpg", "result.jpg")
             if os.path.exists(os.path.join(pdir, f))]
     manifest_rows.append((n, p, imgs, menus))
     prev_end = t1

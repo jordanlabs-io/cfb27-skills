@@ -1,6 +1,7 @@
 import csv
 import hashlib
 import json
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -157,6 +158,25 @@ class FilmGateTests(unittest.TestCase):
         blocked = SimpleNamespace(deletion_status="blocked")
         self.assertFalse(archive_sweep.corpus_delete_ready([ready, blocked]))
         self.assertTrue(archive_sweep.corpus_delete_ready([ready]))
+
+    def test_chart_manifest_includes_fullframe_and_playart(self):
+        workspace = self.film / "2027-manifest-vs-test"
+        (workspace / "seg").mkdir(parents=True)
+        (workspace / "film" / "play001").mkdir(parents=True)
+        (workspace / "seg" / "plays.csv").write_text(
+            "n,qtr,clock,dd,poss,t_first,t_last,score_l,score_r\n"
+            "1,1,5:00,1ST&10,L,1,2,0,0\n")
+        for name in ("presnap_seq.jpg", "presnap.jpg", "fullframe.jpg",
+                     "playart.jpg", "ghost.jpg", "strip.jpg", "result.jpg"):
+            (workspace / "film" / "play001" / name).write_bytes(b"")
+        script = SCRIPTS / "prep_batches.py"
+        proc = subprocess.run(
+            [sys.executable, str(script), str(workspace), "Left", "Right"],
+            text=True, capture_output=True)
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        manifest = (workspace / "batches" / "batch01.txt").read_text()
+        self.assertIn("fullframe.jpg", manifest)
+        self.assertIn("playart.jpg", manifest)
 
 
 if __name__ == "__main__":
