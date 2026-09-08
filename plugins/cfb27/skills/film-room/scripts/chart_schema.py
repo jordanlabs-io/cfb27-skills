@@ -53,6 +53,23 @@ ENUMS = {
     # --- 2026-08-14 ordered pre-play read (presnap_seq lane; adjust_seq,
     # playart_delta and postsnap_confirms are free text, listed in V2_FIELDS only)
     "def_shell_initial": {"2-high", "1-high", "0-high", "3-high", "unknown", ""},
+    # --- Phase A (query_plays.py) additions, 2026-09-08. Populated from a
+    # value-counts pass over film-room/plays/*.csv (5,963 rows). Only values
+    # actually observed as clean charted output are enumerated; garbled or
+    # off-schema strings (e.g. "cover 3 or similar zone", bare "4", "2-man")
+    # are intentionally left OUT so enum_violations() flags them for
+    # query_plays.py's leakage reporting instead of silently accepting them.
+    # Never remap across coverage families here (cover-2-man stays its own
+    # value; man/zone-family bucketing is a query_plays.py query-time
+    # decision, not a schema-level rewrite).
+    "def_coverage": {
+        "cover-0", "cover-1", "cover-1-man", "cover-2", "cover-2-man",
+        "cover-3", "cover-3-match", "cover-3-sky", "cover-4",
+        "cover-4-quarters", "cover-6", "omitted", "unknown", "",
+    },
+    "def_rotation": {"none", "to-1-high", "to-2-high", "to-3-high", "unknown", ""},
+    "man_zone_verdict": {"man", "zone", "conflicted", "unknown", ""},
+    "def_coverage_src": {"playart", "agent", "derived", "unknown", ""},
 }
 
 # Normalisation map applied before enum checks (case drift, synonyms agents
@@ -67,6 +84,23 @@ NORMALISE = {
     "saf_depth_band": {"under-10": "<10", "over-15": "15+"},
     "lb_pass_action": {"spot-drop": "spot", "run-fill": "run-fit"},
     "qb_drop": {"none": "n/a"},
+    # --- Phase A additions: obvious case/spacing/hyphen variants only.
+    # "2-man" -> "cover-2-man" is a spacing/hyphen normalisation of the SAME
+    # value (agents dropped the "cover-" prefix), not a family remap.
+    "def_coverage": {
+        "Cover 3 Match": "cover-3-match", "cover 3 match": "cover-3-match",
+        "cover-3 two-high": "cover-3", "Cover 3": "cover-3",
+        "cover 3 or similar zone": "unknown",
+        "cover 1": "cover-1", "Cover 1 Robber": "cover-1",
+        "1-high safety": "unknown", "1-high zone": "unknown",
+        "cover 2": "cover-2", "2-high zone": "unknown",
+        "cover 4 quarters": "cover-4-quarters",
+        "cover-4-quarters": "cover-4-quarters",
+        "2-man": "cover-2-man", "cover-2-man hybrid": "cover-2-man",
+        "3-match": "cover-3-match", "cover-2-zone": "cover-2",
+        "cover-3-match-underneath": "cover-3-match",
+        "4": "unknown",
+    },
 }
 # "n/a" is a legal charted value on every enum (non-plays fill fields n/a per
 # the charting prompt) — allowed globally rather than per-enum.

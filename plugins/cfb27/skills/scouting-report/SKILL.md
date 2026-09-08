@@ -73,6 +73,12 @@ From the dynasty (`dynasties/<slug>/`):
   specific number quoted in a report must trace to a `query_counters.py` run
   against the current CSV, not to dossier prose. If the two disagree, the
   CSV wins and the dossier is stale — say so.
+- **Situational book:** before drafting, run `film-room/scripts/query_plays.py
+  disguise --team <opponent>`, `blitz --team <opponent>`, and
+  `search --side def --down 3 --dist-min 7 --team <opponent>`; paste all three
+  outputs verbatim under a `## Situational book` heading in the gameplan `.md`.
+  The intel-protection rule (§2) applies here too — never run these against
+  the recipient's own team in a report handed to them.
 - `league/teams/<beneficiary>.md` + their film — what they can actually execute,
   and the self-scout material.
 - `league/h2h.md`, `seasons/<year>.md`, `_dynasty.md` — who controls whom, stakes,
