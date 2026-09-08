@@ -112,3 +112,22 @@ the chart's agreement with its own correction source and is not a model metric.*
 
 Unfixed and known: play 37 remains unchartable (7s window, snap falls outside it — a
 segmentation fault, not a snap-timing one).
+
+## 2026-09-08 — coverage ground truth audit
+
+`def_coverage_src=playart` is not an independent test of vision accuracy. `prep_batches.py:131`
+includes `playart.jpg` in the images handed to the charting agent, so raw agent `def_coverage`
+on those rows (29/29 present of 72 total truth rows) matches the play-art overlay 29/29 — a
+transcription check, not a recognition check. Separately, per-row notes on 15/72 truth rows
+report the play-art overlay bleeding into `presnap.jpg`/`snap1.jpg`/`snap2.jpg`/`strip.jpg` —
+the overlay contaminates the very "clean" frames it's meant to be graded against.
+
+Truth-family counts, pooled across the four 2028 games charted so far: cover-3 44, cover-4 12,
+cover-2 9, cover-0 2, cover-1 1, off-schema 4 (n=72). Majority-class baseline (always guess
+cover-3) is 44/72 = **61%**.
+
+**Consequence:** any real coverage-recognition eval needs hand-adjudicated truth, or truth from
+a frame set with the play-art overlay stripped — `def_coverage_src=playart` truth is
+contaminated by both the image feed and the overlay-bleed above. `query_plays.py
+audit-coverage` compares play-art family against `man_zone_verdict` as a proxy signal; its
+output must not be read as a vision accuracy number.

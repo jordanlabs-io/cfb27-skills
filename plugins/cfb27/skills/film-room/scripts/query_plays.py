@@ -235,7 +235,7 @@ def is_red_zone(row):
 # team map (dynasties/<slug>/film-room/plays/_film_teams.csv)
 # --------------------------------------------------------------------------
 TEAM_SLUGS = {
-    "arizona": ["Arizona"], "baylor": ["Baylor"], "illinois": ["Illinois"],
+    "arizona": ["Arizona", "ARI"], "baylor": ["Baylor"], "illinois": ["Illinois"],
     "kansas-state": ["Kansas State", "KSU", "K-State"],
     "maryland": ["Maryland", "UMD"],
     "nc-state": ["NC State", "N.C. State", "North Carolina State"],
@@ -243,7 +243,7 @@ TEAM_SLUGS = {
     "northwestern": ["Northwestern"], "rutgers": ["Rutgers"],
     "vanderbilt": ["Vanderbilt", "Vandy", "VAND"],
     "west-virginia": ["West Virginia", "WVU"],
-    "cincinnati": ["Cincinnati"], "arizona-state": ["ARI"],
+    "cincinnati": ["Cincinnati"], "arizona-state": ["ASU"],
 }
 # codes seen used directly in poss on some films
 CODE_ALIASES = {"ARI": "arizona", "ARIZ": "arizona", "UNC": "north-carolina"}
@@ -558,9 +558,11 @@ def cmd_audit_coverage(args):
     rows = load_plays(dynasty_dir, tmap)
     rows = filter_rows(rows, args)
     gt_rows = [r for r in rows if r["def_coverage_src_c"] == "playart"]
-    print(f"# Coverage recognition audit (diagnostic, NOT a headline rate)\n")
+    print(f"# Coverage audit: play-art vs man_zone_verdict proxy — NOT a vision accuracy measurement\n")
     print(f"Ground truth = def_coverage_src=playart rows only. n={len(gt_rows)} "
-          f"of {len(rows)} total defensive-eligible rows.\n")
+          f"of {len(rows)} total defensive-eligible rows. See calibration-history.md "
+          f"'2026-09-08 — coverage ground truth audit' for why this is a proxy comparison, "
+          f"not an independent recognition test.\n")
     if not gt_rows:
         print("(no playart-sourced rows in this selection — nothing to audit)")
         return
@@ -590,6 +592,8 @@ def cmd_audit_coverage(args):
     print("\nPer film (n shown; small-n films are noise, not signal):")
     for film, (a, t) in sorted(by_film.items()):
         print(f"  - {film}: {pct(a, t)}")
+    print("\nReminder: this is play-art vs. man_zone_verdict proxy agreement, not a vision "
+          "accuracy measurement — do not report it as one.")
 
 
 def cmd_search(args):
