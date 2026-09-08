@@ -1,6 +1,6 @@
 ---
 name: scouting-report
-description: Build a full matchup scouting report + game plan ("the book") on a CFB 27 league opponent, for the user's own upcoming game OR to hand to another league member you want to win. Fuses the rival dossier, every charted film-room game, call-sheet counter ledgers, H2H/season context, and cited wiki strategy into a vault markdown report plus a school-branded multi-page visual scouting report (PDF). Use whenever the user says "scouting report", "game plan", "scout <team>", "prep me for <team/coach>", "help <league member> beat <team>", "put together the book on <coach>", or wants opponent tendencies packaged as a document — even if they don't name a deliverable format. The branded standard is the multi-page image-led visual report; a phone-ready 2-page PDF brief is the compact alternate. Capturing dynasty data belongs to dynasty-tracker; charting new film belongs to film-room; this skill only reads what they produced.
+description: Build a full matchup scouting report + game plan ("the book") on a CFB 27 league opponent, for the user's own upcoming game OR to hand to another league member you want to win. Fuses the rival dossier, every charted film-room game, call-sheet counter ledgers, H2H/season context, and cited wiki strategy into a vault markdown report plus a school-branded multi-page visual scouting report (PDF). Use whenever the user says "scouting report", "game plan", "scout <team>", "prep me for <team/coach>", "help <league member> beat <team>", "put together the book on <coach>", or wants opponent tendencies packaged as a document — even if they don't name a deliverable format. Also use for a lightweight version — "quick scout", "brief me on <team>", "scout <team> quick", or "--brief" — which does the same research but summarizes in chat with no vault write and no PDF. The branded standard is the multi-page image-led visual report; a phone-ready 2-page PDF brief is the compact alternate. Capturing dynasty data belongs to dynasty-tracker; charting new film belongs to film-room; this skill only reads what they produced.
 ---
 
 # Scouting Report — the book on one opponent
@@ -27,6 +27,16 @@ Pin down three things before reading a single file:
      reveals the user has film on them) vs opponent-intel only.
   2. Confirm the deliverable (vault doc only / + PDF / + phone-ready text).
 
+## 1a. Brief mode
+
+If the user asks for a quick/brief scout, or passes `--brief`: still do §1
+(scope) and honor §2 (intel-protection) if beneficiary ≠ recipient, still
+gather per §3 and weigh per §4 — but **stop there**. Summarize findings in
+chat, prose, no vault write, no PDF, no §7 verify/log (nothing was written to
+verify or log). Skipping §5/§6/§7 is the only difference from a full report —
+the evidence-gathering and weighing standards are identical. A brief scout
+should never be lower-confidence than a full one, just shorter.
+
 ## 2. The intel-protection rule (non-negotiable)
 
 Menu-tile counter data (call counts and avg-yds harvested from a coach's own
@@ -49,8 +59,20 @@ From the dynasty (`dynasties/<slug>/`):
 - Every `film-room/games/*.md` involving the opponent — read them, not just the
   dossier; game reports carry situational detail (drive tables, money-down splits,
   turnover ledgers) the dossier compresses away.
-- `film-room/call-sheets/<opponent>.csv` — the counter ledger. Also the
-  beneficiary's ledger *if the user's own planning needs it* (never quoted to them).
+- `film-room/call-sheets/<opponent>.csv` is the **source of truth for every
+  counter number** — calls and avg_yds. Query it with this skill's
+  `scripts/query_counters.py <csv-path>` rather than reading the CSV by eye:
+  it's long-format (one row per film × play), so the raw file needs a
+  max-per-play pass before any number in it means anything, and the script
+  also flags play-name punctuation collisions across films (e.g. `4-3 OVER
+  COVER 1 HOLE` vs `4-3 OVER: COVER 1 HOLE`) instead of silently treating
+  them as separate tiles. Also query the beneficiary's ledger *if the user's
+  own planning needs it* (never quoted to them). The dossier's inline
+  "Counter book" narrative is a **cached summary, not a citation** — useful
+  for identity claims and framing ("he is a Cover 3 Sky coach"), but any
+  specific number quoted in a report must trace to a `query_counters.py` run
+  against the current CSV, not to dossier prose. If the two disagree, the
+  CSV wins and the dossier is stale — say so.
 - `league/teams/<beneficiary>.md` + their film — what they can actually execute,
   and the self-scout material.
 - `league/h2h.md`, `seasons/<year>.md`, `_dynasty.md` — who controls whom, stakes,
@@ -79,6 +101,11 @@ Inherited from the film-room skill's calibration — apply, and disclose in the 
 4. Matchup-dependence is real: a defensive profile shown vs one offense may not
    travel. Say which version the beneficiary should expect and why.
 5. Provenance tiers (pro > frames > flash) carry into confidence language.
+6. **CSV counters can't fall.** A play's count reading lower on a later film
+   than an earlier one is that film's parse failing to read the tile, not the
+   coach abandoning the call — treat it as unread, not zero.
+   `query_counters.py`'s max-per-play already applies this; apply it by hand
+   too if you ever read the CSV directly instead.
 
 ## 5. Write the vault report
 
