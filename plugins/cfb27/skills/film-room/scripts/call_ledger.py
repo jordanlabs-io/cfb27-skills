@@ -75,18 +75,33 @@ def team_slug(owner, known):
     return s
 
 
+def canon_key(play):
+    """Canonical form of a play name: case/whitespace folded, and the
+    front/coverage separator punctuation dropped. Some menu views separate
+    the front/personnel tag from the call with a colon ('4-3 OVER: COVER 1
+    HOLE') or a slash ('4-3 OVER WIDE / COVER 1 HOLE'), others use a bare
+    space ('4-3 OVER COVER 1 HOLE') — same tile, same words, purely a
+    transcription-format artifact (flagged on the Rutgers dossier, where it
+    split tiles' counter history 2026-09). Safe to fold unconditionally:
+    this only strips separator punctuation, never words, so it cannot
+    conflate two tiles that differ in actual content."""
+    key = (play or "").strip().upper()
+    key = re.sub(r"[:/]", " ", key)
+    return re.sub(r"\s+", " ", key).strip()
+
+
 def normalise_plays(rows):
     """Tile-name normalisation (flagged on Maryland + Northwestern reports):
     the same tile can be transcribed with and without a leading team/package
     token ('NICKEL 3-3 CUB COVER 3 BUZZ' vs 'UNC NICKEL 3-3 CUB COVER 3 BUZZ'),
     double-booking its counter history. Within one owner's ledger, when
     dropping a play name's first word yields another play name that exists,
-    fold the longer name onto the shorter (the un-prefixed form). Whitespace
-    and case are canonicalised first. Counters are never altered — only the
-    play KEY they file under."""
+    fold the longer name onto the shorter (the un-prefixed form). Whitespace,
+    case and colons are canonicalised first (see canon_key). Counters are
+    never altered — only the play KEY they file under."""
     canon = {}
     for r in rows:
-        key = re.sub(r"\s+", " ", (r["play"] or "").strip().upper())
+        key = canon_key(r["play"])
         r["play"] = key
         canon[key] = True
     folded = 0
