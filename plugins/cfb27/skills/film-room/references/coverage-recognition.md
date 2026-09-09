@@ -71,3 +71,69 @@ State plainly, per the schema's own calibration-locked rule: **"unknown" beats a
 CFB27 draws coach's-own-screens (play-call menus, coverage-adjustment panels, custom-adjustment screens) as panels that can appear ON TOP of a live pre-snap field — this is expected chrome, not a non-play (see `charting-prompts.md`'s calibration-locked rules on menu overlays). Separately, the dedicated `playart.jpg` pair sometimes shows an actual route/zone diagram: the play art itself, not gameplay pixels. When a play-art or route-diagram overlay is visible in ANY of the provided frames and that overlay is what informs a coverage-family read (rather than an incidental panel the agent charted around), the resulting read is coming from a schematic drawing of the intended call, not from what the defense actually did on the snap.
 
 The schema already partitions this correctly at the field level: `def_playart_coverage` exists specifically for a coverage name read off a genuinely visible play-art overlay, and it is explicitly the ONE place alignment-only naming of a family is allowed, because the art IS the call being displayed (`charting-prompts.md` step 1a2). **Never let `def_playart_coverage`, `def_playart_zones`, or `off_playart` substitute for or overwrite `def_coverage`** — the latter must still come from what the players actually do post-snap, per the schema's own separation of these fields. If an agent notices that its post-snap coverage read was effectively reconstructed from a visible overlay rather than from player movement (for example, because the players themselves are obscured by the panel across the whole snap window), that is a case for `def_coverage: unknown` with a `note` flagging the overlay as the reason — not for silently filling `def_coverage` with the overlay's own content under a different name. Downstream analysis that wants to distinguish an overlay-derived read from a vision-derived one should look for a populated `def_playart_coverage` alongside an `unknown`/thin `def_coverage` on the same play, rather than expecting a `src` tag that does not exist in the current schema.
+
+## NFL priors (Big Data Bowl 2026, 2023 season, n=14,066 pass plays) — (external data, not transcript-sourced)
+
+### Shell (9yd depth threshold) -> coverage family, row-normalized
+
+| Shell | cover-0 | cover-1 | cover-2 | cover-2-man | cover-3 | cover-4 | cover-6 | n |
+|---|---|---|---|---|---|---|---|---|
+| 0-high | 42.2% | 27.0% | 4.1% | 0.0% | 13.1% | 12.7% | 0.9% | 953 |
+| 1-high | 2.3% | 35.4% | 9.6% | 0.5% | 42.1% | 7.3% | 2.8% | 5759 |
+| 2-high | 0.8% | 12.8% | 16.8% | 3.1% | 24.3% | 25.0% | 17.2% | 6485 |
+| 3-high | 1.6% | 5.6% | 18.1% | 0.9% | 41.0% | 20.9% | 11.9% | 869 |
+
+### Overall coverage family distribution
+
+| Family | k/n (pct) |
+|---|---|
+| cover-0 | 601/14066 (4.3%) |
+| cover-1 | 3175/14066 (22.6%) |
+| cover-2 | 1837/14066 (13.1%) |
+| cover-2-man | 237/14066 (1.7%) |
+| cover-3 | 4482/14066 (31.9%) |
+| cover-4 | 2346/14066 (16.7%) |
+| cover-6 | 1388/14066 (9.9%) |
+
+### Safety rotation rate by pre-snap shell (corrected: FS/SS or CB-at-safety-depth only, not all defenders)
+
+Rotation measured only on players who are FS/SS, or a CB aligned at safety depth pre-snap (frame-1 depth ≥ 9yd) — this excludes zone-dropping LBs/CBs that a naive all-defenders shell count would pick up. deep_pre = that subset with depth ≥9yd at frame 1; deep_post = with depth ≥12yd at ~+2.0s. roll-down = deep count decreased, bail = increased, sat = unchanged.
+
+Overall safety rotation rate: 4061/14066 (28.9%)
+
+| Shell at snap | rotated k/n (pct) | roll-down | bail | sat |
+|---|---|---|---|---|
+| 0-high | 124/953 (13.0%) | 0.0% | 13.0% | 87.0% |
+| 1-high | 999/5759 (17.3%) | 8.3% | 9.1% | 82.7% |
+| 2-high | 2514/6485 (38.8%) | 38.1% | 0.6% | 61.2% |
+| 3-high | 424/869 (48.8%) | 48.0% | 0.8% | 51.2% |
+
+### Disguise baselines
+
+- **Disguised cover-3** (2-high-at-snap, labeled cover-3, and rolled down): 1156/6485 (17.8%)
+- **Cover-1 from 2-high** (started 2-high, played cover-1): 828/6485 (12.8%)
+
+### Coverage family by down and distance
+
+| down | cover-0 | cover-1 | cover-2 | cover-2-man | cover-3 | cover-4 | cover-6 | n |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 3.1% | 16.4% | 13.2% | 0.9% | 37.6% | 18.5% | 10.4% | 5141 |
+| 2 | 3.6% | 19.4% | 13.0% | 1.1% | 31.3% | 19.7% | 11.8% | 4687 |
+| 3 | 5.7% | 33.1% | 13.2% | 3.3% | 25.9% | 11.5% | 7.4% | 3873 |
+| 4 | 13.7% | 38.4% | 11.0% | 3.3% | 21.1% | 8.5% | 4.1% | 365 |
+
+| distance | cover-0 | cover-1 | cover-2 | cover-2-man | cover-3 | cover-4 | cover-6 | n |
+|---|---|---|---|---|---|---|---|---|
+| short (≤3) | 14.4% | 34.2% | 10.2% | 1.7% | 25.7% | 8.5% | 5.3% | 1477 |
+| medium (4-6) | 6.5% | 33.2% | 11.1% | 2.1% | 27.1% | 12.7% | 7.4% | 2265 |
+| long (7-10) | 2.4% | 20.2% | 13.0% | 1.5% | 34.3% | 18.2% | 10.4% | 8465 |
+| very long (11+) | 2.2% | 11.2% | 18.1% | 1.9% | 31.6% | 21.1% | 13.9% | 1859 |
+
+### How to use
+
+These are NFL base rates (2023 season, Big Data Bowl 2026 tracking data) — not CFB27 truth. Use them only to (a) set the agent's prior when frames are ambiguous, i.e. which family is *statistically* more likely given shell/down/distance before the vision tells resolve it; (b) sanity-check a coach's disguise rate in query_plays.py's `disguise` output against the NFL 2-high roll-down rate (38.8%) — a coach whose rate is wildly out of this range is worth a second look, not proof of anything; (c) never to fill a field the frame does not support — `unknown` still wins per §4's do-not-commit rules regardless of what these priors say is likely.
+
+Three caveats, explicitly:
+1. **Frame 1 is near-snap, not frozen pre-snap** — some presnap shifting/motion is already underway by frame 1 in the tracking data; it is the earliest available reference, not a truly static presnap instant.
+2. **The 9yd/12yd depth thresholds are analyst choices**, not a rule of the NFL rulebook or CFB27's engine — sensitivity analysis in priors.md shows the shell distribution shifts meaningfully across 8/9/10/12yd thresholds.
+3. **NFL ≠ CFB27 AI defense.** These are human NFL defensive coordinators and players in 2023; CFB27's defensive AI has no obligation to match NFL tendencies, disguise rates, or shell distributions. Treat every number above as an outside reference point, never as ground truth for this game.

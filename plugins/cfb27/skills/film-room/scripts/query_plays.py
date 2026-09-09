@@ -441,6 +441,21 @@ def check_team_verified(dynasty_dir, team):
               f"unverified L/R): {', '.join(bad)}", file=sys.stderr)
 
 
+def load_nfl_prior_roll_down_rate():
+    """Read the NFL BDB2026 2-high roll-down rate from nfl-coverage-priors.json,
+    resolved relative to this script's own path. Returns a pct float (e.g. 38.8)
+    or None if the file/field can't be found."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "..", "references", "nfl-coverage-priors.json")
+    try:
+        with open(path) as f:
+            data = json.load(f)
+        r = data["tables"]["rotation_by_shell"]["2-high"]
+        return 100 * r["roll_down"] / r["n"]
+    except (OSError, KeyError, ZeroDivisionError, json.JSONDecodeError):
+        return None
+
+
 def cmd_disguise(args):
     dynasty_dir = args.dynasty_dir
     check_team_verified(dynasty_dir, args.team)
@@ -536,6 +551,23 @@ def cmd_disguise(args):
             parts = ", ".join(f"{k} {v}/{tot} ({100*v/tot:.0f}%)" for k, v in by_shell[sf].most_common())
             print(f"  - shows {sf}: {parts}")
         print()
+
+        # --- Footer: NFL prior comparison (opt-in, --nfl-prior)
+        if getattr(args, "nfl_prior", False):
+            two_high = [r for r in resolved if r["shell_pre_fam"] == "2-high"]
+            roll_down = [r for r in two_high if r["def_rotation_c"] == "to-1-high"
+                         or r["def_rotation_c"] == "to-0-high"]
+            nfl_rate = load_nfl_prior_roll_down_rate()
+            if two_high and nfl_rate is not None:
+                coach_pct = 100 * len(roll_down) / len(two_high)
+                print(f"**NFL prior comparison:** 2-high roll-down rate {pct(len(roll_down), len(two_high))} "
+                      f"vs. NFL BDB2026 baseline {nfl_rate:.1f}% "
+                      f"({'above' if coach_pct > nfl_rate else 'below' if coach_pct < nfl_rate else 'at'} baseline; "
+                      f"external NFL data, not CFB27 ground truth — a large gap is worth a second look, not proof)\n")
+            elif nfl_rate is None:
+                print("**NFL prior comparison:** unavailable — nfl-coverage-priors.json not found\n")
+            else:
+                print("**NFL prior comparison:** no 2-high resolved snaps for this coach\n")
 
         # --- footer: v2_src era mix
         eras = Counter()
@@ -741,7 +773,10 @@ def parse_args():
     sub = p.add_subparsers(dest="cmd", required=True)
 
     sub.add_parser("teams", parents=[common])
-    sub.add_parser("disguise", parents=[common])
+    dp = sub.add_parser("disguise", parents=[common])
+    dp.add_argument("--nfl-prior", action="store_true",
+                     help="Append a footer line per coach comparing their 2-high "
+                          "roll-down rate against the NFL BDB2026 baseline (38.8%%).")
     sub.add_parser("audit-coverage", parents=[common])
     sub.add_parser("blitz", parents=[common])
 
@@ -765,9 +800,9 @@ def parse_args():
 def main():
     args = parse_args()
     for a in ("down", "dist_min", "dist_max", "qtr", "trailing", "leading", "tied",
-              "red_zone", "formation", "coverage", "play_type", "side"):
+              "red_zone", "formation", "coverage", "play_type", "side", "nfl_prior"):
         if not hasattr(args, a):
-            setattr(args, a, None if a not in ("trailing", "leading", "tied", "red_zone") else False)
+            setattr(args, a, None if a not in ("trailing", "leading", "tied", "red_zone", "nfl_prior") else False)
     dispatch = {
         "teams": cmd_teams, "disguise": cmd_disguise, "audit-coverage": cmd_audit_coverage,
         "search": cmd_search, "blitz": cmd_blitz,
