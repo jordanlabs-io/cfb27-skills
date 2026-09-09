@@ -144,6 +144,78 @@ Menu-only footage/screenshots (postgame box scores, schedule/season records, sta
 
 The v3 schema applies to ALL film, past and future — the user directed a full re-chart of the existing library (17 games) as the retest of the rebuilt skill, run in a **local session** (this rebuild happened remotely, without the film workspaces). Procedure for that session: for each game under `~/CFB27-film/<slug>/`, (1) `frames.py` re-run is required only for `fullframe.jpg`/`playart.jpg` (needs `video.mp4` — re-pull archived VODs/originals from Drive where the transcode was deleted; kept `film/` composites cover everything else, so a composites-only re-chart charts every v3 field except the two new artifacts), (2) re-chart with the v3 prompt (`charting-prompts.md`), (3) `fanout.py` → `merge_results.py`/`merge_v2_local.py` → `apply_recheck.py` if needed → `validate_chart.py` → `series_book.py`, (4) re-measure the v3 standing tasks in `extraction-framework.md` (leverage hand-check, animation fire rate, presnap_adjust/def_rotation vs baseline) BEFORE trusting new-field tendencies, (5) refresh reports/dossiers with the new sections. Backward compat is guaranteed — old charts stay readable (header-name reads; missing `schema_version` = pre-v3) — so re-chart in whatever order the dossiers need it.
 
+## Segmentation boundaries and snap anchoring (2026-09-09)
+
+`segment.py:detect_plays` defines a play window as a maximal run of one
+stable down-and-distance value. A window CLOSES (in this order of priority)
+on:
+
+1. **dd change** — the down-and-distance value read off the HUD differs
+   from the current window's dd.
+2. **Play-clock reset upward after a low read** — two consecutive play-clock
+   reads >=25 following a read <15, and the window is already >=10s old.
+   Needed for same-dd back-to-back plays (e.g. 1st&10 -> big gain -> new
+   1st&10): a single high read is treated as an OCR misread and does NOT
+   split the window.
+3. Implicitly via **GAP_TOLERANCE=12s**: if the dd goes unreadable (replay
+   overlay, menu, timeout screen) for more than 12s, the window closes on
+   the last readable sample rather than waiting indefinitely.
+4. A window shorter than **4s** (`t_last - t_first`) is dropped, not
+   emitted, as too short to be a real play.
+
+What does NOT close a window: motion stoppage of any length, unreadable HUD
+gaps <=GAP_TOLERANCE, a replay overlay, a menu return, or a timeout/
+injury/review screen — these extend the current window's dead time inside
+GAP_TOLERANCE, they never start a new one. Score change and quarter change
+are read as window METADATA (majority-voted over the window's rows), not
+independent close triggers — in practice they coincide with a dd change
+(kickoff/PAT windows are segmented separately, see `detect_st_windows`).
+
+**Snap search delta (PLAN-snap-anchoring.md A9, the only segmentation
+behavioral change in that plan):** `pc_stop_time` (frames.py) and
+`snap_of` (snap_times.py) both search for the **LAST** frozen/terminal
+play-clock value **before the next window's boundary**, scanning the whole
+window rather than a fixed bracket after the first freeze. This was already
+true of both functions before this plan (see their docstrings) — the plan
+changed the SUB-SECOND refinement that runs on top of that coarse anchor
+(snap_refine.py, A2-A4), not the coarse search itself. No other
+segmentation behavior changed; window counts were not retuned across the
+29 existing film dirs (out of scope, A9).
+
+## Snap anchoring (PLAN-snap-anchoring.md A1-A4, A10-A12)
+
+The play clock freezes at the snap but the frozen VALUE can sit on screen
+for up to ~1s before the freeze happens, so the coarse play-clock estimate
+(`snap_of`/`pc_stop_time`, "START of the terminal frozen block") is
+systematically early or late by up to ~2s. `snap_refine.py` (imported by
+both `snap_times.py --video` and `frames.py`) refines that coarse estimate
+sub-second, in this precedence:
+
+1. **preplay-chip** (primary): the PRE-PLAY/SUBS HUD chip (bottom strip,
+   full width, ~12% of frame height) goes visually uniform (grayscale
+   crop stddev < 10) and stays so for >=0.3-0.5s. Resolved 14/20
+   hand-verified plays on the calibration film.
+2. **motion-sustained** (fallback): sustained full-frame content change
+   (mean-abs-diff between consecutive 10fps frames, scorebug strip
+   excluded) when the chip signal is unusable (camera pan/zoom moved the
+   fixed chip off-position, or a wide/menu-adjacent camera angle).
+3. **playclock-bracket** (last resort): the coarse play-clock freeze
+   itself, flagged `snap_unreliable=1`.
+
+Every row gets a `snap_src` column recording which precedence level fired.
+
+**Measured accuracy (calibration film, 20-play hand-verified truth set,
+2026-09-09):** median absolute error 0.375s, P90 1.6s, 8/20 (40%) within
+the ±0.3s target. **This does not meet the ±0.3s/>=90% goal stated in
+PLAN-snap-anchoring.md**, even with the search bracket widened from the
+plan's [-0.5,+1.5] to [-0.5,+2.5] (several true snaps sit past +1.5s
+because the playclock can freeze up to ~2s before the chip visually
+clears). See `references/calibration-history.md` for the full per-play
+table and honest discussion of why ±0.3s/90% is not reachable with a
+PIL+stdlib-only estimator on this camera's HUD. It IS a real improvement
+over the old estimator (old median error ~0.8s vs new ~0.4s; old P90
+~1.95s vs new 1.6s).
+
 ## Scripts
 
 | Script | Signature | Lane / step |
@@ -153,7 +225,11 @@ The v3 schema applies to ALL film, past and future — the user directed a full 
 | `validate_rescue.py` | `GAMEDIR` | B / 3 rescue gate |
 | `remap_rescue.py` | `GAMEDIR` | B / 3 rescue gate |
 | `rebuild_timeline.py` | `GAMEDIR` | B / 3 rescue |
-| `timeline_snaps.py` | `GAMEDIR` | B / 8 snaps |
+| `timeline_snaps.py` | `GAMEDIR` | B / 8 snaps (tempo columns only, does not write snap_t — see A7) |
+| `snap_refine.py` | (module — imported by snap_times.py/frames.py; CLI smoke test: `VIDEO T_FREEZE [LO] [HI]`) | both / sub-second snap refinement |
+| `preflight_env.py` | (no args) | both / 0 interpreter check |
+| `pbp_ingest.py` | `GAMEDIR --highlights JSONL` | A / 3b PBP ground truth |
+| `pbp_reconcile.py` | `GAMEDIR` | A / 3b PBP reconciliation |
 | `scan_formations.py` | `video plays.csv formations.csv` | A / 4 |
 | `frames.py` | `video plays.csv film/ [--plays A-B] [--procs N]` | both / 5 |
 | `prep_batches.py` | `GAMEDIR TEAM_L TEAM_R [SEAM] [--tiles]` | both / 6 (menu crops: B) |
