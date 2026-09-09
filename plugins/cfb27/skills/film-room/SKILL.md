@@ -55,9 +55,10 @@ Triage signals at intake: URL vs dropped file; `ffprobe` aspect ratio; audio str
 
 ## Environment
 
-- Tools venv: `~/CFB27-film/.venv` (yt-dlp, faster-whisper, pytesseract, pillow). tesseract + ffmpeg via system. mlx-whisper is BROKEN on M5 — use faster-whisper CPU int8.
+- Tools venv: `~/CFB27-film/.venv` (yt-dlp, faster-whisper, pytesseract, pillow, numpy). tesseract + ffmpeg via system (homebrew, on PATH). mlx-whisper is BROKEN on M5 — use faster-whisper CPU int8.
+- **Interpreter, confirmed (2026-09-09):** every script under `scripts/` that imports numpy/PIL/pytesseract (`frames.py`, `snap_times.py`, `segment.py`, ...) MUST run under `~/CFB27-film/.venv/bin/python3`. System `python3` lacks numpy/cv2 and will ImportError. Before a charting run, or if a script fails with an ImportError, run `~/CFB27-film/.venv/bin/python3 "$SK/film-room/scripts/preflight_env.py"` — it checks numpy/PIL/pytesseract/tesseract/ffmpeg and exits non-zero with the fix if any is missing.
 - Game workspace: `~/CFB27-film/<game-slug>/` (OUTSIDE the vault). Slug: `<season>-<team>-vs-<opp>`.
-- All scripts in this skill's `scripts/` directory (base path announced when the skill loads), run with the venv python. Vault path has a space — quote it.
+- All scripts in this skill's `scripts/` directory (base path announced when the skill loads), run with the venv python (`~/CFB27-film/.venv/bin/python3`, not system `python3`). Vault path has a space — quote it.
 - Gemini respot (Lane A only): needs `GEMINI_API_KEY` in `~/CFB27-film/.env` (CLI free tier is dead).
 
 ## Pipeline (per game)
