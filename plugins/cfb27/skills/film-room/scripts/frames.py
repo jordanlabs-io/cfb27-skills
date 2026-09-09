@@ -5,11 +5,14 @@ For each play window from segment.py's plays.csv:
   1. Localize the snap via a motion profile (signalstats YDIF on the field
      region — camera is static pre-snap, pans hard after the snap).
   2. Emit:
-     presnap.jpg   - formation still, ~1.2s before the snap
+     presnap_shift.jpg - formation, ~2.0s before the snap (pre-shift look)
+     presnap.jpg   - formation, ~0.4s before the snap (last look)
      ghost.jpg     - stabilized min-blend | max-blend long-exposure pair:
                      player paths appear as streaks (dark jerseys in the
                      left/min panel, light jerseys in the right/max panel)
-     strip.jpg     - 3x2 film strip, snap -> +3.3s
+     strip.jpg     - 3x2 film strip: presnap(-0.4s), then +0.5/+1.5/+2.5/
+                     +3.5/+4.5s (widened post-snap window so coverage has
+                     time to declare -- PLAN-snap-anchoring.md A5)
      result.jpg    - end-of-window frame (post-play spot / gain visible)
 
 Usage:
@@ -30,10 +33,16 @@ from PIL import Image, ImageChops, ImageDraw
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import segment as seg
+import snap_refine
 
 FIELD_CROP = "iw:ih*0.85:0:0"     # cut the scorebug strip off the bottom
-STRIP_OFFSETS = [0.4, 0.9, 1.5, 2.1, 2.7, 3.3]
-SNAP_SINGLES = [0.4, 0.9, 1.5, 2.1, 2.7]   # --no-ghost native-res post-snap set
+# PLAN-snap-anchoring.md A5 (2026-09-09): pre-snap look at -2.0 (pre-shift) and
+# -0.4 (last look before snap); post-snap window widened to +4.5 so coverage
+# has time to declare (was ending ~+2.3, before the deep structure settled).
+PRESNAP_OFFSETS = [-2.0, -0.4]     # presnap_shift.jpg, presnap.jpg
+SNAP_SINGLES = [0.5, 1.5, 2.5, 3.5, 4.5]   # --no-ghost native-res post-snap set
+STRIP_OFFSETS = [-0.4] + SNAP_SINGLES      # presnap cell + 5 post-snap cells = 3x2
+FRAMES_VERSION = 2
 PREPLAY_OFFSETS = [-8.0, -5.0, -3.0, -1.2]   # lineup -> snap alignment
 SEQ_OFFSETS = [-12.0, -9.7, -7.4, -5.1, -2.8, -0.5]  # presnap_seq label grid
 MOTION_FPS = 4
@@ -385,26 +394,30 @@ def process_play(job):
     os.makedirs(pdir, exist_ok=True)
 
     boxes = seg.scaled_boxes(vw, vh)
+    hbox_chip = (0, int(vh * 0.88), vw, vh - int(vh * 0.88))
     # search the WHOLE window: the snap sits near t_last, so the old
     # 't_last - 4' bound cut off exactly where the snap lives
     pc_stop = pc_stop_time(video, boxes, t_first, t_last)
     m0 = max(t_first, t_last - MOTION_LOOKBACK)
     prof = motion_profile(video, m0, t_last + 2)
+    snap_src = ""
     if p.get("_snap_override"):
-        # seg/snaps.csv from snap_times.py -- derived from the RESCUED
-        # hud_timeline, which is far more readable than a fresh OCR pass
+        # seg/snaps.csv from snap_times.py -- already sub-second refined
+        # (PLAN-snap-anchoring.md A2-A4: preplay-chip / motion-sustained /
+        # playclock-bracket precedence) when snap_times.py was run --video.
         snap = float(p["_snap_override"])
+        snap_src = p.get("_snap_src_override") or "playclock-bracket"
     elif pc_stop is not None:
-        # The play-clock signal wins outright. Motion onset was measured 4s
-        # early on 96% of windows of one online H2H film, because the early
-        # "motion" is the play-call UI, not the snap. Motion is only used to
-        # nudge within a second when the two already agree.
-        snap_motion = find_snap(prof, t_last)
-        snap = snap_motion if abs(snap_motion - pc_stop) <= 1 else pc_stop
+        # A2-A4: refine the play-clock freeze (t_freeze) sub-second via the
+        # PRE-PLAY/SUBS chip clearing, falling back to sustained motion, then
+        # the bracket anchor itself. Replaces the old "nudge within 1s via
+        # motion_onsets" behaviour.
+        snap, snap_src, _unreliable = snap_refine.refine_snap(video, hbox_chip, pc_stop)
     else:
         # no play-clock signal: the snap is the LAST onset before the end
         # region, never the stillest (that one is the play-call menu)
         snap = find_snap(prof, t_last, mode="last")
+        snap_src = "motion-last-onset"
 
     # Clamp into the window. Every estimator above can hand back a time
     # outside [t_first, t_last] on degenerate input; on UNC-Vanderbilt five
@@ -422,9 +435,12 @@ def process_play(job):
     # after the estimated snap still reads PRE-PLAY / SUBS
     later = [t for _, t in motion_onsets(prof, t_last) if t > snap + 0.5]
     hbox = preplay_box(vw, vh)
+    GATE_OFFSET = SNAP_SINGLES[0]   # first POST-snap cell -- gate must probe
+                                     # after the estimated snap, not before it
     unreliable = False
     for _attempt in range(3):
-        grab(video, snap - 1.2, os.path.join(pdir, "presnap.jpg"))
+        grab(video, snap + PRESNAP_OFFSETS[0], os.path.join(pdir, "presnap_shift.jpg"))
+        grab(video, snap + PRESNAP_OFFSETS[1], os.path.join(pdir, "presnap.jpg"))
         if ghost_secs <= 0:
             # --no-ghost: native-res singles across the post-snap window.
             # A long-exposure blend needs a static camera; when the camera pans
@@ -438,7 +454,7 @@ def process_play(job):
         else:
             ok = ghost(video, snap, ghost_secs, os.path.join(pdir, "ghost.jpg"))
         strip(video, snap, os.path.join(pdir, "strip.jpg"))
-        if not hud_says_presnap(video, hbox, snap + STRIP_OFFSETS[0]):
+        if not hud_says_presnap(video, hbox, snap + GATE_OFFSET):
             break
         if not later or _attempt == 2:   # 2 retries, then give up
             unreliable = True
@@ -448,7 +464,7 @@ def process_play(job):
     pp_ok = preplay(video, snap, os.path.join(pdir, "preplay.jpg"))
     sq_ok = presnap_seq(video, snap, os.path.join(pdir, "presnap_seq.jpg"))
     grab(video, t_last - 0.5, os.path.join(pdir, "result.jpg"))
-    fullgrab(video, snap - 1.2, os.path.join(pdir, "fullframe.jpg"))
+    fullgrab(video, snap + PRESNAP_OFFSETS[1], os.path.join(pdir, "fullframe.jpg"))
     playart(video, snap, os.path.join(pdir, "playart.jpg"))
     if short:
         unreliable = True
@@ -456,7 +472,8 @@ def process_play(job):
     flag += f" short_window={t_last - t_first:.1f}s" if short else ""
     with open(os.path.join(pdir, "meta.txt"), "w") as f:
         f.write(f"play={n} dd={p['dd']} qtr={p['qtr']} clock={p['clock']}\n"
-                f"window={t_first}-{t_last} snap_est={snap:.1f} "
+                f"window={t_first}-{t_last} snap_est={snap:.2f} "
+                f"snap_src={snap_src or 'unknown'} frames_version={FRAMES_VERSION}\n"
                 f"ghost={'ok' if ok else 'FAILED'} "
                 f"preplay={'ok' if pp_ok else 'FAILED'} "
                 f"presnap_seq={'ok' if sq_ok else 'FAILED'}{flag}\n")
@@ -493,12 +510,14 @@ def main():
     plays = list(csv.DictReader(open(args.plays_csv)))
     if args.snaps:
         with open(args.snaps) as f:
-            overrides = {r["n"]: r.get("snap") for r in csv.DictReader(f)}
+            overrides = {r["n"]: (r.get("snap"), r.get("snap_src"))
+                         for r in csv.DictReader(f)}
         used = 0
         for p in plays:
-            s = overrides.get(p["n"])
+            s, src = overrides.get(p["n"], (None, None))
             if s:
                 p["_snap_override"] = s
+                p["_snap_src_override"] = src
                 used += 1
         print(f"snaps: {used}/{len(plays)} windows using play-clock snap times "
               f"from {args.snaps}", flush=True)
