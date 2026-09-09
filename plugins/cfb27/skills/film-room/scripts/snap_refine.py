@@ -41,6 +41,26 @@ so this implementation widens the bracket to [t_freeze-0.5, t_freeze+2.5].
 Even with the wider bracket the measured accuracy did NOT reach the ±0.3s/
 >=90% goal -- see references/calibration-history.md for the honest numbers
 (median ~0.4s, P90 ~1.5-1.6s, ~40% of hand-verified plays within 0.3s).
+
+PLAYCLOCK-TICK EXPERIMENT (2026-09-09): `playclock_tick_time()` / `refine_snap_tick()`
+below implement the "the play clock stops the instant of the snap, find the
+last tick" idea -- OCR-free, hash/diff-based tick detection on the playclock
+digit box (segment.BOXES["playclock"]), then A3 motion search inside the
+resulting 1.0s bracket. Measured on the SAME 20-play truth set: median abs
+error 0.68s, P90 1.2s, only 5/20 (25%) within +/-0.3s -- WORSE than the
+shipped chip-clear/motion/bracket precedence above (median 0.375s, 8/20
+within 0.3s). Root cause: the playclock digit box is small (52x34px) and a
+single-digit transition's anti-aliased render smears across 2-3 consecutive
+10fps frames, and multiple such smears can appear close together (font
+kerning shift, glyph reflow) without a real value change -- a pure
+grayscale mean-abs-diff spike detector cannot tell a real tick from that
+noise without also OCR-ing the digit value at each spike (which the
+original design deliberately deferred to 1fps to stay cheap, but that
+under-samples relative to the 10fps diff signal, so many candidate "last
+tick" runs get chosen from noise instead of the real terminal tick). NOT
+wired into refine_snap()'s default precedence -- kept here for reference
+and available as an opt-in via refine_snap_tick() should someone want to
+extend it with a digit-confirm pass.
 """
 import os
 import subprocess
@@ -137,6 +157,101 @@ def _motion_onset_time(video, t0, t1, td):
         else:
             run_start = None
     return None
+
+
+TICK_LO, TICK_HI = -1.0, 1.5    # search window for the last playclock tick
+TICK_RUN_GAP = 1                # merge diff-spikes <=1 sample apart into one tick
+
+
+def playclock_tick_time(video, pbox, t_freeze, lo=TICK_LO, hi=TICK_HI):
+    """Experimental (see module docstring): last mean-abs-diff spike run in
+    the playclock digit box over [t_freeze+lo, t_freeze+hi], taken as the
+    last tick before the clock freezes. Returns None if no spike found."""
+    t0, t1 = t_freeze + lo, t_freeze + hi
+    with tempfile.TemporaryDirectory() as td:
+        try:
+            frames = _extract_frames(video, t0, t1, td)
+        except RuntimeError:
+            return None
+        x, y, w, h = pbox
+        prev, diffs = None, []
+        for t, fp in frames:
+            arr = np.asarray(Image.open(fp).convert("L").crop((x, y, x + w, y + h)),
+                              dtype=np.float32)
+            if prev is not None:
+                diffs.append((t, float(np.abs(arr - prev).mean())))
+            prev = arr
+        if not diffs:
+            return None
+        vals = [v for _, v in diffs]
+        base = sorted(vals)[len(vals) // 4]
+        thresh = max(base * 3.0, base + 4.0)
+        spikes = [i for i, (t, v) in enumerate(diffs) if v >= thresh]
+        if not spikes:
+            return None
+        runs, cur = [], [spikes[0]]
+        for i in spikes[1:]:
+            if i - cur[-1] <= TICK_RUN_GAP:
+                cur.append(i)
+            else:
+                runs.append(cur)
+                cur = [i]
+        runs.append(cur)
+        start_i = runs[-1][0]
+        tick_t = diffs[start_i][0]
+        prev_t = diffs[start_i - 1][0] if start_i > 0 else tick_t
+        return round((tick_t + prev_t) / 2, 2)
+
+
+def refine_snap_tick(video, pbox, t_freeze):
+    """Experimental A1 tier (see module docstring): playclock-tick + motion,
+    NOT called by refine_snap(). Returns (snap_t, snap_src, unreliable) with
+    snap_src in {"playclock-tick+motion", "playclock-tick"}."""
+    t_tick = playclock_tick_time(video, pbox, t_freeze)
+    if t_tick is None:
+        return t_freeze, "playclock-bracket", True
+    onset = _bracket_motion_onset(video, t_tick, t_tick + 1.0, min_run=3)
+    if onset is not None:
+        return onset, "playclock-tick+motion", False
+    return round(t_tick + 0.5, 2), "playclock-tick", True
+
+
+def _bracket_motion_onset(video, t0, t1, min_run=3):
+    """Motion search sized for a short (~1.0s) bracket, unlike
+    _motion_onset_time's MOTION_MIN_RUN=8 which is tuned for the wider A3
+    fallback window and rarely fires in a 1.0s span."""
+    with tempfile.TemporaryDirectory() as td:
+        try:
+            frames = _extract_frames(video, t0, t1, td)
+        except RuntimeError:
+            return None
+        if len(frames) < min_run + 2:
+            return None
+        prev, diffs = None, []
+        for t, fp in frames:
+            im = np.asarray(Image.open(fp).convert("L"), dtype=np.float32)
+            h = im.shape[0]
+            im = im[: int(h * 0.85), :]
+            if prev is not None:
+                diffs.append((t, float(np.abs(im - prev).mean())))
+            prev = im
+        if len(diffs) < min_run:
+            return None
+        vals = [v for _, v in diffs]
+        base = sorted(vals)[len(vals) // 5]
+        thresh = max(base * 2.0, base + 1.0)
+        run_start = None
+        for i, (t, v) in enumerate(diffs):
+            if v >= thresh:
+                if run_start is None:
+                    run_start = i
+                if i - run_start + 1 >= min_run:
+                    onset_t = diffs[run_start][0]
+                    prev_t = diffs[run_start - 1][0] if run_start > 0 else onset_t
+                    return round((onset_t + prev_t) / 2, 2)
+            else:
+                run_start = None
+        return None
 
 
 def refine_snap(video, hbox, t_freeze, lo=-0.5, hi=2.5):

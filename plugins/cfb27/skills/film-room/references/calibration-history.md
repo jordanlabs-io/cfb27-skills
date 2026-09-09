@@ -4,10 +4,71 @@ Findings and superseded decisions moved out of SKILL.md. Nothing here is a live 
 
 ## Calibration lineage
 
+- 2026-09-09: playclock-tick sub-second detector attempted (rutgers-vs-northwestern 20-play truth set) — did NOT beat the shipped chip-clear estimator; not wired as default. Details below.
 - 2026-07-22: OSU-UMD, 185 plays, user-accepted — original broadcast-VOD calibration.
 - 2026-07-28/29: coverage block added; frames.py snap bug found + fixed; camera test; extraction-framework v2; Gemini-video architecture decision (superseded, below).
 - 2026-07-30: caller-screen lane proven (KSU-WVU 95 + UMD-ARI 132 plays); Claude vision made the primary charting lane; HUD rescue, menu-intel, play-clock snap lanes built.
 - 2026-08-05: UNC-VAND (Lane A, 116 windows). Four pipeline defects found and fixed; possession hand-verified on every window and the detector replaced. Details below.
+
+## playclock-tick snap detector attempt (2026-09-09, rutgers-vs-northwestern)
+
+Hypothesis: the play clock stops the instant of the snap, so the LAST
+downward tick of the digit before it goes frozen brackets the snap to
+within 1.0s at sub-second resolution — no OCR needed to find the tick
+itself, just a grayscale mean-abs-diff spike on the 52x34px playclock
+digit crop (`segment.BOXES["playclock"]`) at 10fps, then A3-style motion
+search inside the resulting bracket.
+
+Measured on the same 20-play hand-verified truth set as the shipped
+chip-clear/motion/bracket precedence (`scratchpad/snap/truth.csv` in that
+session):
+
+| play | true_snap | old (0.16.0) est | old src | old err | tick est | tick src | tick err |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 5 | 91.05 | 89.45 | motion-sustained | 1.60 | 89.95 | playclock-tick | 1.10 |
+| 12 | 262.70 | 262.85 | motion-sustained | 0.15 | 263.55 | playclock-tick | 0.85 |
+| 15 | 318.45 | 319.25 | motion-sustained | 0.80 | 319.55 | playclock-tick | 1.10 |
+| 25 | 513.95 | 512.00 | playclock-bracket | 1.95 | 513.65 | playclock-tick | 0.30 |
+| 33 | 702.35 | 702.00 | playclock-bracket | 0.35 | 703.85 | playclock-tick | 1.50 |
+| 40 | 848.45 | 848.35 | motion-sustained | 0.10 | 847.80 | playclock-tick+motion | 0.65 |
+| 48 | 1016.40 | 1016.00 | playclock-bracket | 0.40 | 1016.10 | playclock-tick+motion | 0.30 |
+| 55 | 1252.35 | 1252.00 | playclock-bracket | 0.35 | 1252.45 | playclock-tick | 0.10 |
+| 63 | 1393.15 | 1393.05 | motion-sustained | 0.10 | 1392.85 | playclock-tick | 0.30 |
+| 71 | 1561.95 | 1561.75 | motion-sustained | 0.20 | 1562.75 | playclock-tick | 0.80 |
+| 73 | 1621.45 | 1620.00 | playclock-bracket | 1.45 | 1620.75 | playclock-tick | 0.70 |
+| 78 | 1697.95 | 1697.55 | motion-sustained | 0.40 | 1698.85 | playclock-tick | 0.90 |
+| 85 | 1814.85 | 1815.05 | motion-sustained | 0.20 | 1814.00 | playclock-tick+motion | 0.85 |
+| 92 | 1922.05 | 1922.00 | playclock-bracket | 0.05 | 1921.90 | playclock-tick+motion | 0.15 |
+| 100 | 2130.75 | 2130.00 | playclock-bracket | 0.75 | 2131.35 | playclock-tick | 0.60 |
+| 105 | 2281.55 | 2281.00 | playclock-bracket | 0.55 | 2281.45 | playclock-tick | 0.10 |
+| 115 | 2465.05 | 2465.00 | playclock-bracket | 0.05 | 2466.25 | playclock-tick | 1.20 |
+| 120 | 2585.85 | 2585.55 | motion-sustained | 0.30 | 2585.60 | playclock-tick+motion | 0.25 |
+| 125 | 2683.45 | 2685.15 | motion-sustained | 1.70 | 2684.55 | playclock-tick | 1.10 |
+| 133 | 2895.85 | 2895.15 | motion-sustained | 0.70 | 2896.25 | playclock-tick | 0.40 |
+
+Summary: old (shipped) median 0.375s, P90 1.70s, 8/20 (40%) within ±0.3s.
+New (playclock-tick) median 0.675s, P90 1.20s, 5/20 (25%) within ±0.3s.
+**The tick detector is worse on the primary metric (median, within-±0.3s
+count) and only better on P90 tail** — it did not clear the ±0.3s/≥90%
+goal and does not beat the shipped estimator, so it was NOT wired as the
+default. Also measured `t_tick` alone vs `true_snap` (before any motion
+refinement): median |t_tick − true| 0.60s across the 20 plays — the raw
+tick signal is not tight enough on its own to justify the added ffmpeg
+cost.
+
+Root cause: the playclock digit box is only 52×34px, and a single-digit
+transition's anti-aliased render smears across 2-3 consecutive 10fps
+frames. Multiple such smears (font kerning shift, adjacent glyph reflow)
+can register as separate diff spikes without any real digit change, so a
+pure grayscale mean-abs-diff spike detector picks the wrong "last tick"
+on several plays (worst case play 33: tick found 1.5s late). Confirming
+each candidate tick against an actual OCR'd digit value (as the original
+task spec intended — "only OCR the values at 1fps to know which change is
+a tick vs the freeze") would likely fix this, but wasn't built in this
+pass. Code kept as `snap_refine.playclock_tick_time()` /
+`snap_refine.refine_snap_tick()` (not called by the default
+`refine_snap()` precedence) for anyone who wants to add the digit-confirm
+step.
 
 ## Possession + HUD calibration (2026-08-05, UNC-Vanderbilt)
 
