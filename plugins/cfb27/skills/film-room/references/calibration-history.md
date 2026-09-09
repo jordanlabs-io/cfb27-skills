@@ -268,3 +268,46 @@ one) but should not be represented as meeting the plan's original targets. Anyon
 this calibration on a different film should expect similar honest numbers, not ±0.3s/90%,
 until a stronger snap signal (e.g. a confirmed world-anchored HIKE prompt with template
 matching, explicitly deferred by A1's "PIL + stdlib only" constraint) is added.
+
+**A13 truth set v2 + OCR-confirmed play-clock-tick experiment (2026-09-09).** `truth.csv`
+disagreed with an earlier loose eyeball read by 0.4-0.6s on 2 of the 20 plays (40, 100); all
+20 were re-verified at 10fps under one explicit definition — true snap = first frame the ball
+has left the center's hands, or (ball not resolvable) first frame the O-line visibly moves —
+producing `truth_v2.csv` (scratchpad/snap2/truth_v2.csv this session). Only plays 40 (848.45
+-> 848.6, +0.15s) and 100 (2130.75 -> 2130.85, +0.10s) moved, both re-verified by eye
+frame-by-frame; neither exceeds the 0.2s re-verification-flag threshold, so `truth.csv`'s
+existing chip-clear/visual-motion justifications were confirmed consistent with the v2
+definition and carried forward unchanged for the other 18 plays.
+
+Built and measured an OCR-confirmed play-clock-tick detector (`--psm 7`, char-whitelist
+digits, tried three binarizations per frame — the shipped `segment.ocr_field` "inv" prep,
+a manual white-chip threshold, and a manual red-chip threshold — smoothed with a >=3-frame
+persistence filter, `t_tick` = start of the last confirmed value decrement, bracket =
+[t_tick, t_tick+1.05]) against `truth_v2`, per PLAN's "clock stops the instant of the snap"
+theory:
+
+| metric | OCR-tick | shipped (chip/motion, rescored vs truth_v2) |
+| --- | --- | --- |
+| OCR read rate (10fps digit-box samples) | 754/900 = 83.8% | n/a |
+| bracket valid (truth_v2 in [t_tick, t_tick+1.05]) | 8/20 (40%) | n/a |
+| median abs error | 0.400s (14/20 produced an answer) | 0.375s (20/20) |
+| P90 abs error | 1.15s | 1.60s |
+| within ±0.3s | 7/20 (35%, only 14 plays produced a bracket at all) | 8/20 (40%) |
+
+**Gate (bracket valid >=18/20) FAILED at 8/20 — NOT wired in.** Root cause: the 52x34px
+play-clock digit box is too small and too often camera-cut/occluded/off-angle for OCR to hold
+a clean, gap-free read through the actual tick-to-freeze transition. Play 100 (the second
+re-verification play, wide/zoomed camera) is the clearest case: the digit box goes almost
+entirely unreadable (`None`) for the ~2s window spanning the real snap (2130.0-2132.9), the
+exact same camera-angle failure mode that made the PRE-PLAY chip unreadable for this play
+under A2/A3 — OCR does not add signal where the underlying pixels are absent, and the smaller
+digit box is if anything more fragile to a camera cut than the wider chip box. Where the OCR
+read rate is high, the tick detector performs comparably to the shipped estimator (bracket
+valid plays average ~0.2s error) — the theory is sound, but the digit-box read-rate ceiling
+on this HUD keeps it well under the 18/20 bar. Not wired into `snap_refine.refine_snap`'s
+precedence; `snap_refine.playclock_tick_time` (the older diff-spike, non-OCR variant) remains
+the only tick-family code in the shipped module, both flagged experimental/unused. Full
+per-play table and prototype scripts: scratchpad/snap2/ (`truth_v2.csv`, `ocr_tick.py`,
+`run_eval.py`, `results.json`) from this session — not copied into the repo since neither the
+truth-set re-verification frames nor the failed experiment's scratch scripts are needed by
+the shipped skill.
