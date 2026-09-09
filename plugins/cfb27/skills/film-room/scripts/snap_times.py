@@ -116,11 +116,22 @@ with open(os.path.join(GAMEDIR, "seg/plays.csv")) as f:
 
 # Guard: a snap outside its own window means the reset search escaped into a
 # neighbouring play. Blank it rather than cutting frames from the wrong play.
+#
+# The A15 playclock-tick lane gets a wider tail tolerance. Its answer is
+# t_tick + TICK_OFFSET and t_tick can legitimately land up to a clock period
+# past a short window -- the segment lane closes the window at the play-clock
+# RESET, which on a handful of plays fires before the actual snap. Measured on
+# 2028-rutgers-vs-northwestern: 5 plays (4, 59, 62, 82, 91) whose tick answer
+# was blanked by the flat +1s tolerance, two of which (62 -> 1393.0, 91 ->
+# 1922.1) match the hand-verified truth_v3 labels exactly. The head tolerance
+# is unchanged -- a snap BEFORE its window is still an escape.
+TICK_TAIL = 2.0
 out_of_window = 0
 for r in rows:
     if r["snap"] is None:
         continue
-    if not (float(r["t_first"]) - 1 <= r["snap"] <= float(r["t_last"]) + 1):
+    tail = TICK_TAIL if r["snap_src"] == "playclock-tick" else 1.0
+    if not (float(r["t_first"]) - 1 <= r["snap"] <= float(r["t_last"]) + tail):
         r["snap"], r["src"], out_of_window = None, "", out_of_window + 1
 
 with open(os.path.join(GAMEDIR, "seg/snaps.csv"), "w", newline="") as f:

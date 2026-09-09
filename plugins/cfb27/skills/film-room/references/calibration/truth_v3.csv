@@ -1,0 +1,21 @@
+play,coarse_snap,truth_v3,cue,bookends_visible
+5,89.0,89.60,R-chip-clear (89.50 last R / 89.70 ring+motion),yes
+12,262.0,262.80,SNAP->HIKE + R-chip-clear (262.70 R / 262.90 motion),yes
+15,318.0,318.40,HIKE + R-chip-clear (318.30 R / 318.50 rush),yes
+25,512.0,514.35,R-chip-clear (514.30 R / 514.40 motion) -- coarse mark 2.4s early,widened
+33,702.0,702.20,SNAP->HIKE + R-chip-clear (702.10 R / 702.30 motion),yes
+40,847.0,848.20,SNAP->HIKE + R-chip-clear (848.10 R / 848.30 motion),yes
+48,1016.0,1016.20,R-chip-clear (1016.10 R / 1016.30 ring+motion),yes
+55,1252.0,1252.00,SNAP->HIKE + R-chip-clear (1251.90 R / 1252.10 motion),yes
+63,1392.0,1393.00,HIKE + R-chip-clear (1392.90 R / 1393.10 motion),yes
+71,1561.0,1562.20,R-chip-clear (1562.10 R / 1562.30 motion),yes
+73,1620.0,1619.90,ball-carrier ring appears 1619.95 / static 1619.85 (10fps),yes
+78,1697.0,1697.60,R-chip-clear (1697.50 R / 1697.70 block icons),yes
+85,1814.0,1814.80,HIKE + R-chip-clear (1814.70 R / 1814.90 clear),yes
+92,1922.0,1922.00,R-chip-clear (1921.90 R / 1922.10 motion),yes
+100,2130.0,2130.60,R-chip-clear (2130.50 R / 2130.70 clear),yes
+105,2281.0,2281.20,SNAP->HIKE + R-chip-clear (2281.10 R / 2281.30 motion),yes
+115,2465.0,2462.75,SNAP->HIKE 2462.8 + O-line fire 2462.9 (10fps) -- coarse mark 2.25s late,yes
+120,2585.0,2585.80,SNAP->HIKE + R-chip-clear (2585.70 R / 2585.90 motion),yes
+125,2684.0,2685.20,HIKE + R-chip-clear (2685.10 R / 2685.30 motion),yes
+133,2895.0,2895.60,HIKE + R-chip-clear (2895.50 R / 2895.70 motion),yes

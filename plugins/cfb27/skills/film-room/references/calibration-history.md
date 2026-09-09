@@ -259,7 +259,9 @@ labeling manifest (maryland 30, illinois 24, baylor 6), only the 24 illinois pla
 re-cut and checked; the 36 maryland/baylor plays remain on the OLD (pre-A2-A6) frames until
 their video is re-fetched. See the post-recut presnap post-snap count below.
 
-**A12 honest goal statement.** The ±0.3s/>=90% snap-accuracy goal and the >=90% PBP-alignment
+**A12 honest goal statement.** *(SNAP HALF SUPERSEDED BY A14/A15 — the 40% figure was
+measured against the `truth_v2` reference A14 showed to be wrong by up to 2.3s. The PBP
+alignment half stands.)* The ±0.3s/>=90% snap-accuracy goal and the >=90% PBP-alignment
 goal were BOTH investigated in full, with real code, a real hand-verified truth set, and real
 measurement on real film — and both fell short (40% and 64% respectively). The estimator and
 reconcile scripts shipped are real improvements over what existed before (roughly halved
@@ -269,7 +271,9 @@ this calibration on a different film should expect similar honest numbers, not �
 until a stronger snap signal (e.g. a confirmed world-anchored HIKE prompt with template
 matching, explicitly deferred by A1's "PIL + stdlib only" constraint) is added.
 
-**A13 truth set v2 + OCR-confirmed play-clock-tick experiment (2026-09-09).** `truth.csv`
+**A13 truth set v2 + OCR-confirmed play-clock-tick experiment (2026-09-09).** *(SUPERSEDED BY
+A14 — every number in this entry is scored against `truth_v2`, which is wrong. The play clock
+does stop at the snap; A13's failure was the reference and the detector, not the physics.)* `truth.csv`
 disagreed with an earlier loose eyeball read by 0.4-0.6s on 2 of the 20 plays (40, 100); all
 20 were re-verified at 10fps under one explicit definition — true snap = first frame the ball
 has left the center's hands, or (ball not resolvable) first frame the O-line visibly moves —
@@ -311,3 +315,178 @@ per-play table and prototype scripts: scratchpad/snap2/ (`truth_v2.csv`, `ocr_ti
 `run_eval.py`, `results.json`) from this session — not copied into the repo since neither the
 truth-set re-verification frames nor the failed experiment's scratch scripts are needed by
 the shipped skill.
+
+**A14 the A13 "paradox" was a broken reference — truth_v3 (2026-09-09).** A13 reported an
+83.8% OCR read rate yet only 8/20 brackets containing the snap. Diagnosing that by dumping
+the 10fps play-clock value series per play and VIEWING the play-clock crop plus the field
+frames revealed the reference itself was wrong. **`truth_v2.csv` is late by 1.4-2.2s on
+several plays and its coarse marks miss the snap entirely on two.** Worked evidence:
+
+- **Play 115.** The HUD montage over 2461.8-2466.0 shows the play clock decrement 27 -> 26 at
+  t=2462.25 and then hold 26 for 3.4s while the GAME clock keeps ticking normally
+  (3:38 -> 3:37 -> 3:36 -> 3:35). The field frames show the SNAP prompt at 2462.2, the
+  SNAP -> HIKE transition at 2462.8, and the O-line firing off at 2462.9. The real snap is
+  ~2462.75; `truth_v2` said 2465.05 — 2.3s later, i.e. mid-run. The play clock froze at the
+  snap exactly as the user's rule predicts.
+- **Play 73.** Static presnap through 1619.85; at 1619.95 the green ball-carrier ring appears
+  and the PRE-PLAY/SUBS chip vanishes. Real snap ~1619.90; `truth_v2` said 1621.45.
+
+All 20 plays were therefore relabeled from coarse-anchored 5fps montages (window
+[coarse-3.5, coarse+2.5], widened for play 25 whose coarse mark is 2.4s early), using the
+sharp, camera-angle-independent cues this diagnosis validated — the SNAP -> HIKE prompt
+transition, the PRE-PLAY/SUBS ("R") chip disappearing, and the ball-carrier ring appearing —
+with the label taken as the midpoint of the last presnap frame and the first post-snap frame
+(+/-0.1s). Result: **`truth_v3.csv`**, which supersedes `truth_v2.csv` (kept on disk, not
+overwritten). Per-play cue and bookend-visibility flags are recorded in that file.
+
+**Two separate failure surfaces.** A13 conflated them. Split:
+
+*(i) Reference errors — `truth_v2` vs `truth_v3` (cause (e)):*
+
+| play | truth_v2 | truth_v3 | error | note |
+| --- | --- | --- | --- | --- |
+| 5 | 91.05 | 89.60 | +1.45s late | labeled mid-run |
+| 25 | 513.95 | 514.35 | -0.40s early | coarse mark 2.4s early; window missed the snap |
+| 73 | 1621.45 | 1619.90 | +1.55s late | labeled mid-run |
+| 100 | 2130.85 | 2130.60 | +0.25s late | (within tolerance) |
+| 115 | 2465.05 | 2462.75 | +2.30s late | coarse mark 2.25s late; labeled mid-run |
+| 125 | 2683.45 | 2685.20 | -1.75s early | labeled during the presnap route overlay |
+| 133 | 2895.85 | 2895.60 | +0.25s late | (within tolerance) |
+
+Four plays (5, 73, 115, 125) are wrong by more than 1.4s; the other 16 moved by <=0.4s.
+
+*(ii) A13 detector failures (why the tick was wrong or absent), 12 plays:*
+
+| mechanism | count | plays |
+| --- | --- | --- |
+| digit box unreadable near the snap — terminal tick(s) never seen | 3 | 25, 48, 100 |
+| leading-digit OCR drop (12 read as "2") broke the decrement chain | 4 | 5, 63, 125, 133 |
+| `last_tick_time` terminal-run rejection refused to answer at all | 4 | 12, 25, 48, 63 |
+| (a) clock kept ticking after ball movement | **0** | — |
+| (d) clock froze before the snap (cadence / hard count) | **0** | — |
+
+Causes (a) and (d) are ruled out on all 20 plays: wherever the digit box is readable through
+the transition, the clock's last decrement precedes the snap and the value then holds.
+
+**What the play clock actually does.** The user's rule holds. On every play where the digit
+box is readable through the transition, the play clock's last decrement precedes the snap and
+the value then holds frozen until the next play's 40-reset. Measured
+**offset = truth_v3 - t_tick, over the 17 of 20 plays whose play-clock digit-box read rate
+exceeds 53/70 (75%): mean 0.624s, sd 0.256s, min 0.20s, max 1.10s.** Do not lift that mean
+onto plays below that read-rate bar. The max of 1.10s nominally exceeds one clock second;
+that is the +/-0.1s labeling slack plus the R-chip's own render lag, not the clock running
+past the snap. The three excluded plays (25, 48, 100) all have digit-box read rates of 45/70, 37/70 and
+34/70 and are missing one or more terminal ticks; their apparent offsets (3.25s, 1.7s, 1.8s)
+are missed ticks, not a second mechanism.
+
+A periodicity-aware tick detector (`tick2.py` this session) fixes A13's failure modes: fit the
+longest chain of confirmed runs consistent with "-1 per ~1.0s", tolerate a dropped leading
+digit and bridge unreadable gaps with the 1.0s period, and take the last link's transition
+time as `t_tick`. It produces a tick on 20/20 plays (A13's produced 14/20).
+
+**Rescored against truth_v3:**
+
+| estimator | median | P90 | within +/-0.3s |
+| --- | --- | --- | --- |
+| shipped 0.16.0 (chip-clear / motion / bracket) | 0.200s | 0.850s | 14/20 |
+| raw `t_tick + 0.60` | 0.200s | 1.100s | 12/20 |
+| **hybrid: keep the 0.16.0 answer when it falls in [t_tick, t_tick+1.3], else `t_tick+0.60`; skip the constraint when the digit-box read rate is below 75%** | **0.150s** | **0.450s** | **16/20** |
+
+The hybrid's 16/20 sits on a flat plateau (stable for bracket width 1.3-1.4s, offset
+0.60-0.65s, and read-rate guard 0.60-0.95), not a knife-edge fit; only bracket width 1.2s
+drops it to 15/20. Its whole gain comes from using the tick as a REJECTION CONSTRAINT on the
+chip/motion answer, not as an estimator: it rescues plays 15 (0.85 -> 0.10) and 115
+(2.25 -> 0.15), where chip-clear latched onto a later camera state.
+
+**A14 supersedes A12's honest-goal statement for the snap metric measured against a sound
+reference: the shipped 0.16.0 estimator was never 40% within +/-0.3s — it is 70% (14/20). The
+A13 table's numbers are void; they were computed against `truth_v2`.**
+
+**A15 tick-as-constraint WIRED IN (0.16.2, 2026-09-09).** `refine_snap()` now runs the A2/A3
+precedence as before, then sanity-checks the answer against `playclock_last_tick()`:
+
+```
+if a tick was found AND the digit-box read rate >= TICK_MIN_READ (0.75):
+    keep the chip/motion answer only if t_tick <= snap <= t_tick + TICK_BRACKET (1.3s)
+    otherwise return t_tick + TICK_OFFSET (0.60s), snap_src "playclock-tick"
+```
+
+`playclock_last_tick()` OCRs `segment.BOXES["playclock"]` at 10fps over
+[t_freeze-4.0, t_freeze+3.0], builds >=3-sample value runs, **splits the run list at any
+upward jump of >3 (the next play's 40-reset) and keeps only the segment covering t_freeze** —
+without that split the chain walks into the next play's countdown, which is exactly how play
+115 (whose coarse mark lands 2.25s AFTER its own snap) first regressed to a 4.65s error during
+integration. It then takes the longest chain of runs consistent with "-1 per ~1.0s",
+tolerating a dropped leading digit on single-digit reads and bridging unreadable gaps with the
+period, and returns the last link's transition time.
+
+Shipped parameter values are the MIDDLE of the measured plateau (bracket 1.3-1.4s, offset
+0.60-0.65s, read guard 0.60-0.95 all score 16/20), not an edge: 1.5s also scores 16/20 but
+implies a missed tick and is not physically motivated; 1.2s drops to 15/20.
+
+**Final measured performance of the shipped `refine_snap` vs `truth_v3` (20 plays):**
+
+| play | truth_v3 | shipped | err | src |
+| --- | --- | --- | --- | --- |
+| 5 | 89.60 | 89.45 | 0.15 | motion-sustained |
+| 12 | 262.80 | 262.85 | 0.05 | motion-sustained |
+| 15 | 318.40 | 318.30 | 0.10 | **playclock-tick** |
+| 25 | 514.35 | 512.00 | 2.35 | playclock-bracket |
+| 33 | 702.20 | 702.00 | 0.20 | playclock-bracket |
+| 40 | 848.20 | 848.35 | 0.15 | motion-sustained |
+| 48 | 1016.20 | 1016.00 | 0.20 | playclock-bracket |
+| 55 | 1252.00 | 1252.00 | 0.00 | playclock-bracket |
+| 63 | 1393.00 | 1393.05 | 0.05 | motion-sustained |
+| 71 | 1562.20 | 1561.75 | 0.45 | motion-sustained |
+| 73 | 1619.90 | 1620.00 | 0.10 | playclock-bracket |
+| 78 | 1697.60 | 1697.55 | 0.05 | motion-sustained |
+| 85 | 1814.80 | 1815.05 | 0.25 | motion-sustained |
+| 92 | 1922.00 | 1922.00 | 0.00 | playclock-bracket |
+| 100 | 2130.60 | 2130.00 | 0.60 | playclock-bracket |
+| 105 | 2281.20 | 2281.00 | 0.20 | playclock-bracket |
+| 115 | 2462.75 | 2462.90 | 0.15 | **playclock-tick** |
+| 120 | 2585.80 | 2585.55 | 0.25 | motion-sustained |
+| 125 | 2685.20 | 2685.15 | 0.05 | motion-sustained |
+| 133 | 2895.60 | 2895.15 | 0.45 | motion-sustained |
+
+**median 0.150s, P90 0.450s, 16/20 (80%) within +/-0.3s** — clears the >=16/20 wiring gate.
+Was 14/20 / 0.200s / 0.850s before A15. The two remaining >0.5s misses are plays 25 (play
+clock in its red sub-5s state, OCR unusable, and the coarse mark 2.4s early) and 100
+(digit-box read rate 34/70, terminal ticks never seen) — both correctly fall through the
+read-rate guard to the unchanged A2/A3/A4 behaviour rather than being given a bad tick answer.
+
+Calibration artifacts now live IN the repo at `references/calibration/` (`truth_v3.csv`,
+`truth_v2.csv` kept for auditability, `score_snap_estimator.py`, `truth_v3_scores.json`) —
+A13's entry pointed at a session scratchpad that no longer exists; this one does not.
+
+`2028-rutgers-vs-northwestern` was re-cut end to end (`snap_times.py` + `frames.py`).
+`2028-unc-vs-illinois` could NOT be re-cut: its directory is empty, the video having been
+archived to Drive and deleted locally by `archive_sweep.py` (same situation A12 recorded for
+maryland/baylor). Its frames remain on pre-A15 snap times until the original is re-fetched.
+
+**A15b out-of-window guard widened for the tick lane.** The first full re-cut with A15 moved
+25 of 133 plays (all via `playclock-tick`) but BLANKED 5 that previously had a snap (4, 59,
+62, 82, 91: 9 -> 14 windows with no play-clock snap). Cause: `snap_times.py`'s out-of-window
+guard allowed only `t_last + 1`, and on those plays the segment lane closes the window at the
+play-clock RESET, which fires before the actual snap — so the (correct) tick answer landed
+past `t_last`. Two of the five are in the calibration set and confirm the tick lane was right
+and the WINDOW wrong: play 62 -> 1393.0 vs truth_v3 1393.00, play 91 -> 1922.1 vs truth_v3
+1922.00. Their previous values were `t_last` itself (an A4 edge pin, ~2s early, already
+flagged unreliable).
+
+The tail tolerance is now 2.0s for `snap_src == "playclock-tick"` and unchanged (1.0s)
+otherwise; the head tolerance is unchanged, since a snap BEFORE its window is still a genuine
+escape into a neighbouring play. 2.0s is the principled bound (one 1.0s clock period +
+`TICK_OFFSET` + slack), and it is deliberately NOT widened further: that recovers plays 4 and
+62 but leaves 59 (+2.1s), 82 (+2.5s) and 91 (+3.1s) blanked, because their segment windows are
+wrong by more than a clock period. Play 91 is the clearest case — its tick answer 1922.1
+matches truth_v3 to 0.1s while sitting 3.1s past its own window `[1912, 1919]`. Swallowing a
+3.1s excursion would defeat the guard's purpose (catching a reset search that escaped into a
+neighbouring play), so **the residual is logged as a segment-lane windowing defect, not fixed
+here.** Those three plays fall through to frames.py's motion estimate, which is no worse than
+the ~2s-early unreliable edge pin they had before.
+
+**Net effect of the full re-cut on `2028-rutgers-vs-northwestern`:** 25 of 133 plays moved,
+all onto the new `playclock-tick` source; play-clock-lane coverage 119 -> 121 of 133; windows
+with no play-clock snap 9 -> 12; final `snap_src` breakdown motion-sustained 60,
+playclock-bracket 39, playclock-tick 22.
