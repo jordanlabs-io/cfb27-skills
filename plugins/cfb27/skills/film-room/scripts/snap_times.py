@@ -22,8 +22,18 @@ This reads seg/hud_timeline.csv, which after the Claude-sheet HUD rescue is far
 more readable than a fresh OCR pass (measured 40% -> 87% on that film), and is
 already on disk. Run it AFTER the rescue and BEFORE frames.py.
 
-Usage: snap_times.py GAMEDIR  ->  GAMEDIR/seg/snaps.csv
+Usage: snap_times.py GAMEDIR [--video VIDEO]  ->  GAMEDIR/seg/snaps.csv
 Then:  frames.py video.mp4 seg/plays.csv film/ --snaps seg/snaps.csv
+
+--video enables sub-second refinement (PLAN-snap-anchoring.md A2-A4, see
+snap_refine.py): the play-clock freeze computed below becomes the coarse
+bracket anchor, then each play's snap is refined via the PRE-PLAY/SUBS chip
+clearing (primary) or sustained full-frame motion (fallback) inside that
+bracket. Writes a fractional `snap` and a `snap_src` column
+(preplay-chip/motion-sustained/playclock-bracket). Without --video, snap_src
+is written as "playclock-bracket" for every resolved row and a note is
+printed -- this dir's cut used the coarse (integer-second, early-biased)
+estimate only.
 """
 import csv
 import os
@@ -31,7 +41,12 @@ import statistics
 import sys
 from collections import Counter
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 GAMEDIR = sys.argv[1] if len(sys.argv) > 1 else "."
+VIDEO = None
+if "--video" in sys.argv:
+    VIDEO = sys.argv[sys.argv.index("--video") + 1]
 
 tl = {}
 with open(os.path.join(GAMEDIR, "seg/hud_timeline.csv")) as f:
@@ -73,13 +88,31 @@ def snap_of(t0, t1):
     return s, tv
 
 
+refiner = None
+hbox = None
+if VIDEO:
+    import segment as seg
+    import snap_refine
+    vw, vh, _ = seg.video_info(VIDEO)
+    hbox = (0, int(vh * 0.88), vw, vh - int(vh * 0.88))
+    refiner = snap_refine.refine_snap
+
 rows = []
 with open(os.path.join(GAMEDIR, "seg/plays.csv")) as f:
     for r in csv.DictReader(f):
         s, pc = snap_of(r["t_first"], r["t_last"])
+        snap_src = ""
+        unreliable = ""
+        if s is not None and refiner is not None:
+            refined, snap_src, unrel = refiner(VIDEO, hbox, float(s))
+            unreliable = "1" if unrel else ""
+            s = refined
+        elif s is not None:
+            snap_src = "playclock-bracket"
         rows.append({"n": r["n"], "dd": r["dd"], "t_first": r["t_first"],
                      "t_last": r["t_last"], "snap": s, "playclock_at_snap": pc,
-                     "src": "playclock" if s is not None else ""})
+                     "src": "playclock" if s is not None else "",
+                     "snap_src": snap_src, "snap_unreliable": unreliable})
 
 # Guard: a snap outside its own window means the reset search escaped into a
 # neighbouring play. Blank it rather than cutting frames from the wrong play.
@@ -107,3 +140,10 @@ if pcs:
 if len(got) < len(rows):
     print(f"  {len(rows)-len(got)} window(s) have no play-clock snap -- "
           f"frames.py falls back to its motion estimate for those")
+if VIDEO:
+    srcs = Counter(r["snap_src"] for r in got)
+    print(f"  snap_src breakdown: {dict(srcs)}")
+else:
+    print("  --video not given: snap_src=playclock-bracket for every row "
+          "(coarse, integer-second, no sub-second refinement -- see "
+          "PLAN-snap-anchoring.md A2-A4)", file=sys.stderr)
