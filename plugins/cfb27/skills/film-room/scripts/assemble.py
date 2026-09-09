@@ -192,9 +192,13 @@ def main():
         n = int(p["n"])
         meta_path = os.path.join(gamedir, f"film/play{n:03d}/meta.txt")
         snap = None
+        snap_src = ""
         if os.path.exists(meta_path):
-            m = re.search(r"snap_est=([\d.]+)", open(meta_path).read())
+            meta_txt = open(meta_path).read()
+            m = re.search(r"snap_est=([\d.]+)", meta_txt)
             snap = float(m.group(1)) if m else None
+            m = re.search(r"snap_src=(\S+)", meta_txt)
+            snap_src = m.group(1) if m else ""
         # play clock just before snap (last readable value in the 6s prior)
         pc_at_snap = ""
         if snap:
@@ -232,7 +236,7 @@ def main():
             "n": n, "qtr": p["qtr"], "clock": p["clock"], "dd": p["dd"],
             "poss": p["poss"], "poss_src": p.get("poss_src", ""),
             "score": f'{p["score_l"]}-{p["score_r"]}',
-            "snap_t": snap or "", "sec_since_prev_snap": gap,
+            "snap_t": snap or "", "snap_src": snap_src, "sec_since_prev_snap": gap,
             "playclock_at_snap": pc_at_snap, "tempo": tempo,
             "formation": banner if banner_ok else b.get("formation", ""),
             "personnel": (f.get("personnel") or b.get("personnel", "")),

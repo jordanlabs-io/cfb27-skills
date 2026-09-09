@@ -130,7 +130,7 @@ V2_FIELDS = [
 # this list exists so every game's CSV lands in the SAME order).
 BASE_COLUMNS = [
     "n", "qtr", "clock", "dd", "poss", "poss_src", "score",
-    "snap_t", "sec_since_prev_snap", "playclock_at_snap", "tempo",
+    "snap_t", "snap_src", "sec_since_prev_snap", "playclock_at_snap", "tempo",
     "formation", "personnel", "formation_src", "motion", "play_type",
     "play_type_vision", "play_type_transcript", "concept", "routes_or_blocking",
     "def_front", "def_shell_pre", "def_post_snap", "def_safeties_post",
