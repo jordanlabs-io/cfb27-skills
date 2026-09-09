@@ -131,9 +131,51 @@ Overall safety rotation rate: 4061/14066 (28.9%)
 
 ### How to use
 
-These are NFL base rates (2023 season, Big Data Bowl 2026 tracking data) — not CFB27 truth. Use them only to (a) set the agent's prior when frames are ambiguous, i.e. which family is *statistically* more likely given shell/down/distance before the vision tells resolve it; (b) sanity-check a coach's disguise rate in query_plays.py's `disguise` output against the NFL 2-high roll-down rate (38.8%) — a coach whose rate is wildly out of this range is worth a second look, not proof of anything; (c) never to fill a field the frame does not support — `unknown` still wins per §4's do-not-commit rules regardless of what these priors say is likely.
+These are NFL base rates (2023 season, Big Data Bowl 2026 tracking data) — not CFB27 truth. Use them only to (a) set the agent's prior when frames are ambiguous, i.e. which family is *statistically* more likely given shell/down/distance before the vision tells resolve it; (b) sanity-check a coach's disguise rate in query_plays.py's `disguise` output against the NFL 2-high roll-down rate (38.8%) — a coach whose rate is wildly out of this range is worth a second look, not proof of anything; (c) never to fill a field the frame does not support — `unknown` still wins per §4's do-not-commit rules regardless of what these priors say is likely. On the 3-high row specifically, do not apply the NFL's low-frequency prior at face value — `4-2-5 3-High` is a CFB27 base formation, not a rare/prevent shell, per the "CFB27 call → coverage cross-reference" section below.
 
 Three caveats, explicitly:
 1. **Frame 1 is near-snap, not frozen pre-snap** — some presnap shifting/motion is already underway by frame 1 in the tracking data; it is the earliest available reference, not a truly static presnap instant.
 2. **The 9yd/12yd depth thresholds are analyst choices**, not a rule of the NFL rulebook or CFB27's engine — sensitivity analysis in priors.md shows the shell distribution shifts meaningfully across 8/9/10/12yd thresholds.
 3. **NFL ≠ CFB27 AI defense.** These are human NFL defensive coordinators and players in 2023; CFB27's defensive AI has no obligation to match NFL tendencies, disguise rates, or shell distributions. Treat every number above as an outside reference point, never as ground truth for this game.
+
+## CFB27 call → coverage cross-reference (Airtable "CFB 27 Schemes", civil.gg-derived; external, not transcript-sourced)
+
+Source: Airtable base "CFB 27 Schemes" (`appu56SmvCabWRjm0`), table `Plays` (`tblcKblLELnS8Ay0y`), 34 records with a non-empty Play Call as of 2026-09-08. This is the user's own scheme-building reference, sourced from Civil's (civil.gg) CFB27 defensive playbook — it names the actual in-game call, formation, and macro settings, not a transcript claim, and is kept separate from the transcript-sourced tables above per this vault's citation rules. Rows below collapse exact duplicate (Formation, In-game call, Role Detail) triples from the 34 source records; "(varies)" marks a call that ships more than one macro/Role Detail combination in the base.
+
+| Formation | In-game call | Coverage played after macros (Role Detail) | Pre-snap look / disguise cue | Scheme |
+|---|---|---|---|---|
+| 6-1 | Sam Will Blitz | (varies — no Role Detail set) | 61 BASE macro (Pinch DL, Route Commit Inside, Contain); Curl Flat OLB assignment varies by package (both/one/none); Pistol/Under Center variant runs "Cover 2 shell, user weakside safety over MLB" | Cover 2 / Cover 3 / Mixed (context-dependent — Gun vs. Pistol/Under Center changes the base shell) |
+| 6-1 | Sam Will Blitz | Coverage Shading: Inside · Route Commit: Inside · QB Contain: Both · Technique: Pinch | 61 BASE macro + man top safety to isolated WR, cloud-flat outside CB to isolated side (bunch/trips changeups) | Mixed (man-heavy bracket coverage) |
+| 6-1 | Sam Will Blitz 3 | QB Contain: Both · Technique: Pinch · Zone Strategy: Aggressive · CB1/CB2: Outside Third · FS/SS: Inside Quarter | 5 Wide D macro — Inside Quarter both safeties, Outside Third both corners | Cover 3/4 |
+| 6-1 | Cover 4 Quarters | — | Cover 4 Quarters shell, CB depth 3/width wide, safety width spread; Spread DL then Texas 4 Man/El Paso 4 Man | Cover 4 |
+| Nickel 3-3 Cub | Tampa 2 | — | Redzone package; spy the blitzing OLB | Cover 2 |
+| Nickel 3-3 Cub | Mike Blitz 0 | Route Commit: Inside · QB Contain: Both · Technique: Pinch · FS: Deep Half · SS: Deep Half · SLB1: Hook Curl | Max-man, 2-high shell; Deep Half both safeties (macro) | Cover 2 Man |
+| Nickel 3-3 Cub | Mike Blitz 0 | Route Commit: Outside · Technique: Pinch | Man version with deep-safety help; man the HB, inside-third that safety | Cover 1 Man |
+| Nickel 3-3 Cub | Mike Blitz 0 | — | RPO answer; Hard Flat the OLB on the RPO side | Man |
+| Nickel 3-3 Cub | Cover 4 Quarters | — | Lockdown-run package; Texas 4 Man stunt | Cover 4 |
+| Nickel 3-3 Cub | 3 Sam Will Blitz | (varies — no Role Detail set) | Prevent package (Inside Quarter both safeties) OR shotgun-run keying package | Cover 4 / (unset) |
+| Nickel 3-3 Cub | 3 Sam Will Blitz | Technique: Pinch · SLCB1: Vertical Hook · FS: Inside Quarter · SS: Inside Quarter · LEDG/REDG: Hard Flat · SLB1: Blitz | "Counter" user blitz; Inside Quarter both safeties (macro) | Mixed |
+| Nickel 3-3 Cub | 3 Sam Will Blitz | Technique: Pinch · Zone Drop defaults · FS: Inside Quarter · SS: Inside Quarter | 5-Wide vs. empty; Inside Quarter weak-side safety | Mixed |
+| Nickel Wide | Cover 4 Quarters | — | Heavy-run answer; Texas 4 Man stunt, user weakside safety | Cover 4 |
+| 4-2-5 3-High | 3 Double Cloud | QB Contain: Both · Technique: Pinch · Stunts: Left Pirate 3 Man · CB1/CB2: Curl Flat | Base zone call; both corners set to Curl Flat outside | Cover 3 |
+| 4-2-5 3-High | 3 Double Sky | QB Contain: Both · Technique: Pinch · Stunts: Left Pirate 3 Man | Pinch DL, Pirate/Texas/El Paso 4 Man stunt options, optional Hook Curl 1 Quarter Flat | Cover 3/4 |
+| 4-2-5 3-High | LB Blitz 0 | QB Contain: Both · Technique: Left/Right · LEDG/REDG: Curl Flat · SLB1/2: Hook Curl | Shift DL left/right, curl-flat the opposite DE, shade coverage inside, route-commit inside | Cover 0 Man |
+| 4-2-5 3-High | Hot Blitz 3 | QB Contain: Both · Technique: Left/Right · LEDG/REDG: Curl Flat · SLB1/2: Hook Curl | Shift DL left/right, curl-flat opposite DE, user opposite LB, optional curl-flat CB + outside-third safety same side | (unset — pressure package) |
+| 4-2-5 3-High | Tampa 2 | QB Contain: Both · Technique: Pinch · Stunts: Left Pirate 3 Man | Pinch DL, stunt options, optional shade underneath, optional drop hook-curl zones to 5 | Cover 2 |
+| 4-2-5 3-High | Cover 4 Quarters | QB Contain: Both · Technique: Pinch · Stunts: Left Pirate 3 Man | Pinch DL, Pirate stunt, contain | Cover 4 |
+| 4-2-5 3-High | Any Base Coverage | Technique: Spread · Stunts: Texas 4 Man | Run-defense overlay layered on whichever base coverage is set | (unset — layered call) |
+| Nickel 2-4 Single Mug | Cover 3 Cloud | (varies — no Role Detail set) | RPO-read seminar OR shotgun run-support loop | Cover 3 |
+| Nickel 2-4 Single Mug | Cover 3 Cloud | Technique: Spread · Stunts: Texas 4 Man | Spread DL, Texas 4 Man, **Cov 2 shell on**, User on HB side | Cover 3 |
+| Nickel 2-4 Single Mug | Cover 3 Cloud | Technique: Spread · SLB1: Blitz | Spread DL, Contain, Blitz SubLB1, optional zone-out backside DE | Cover 3 |
+| Nickel 2-4 Single Mug | Cover 3 Cloud | Technique: Spread · Stunts: Left Tex 2 Man | Spread DL, Left/Right Tex 2 Man stunt, User to HB side — contains rollouts | Cover 3 |
+| 3-3-5 Mint | Cover 3 Cloud | — | Contain + Drag Blitzing OLB Outside (new blitz concept) | Cover 3 |
+| Nickel 2-4 Single Mug | Cover 4 Quarters | — | Spread DL, Texas 4 Man/Slant DL Outside vs. outside runs, User a High Safety | Cover 4 |
+| Nickel 2-4 Single Mug | Cover 2 Man | Technique: Spread · Stunts: Texas 4 Man/Left Tex 2 Man · Coverage Shading: Inside · Route Commit: Inside · CB Depth: Press | Spread DL, **Press** + Shade + Commit Inside | Cover 2 Man |
+
+### What this means for recognition
+
+- **`4-2-5 3-High` is a BASE alignment in CFB27, not a rare/prevent look.** From this one formation the base plays cover-3 (3 Double Cloud, 3 Double Sky), cover-4 (Cover 4 Quarters), cover-2 (Tampa 2), and cover-0 (LB Blitz 0). NFL priors on 3-high shells (rare, prevent-flavored) do not transfer — a 3-deep pre-snap read here must be treated as an everyday base call, not an outlier.
+- **The call name lies about the eventual coverage.** "Cover 3 Cloud" (Nickel 2-4 Single Mug) is run out of a "Cov 2 shell on" macro — a 2-high pre-snap look that rotates to cover-3 post-snap is a scheme-level habit, not an exception. "Mike Blitz 0" plays Cover 2 Man or Cover 1 Man depending only on which Role Detail macro is attached (Deep Half both safeties → Cover 2 Man; Route Commit Outside + inside-third safety → Cover 1 Man). "Sam Will Blitz" plays Cover 3, Cover 2, or Mixed man-bracket coverage depending on package (Gun vs. Pistol/Under Center, or bunch/trips adjustments) — the same play call is not one coverage.
+- **Cloud-flat corners are the cover-3-cloud vs. cover-3-sky tell.** 3 Double Cloud sets both corners to Curl Flat (cloud-flat) outside; 3 Double Sky instead runs a Pirate/Texas/El Paso stunt package with no CB cloud-flat assignment. When the frame set shows a corner squatting the flat rather than bailing to a deep third, that is the cloud variant, not sky.
+- **Macros that change safety depth are the visible pre-snap/post-snap cues in this game.** Deep Half both safeties (Mike Blitz 0 → Cover 2 Man) sets true deep-half depth; Inside Quarter both safeties (3 Sam Will Blitz, Sam Will Blitz 3, prevent packages) sets the flatter ~10-12yd quarters depth described in §1.4b above; Outside Third both corners (Sam Will Blitz 3, 5 Wide D macro) is the corner-side counterpart that shows up alongside Inside Quarter safeties in split-field/5-wide answers. A charting agent should read which of these three macros is active as the primary explanation for a safety-depth change between the presnap and post-snap frames, rather than guessing at a coverage family from depth alone.
+
