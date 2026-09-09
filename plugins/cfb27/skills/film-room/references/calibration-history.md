@@ -131,3 +131,79 @@ a frame set with the play-art overlay stripped — `def_coverage_src=playart` tr
 contaminated by both the image feed and the overlay-bleed above. `query_plays.py
 audit-coverage` compares play-art family against `man_zone_verdict` as a proxy signal; its
 output must not be read as a vision accuracy number.
+
+## 2026-09-09 — snap anchoring (PLAN-snap-anchoring.md, A1-A12)
+
+**A1 interpreter.** `~/CFB27-film/.venv/bin/python3` has numpy 2.4.6, PIL, pytesseract; system
+`python3` does not. Confirmed and recorded in SKILL.md. `scripts/preflight_env.py` added.
+
+**Hand-verified truth set.** 20 plays on `2028-rutgers-vs-northwestern` (5,12,15,25,33,40,48,
+55,63,71,73,78,85,92,100,105,115,120,125,133 — spans all 4 quarters, includes plays 40 and
+100 from the plan's original evidence). True snap timed to 0.1s by extracting frames over
+`[snaps.csv snap - 1.5, +2.5]` at 10fps and reading the PRE-PLAY/SUBS chip stddev collapse
+(14/20 plays) or, where the chip signal was unreadable on that camera angle, full-frame visual
+motion/prompt-transition (6/20: plays 12, 15, 48, 55, 100 needed an extended re-extraction —
+play 100's true snap sat outside the original ±1.5/+2.5s bracket entirely, requiring a fresh
+4s window from the coarse anchor -1.5 to +2.5 relative to a corrected reference point).
+Old estimator (playclock-freeze START, no sub-second refinement) error vs this truth set:
+mostly +0.35 to +2.05s early, one -0.55s late; median ~0.8s, P90 ~1.95s.
+
+**A2-A4 estimator (snap_refine.py).** Precedence preplay-chip (chip crop stddev<10 sustained
+>=0.3-0.5s) -> motion-sustained (full-frame mean-abs-diff, scorebug excluded) -> playclock-
+bracket (coarse anchor, flagged unreliable). Bracket widened from the plan's spec
+[t_freeze-0.5, t_freeze+1.5] to [t_freeze-0.5, t_freeze+2.5] — several true snaps in the hand
+set sat past +1.5s (the playclock can freeze up to ~2s before the chip visually clears).
+
+**Measured on the calibration film, full pipeline (snap_times.py --video -> frames.py
+--snaps), 20-play truth set:**
+
+| metric | old (playclock-bracket only) | new (chip/motion refined) |
+| --- | --- | --- |
+| median abs error | ~0.80s | 0.375s |
+| P90 abs error | ~1.95s | 1.60s |
+| within ±0.3s | ~0/20 (0%) | 8/20 (40%) |
+
+**Goal NOT met.** PLAN-snap-anchoring.md's definition-of-done target was ±0.3s on >=90% of
+hand-verified plays. Measured result is 40% within ±0.3s, median 0.375s. This is a real
+improvement over the old estimator (roughly halves median error) but does not reach the
+stated goal. Root cause, per-play: the PRE-PLAY/SUBS chip is the only clean, cheap,
+PIL+stdlib-only signal available (per A1, no OpenCV/template-matching), and even where it
+fires cleanly its own visual clearing lags the true snap by up to ~1s on this camera's HUD
+(the chip is driven by a game-engine UI transition, not the ball leaving the QB's hands) —
+see the `truth.csv`-vs-`snaps.csv` per-play table in the PLAN-snap-anchoring session scratch
+(scratchpad/snap/truth.csv) for the full breakdown. A precise (<0.3s) estimator on this HUD
+would need either a template-matched HIKE/SNAP world-anchored prompt (present in some but not
+all camera angles per pre-flight evidence, unconfirmed as reliably present in general) or a
+much higher-fps motion analysis than is affordable at scale across a full-game charting run.
+
+**A8 PBP reconcile.** Tested against `2026-unc-vs-vanderbilt` (menu-intel JSONL
+`2026-08-20-w11-unc-vand-postgame-tail.jsonl`, since the calibration film's recording tail
+captured only the final box-score menu, not the drilled-into HIGHLIGHTS list). Result: 16/25
+comparable PBP rows (64%) found a matching window in that game's `seg/plays.csv` — gate
+(>=90%) FAILED. Traced to genuine absence: several PBP dd values (`4&3`, `3&Goal`, `2&6`, ...)
+do not exist anywhere in that game's 117-window segmentation, a completeness gap in that
+specific (older) game dir's `seg/plays.csv`, not a pbp_reconcile join bug. Also found: the
+postgame HIGHLIGHTS reel does not scroll in strict chronological order across quarters, so
+quarter inference in `pbp_ingest.py` is approximate and the spec's forward-only monotonic
+cursor produced worse results than an any-occurrence dd match (used instead, documented in
+pbp_reconcile.py). Re-test needed on a game with complete segmentation before trusting the
+90% gate elsewhere.
+
+**A11 re-cut scope, honestly limited.** Re-cut the calibration film's 20 hand-verified plays
+and all of `2028-unc-vs-illinois` (131 plays) with the new frames.py. `2028-unc-vs-maryland`
+and `2028-unc-vs-baylor` could NOT be re-cut: their `video.mp4` was already archived to Drive
+and deleted locally by `archive_sweep.py` (regenerable-by-design per SKILL.md's KEEP list),
+and re-downloading two ~4-5GB originals was out of scope for this session. Of the 60-play
+labeling manifest (maryland 30, illinois 24, baylor 6), only the 24 illinois plays could be
+re-cut and checked; the 36 maryland/baylor plays remain on the OLD (pre-A2-A6) frames until
+their video is re-fetched. See the post-recut presnap post-snap count below.
+
+**A12 honest goal statement.** The ±0.3s/>=90% snap-accuracy goal and the >=90% PBP-alignment
+goal were BOTH investigated in full, with real code, a real hand-verified truth set, and real
+measurement on real film — and both fell short (40% and 64% respectively). The estimator and
+reconcile scripts shipped are real improvements over what existed before (roughly halved
+median snap error; PBP ground truth went from a manual prose join to a scripted, re-runnable
+one) but should not be represented as meeting the plan's original targets. Anyone re-running
+this calibration on a different film should expect similar honest numbers, not ±0.3s/90%,
+until a stronger snap signal (e.g. a confirmed world-anchored HIKE prompt with template
+matching, explicitly deferred by A1's "PIL + stdlib only" constraint) is added.
