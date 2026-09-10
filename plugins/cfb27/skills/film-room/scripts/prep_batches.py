@@ -11,6 +11,14 @@ Usage: prep_batches.py GAMEDIR TEAM_L TEAM_R [SEAM_T OWNER_A OWNER_B] [--tiles]
   TEAM_L/TEAM_R = scorebug left/right team names (poss column is L/R)
   SEAM_T = concat boundary sec; screen owner = OWNER_A before, OWNER_B after
   (no seam args -> constant owner OWNER_A if given, else TEAM_L)
+  OWNER_A/OWNER_B are a claim about whose iPad/screen this recording shows —
+  unrelated to TEAM_L/TEAM_R (which side of the scorebug a team's score sits
+  on). When OWNER_A isn't explicitly given, the code below falls back to
+  TEAM_L as a guess, but tags it UNVERIFIED so nothing downstream mistakes
+  the guess for a confirmed fact (this defaulted-and-trusted silently before
+  2026-09-09 and misattributed two games' worth of menu counters). Confirm
+  the true owner from the raw footage (logo/roster on a substitution or
+  audibles panel) before charting, then re-run with an explicit OWNER_A.
   --tiles: split each menu band into two 960-wide tiles. The API downsamples
     any image over 1568px on the long edge, so a 1920-wide band loses ~18%
     of its text resolution; two <=1568px tiles keep native resolution at
@@ -26,7 +34,8 @@ ARGS = [a for a in sys.argv[1:] if a != "--tiles"]
 TILES = "--tiles" in sys.argv
 GAMEDIR, TEAM_L, TEAM_R = ARGS[0], ARGS[1], ARGS[2]
 SEAM = float(ARGS[3]) if len(ARGS) > 3 else None
-OWNER_A = ARGS[4] if len(ARGS) > 4 else TEAM_L
+OWNER_GIVEN = len(ARGS) > 4
+OWNER_A = ARGS[4] if OWNER_GIVEN else f"UNVERIFIED:{TEAM_L}"
 OWNER_B = ARGS[5] if len(ARGS) > 5 else OWNER_A
 VIDEO = os.path.join(GAMEDIR, "video.mp4")
 # Native post-snap frame sets carry substantially more image payload than the
@@ -160,4 +169,10 @@ for side_key, team in (("L", TEAM_L), ("R", TEAM_R)):
             lines.append(f"  play_images: film/play{n:03d}/: {' '.join(imgs) if imgs else 'NONE'}")
             lines.append(f"  menu_images: {' '.join(menus) if menus else 'NONE'}")
         open(os.path.join(bdir, f"batch{bi:02d}.txt"), "w").write("\n".join(lines) + "\n")
+if not OWNER_GIVEN:
+    print(f"WARNING: no OWNER_A given -- menu_screen_owner defaulted to "
+          f"'UNVERIFIED:{TEAM_L}' (a guess, not a confirmed fact). Verify "
+          f"from raw footage (logo/roster on any menu panel) before "
+          f"trusting call-sheet attribution, then re-run with an explicit "
+          f"OWNER_A.")
 print(f"{bi} batches written to {bdir} ({len(manifest_rows)} plays)")

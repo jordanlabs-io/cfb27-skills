@@ -9,6 +9,10 @@ between two films of the same coach = calls made in games we never saw.
 
 Usage: menu_book.py GAMEDIR TEAM_L TEAM_R [SEAM_T OWNER_A OWNER_B]
   (owner args as in prep_batches.py; no seam -> constant OWNER_A, else TEAM_L)
+  OWNER_A is a claim about whose screen this recording shows, unrelated to
+  TEAM_L/TEAM_R. When not given explicitly, it defaults to TEAM_L but is
+  tagged UNVERIFIED so the book is never silently attributed to the wrong
+  coach's ledger (this defaulted-and-trusted silently before 2026-09-09).
 Outputs GAMEDIR/menu_book.md + menu_book.csv.
 """
 import csv
@@ -20,8 +24,14 @@ from collections import defaultdict
 
 GAMEDIR, TEAM_L, TEAM_R = sys.argv[1], sys.argv[2], sys.argv[3]
 SEAM = float(sys.argv[4]) if len(sys.argv) > 4 else None
-OWNER_A = sys.argv[5] if len(sys.argv) > 5 else TEAM_L
+OWNER_GIVEN = len(sys.argv) > 5
+OWNER_A = sys.argv[5] if OWNER_GIVEN else f"UNVERIFIED:{TEAM_L}"
 OWNER_B = sys.argv[6] if len(sys.argv) > 6 else OWNER_A
+if not OWNER_GIVEN:
+    print(f"WARNING: no OWNER_A given -- booking under "
+          f"'UNVERIFIED:{TEAM_L}' (a guess, not a confirmed fact). Verify "
+          f"from raw footage before trusting this book's attribution, "
+          f"then re-run with an explicit OWNER_A.")
 
 t_first = {}
 with open(os.path.join(GAMEDIR, "seg/plays.csv")) as f:
