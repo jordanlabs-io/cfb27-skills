@@ -1,6 +1,6 @@
 ---
 name: film-action-shot
-description: Turn a charted play from the CFB 27 film room into a photoreal, football-correct cinematic render via Higgsfield — locate the play in the film workspace, pull its vision frames as references, and generate a Sports-Illustrated-grade action shot (or postgame editorial portrait) that matches the real game's stadium, lighting, weather, and both teams' uniforms. Use when the user wants an "action shot", "cinematic render", "hype image", newsletter/social imagery of a specific play, or a portrait of a dynasty player. Also invoked by the tarstool-newsletter skill.
+description: Turn a charted play from the CFB 27 film room into a photoreal, football-correct cinematic render via Higgsfield — locate the play in the film workspace, pull its vision frames as references, and generate a Sports-Illustrated-grade action shot (or postgame editorial portrait) that matches the real game's stadium, lighting, weather, and both teams' uniforms. Use when the user wants an "action shot", "cinematic render", "hype image", newsletter/social imagery of a specific play, or a portrait of a dynasty player. Also invoked by the dynasty-newsletter skill.
 ---
 
 # Film → cinematic action shot

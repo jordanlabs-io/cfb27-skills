@@ -1,6 +1,6 @@
 ---
 name: dynasty-tracker
-description: Capture and retrieve the user's own College Football 27 dynasty/league saves in dynasties/. Use whenever the user dictates a dynasty update — "log my dynasty", "I played my dynasty", game results/scores, recruit commitments or signings, transfer-portal moves, injuries, awards, or recruiting-board changes — and whenever they ask for a scouting report ("prep me for <rival>"), a recruiting-fit question ("who should I target", "does <recruit> fit"), or a season-end archive ("archive my season", "start the next season"). This is personal save data, kept strictly separate from the transcript-sourced wiki.
+description: Capture and retrieve the user's own College Football 27 dynasty/league saves in dynasties/. Use whenever the user dictates a dynasty update — "log my dynasty", "I played my dynasty", game results/scores, recruit commitments or signings, transfer-portal moves, injuries, awards, or recruiting-board changes — and whenever they ask for a scouting report ("prep me for <rival>"), a recruiting-fit question ("who should I target", "does <recruit> fit"), or a season-end archive ("archive my season", "start the next season"). This skill takes TYPED or dictated updates; when the user hands over a screenshot, photo, or recording of a dynasty menu (standings, box score, schedule, season records, award or roster screens), that is film-room's Lane C, not this skill. This is personal save data, kept strictly separate from the transcript-sourced wiki.
 ---
 
 # Dynasty Tracker
