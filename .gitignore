@@ -2,3 +2,8 @@
 __pycache__/
 .DS_Store
 *.bak
+
+# civil-sync: members-site ingest helpers stay on the local machine only
+plugins/cfb27/skills/civil-sync/scripts/civil_scan.js
+plugins/cfb27/skills/civil-sync/scripts/dump.sh
+plugins/cfb27/skills/civil-sync/references/
